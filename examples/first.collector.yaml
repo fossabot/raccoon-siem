@@ -1,0 +1,26 @@
+# Name of a collection. Must be unique.
+name: first
+
+# List of source names to include.
+# This is how collector will gather events.
+sources: [nats]
+
+# List of destination names to include.
+# Destination 'raccoon-correlators' is included by default.
+# Destination 'raccoon-storage' is included automatically if storage URL passed to collector process.
+destinations: []
+
+# List of parser names to include.
+# Parser 'event' is included by default (for raccoon native events).
+# Incoming events will go through this parser chain until first match.
+parsers: []
+
+# List of filter names to include.
+# Filters are used to drop noisy events.
+filters: []
+
+# List of aggregation rule names to include.
+rules: []
+
+# Debug mode. Do not use in production.
+debug: true
