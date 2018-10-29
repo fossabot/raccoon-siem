@@ -89,6 +89,9 @@ func main() {
 	httpServer.GET("/register/collector/:id", core.CollectorRegister)
 	httpServer.GET("/register/correlator/:id", core.CorrelatorRegister)
 
+	// Storage mapping generator
+	httpServer.GET("/storage/template", core.GenerateStorageMapping)
+
 	// Run http server
 	httpServer.Run(settings.Listen)
 }

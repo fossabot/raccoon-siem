@@ -58,66 +58,66 @@ func init() {
 }
 
 type Event struct {
-	ID                         string `json:",omitempty"`
-	Incident                   bool
-	Correlated                 bool
+	ID                         string        `json:",omitempty" storage_type:"keyword"`
+	Incident                   bool          `storage_type:"boolean"`
+	Correlated                 bool          `storage_type:"boolean"`
+	ParentID                   string        `json:",omitempty" storage_type:"keyword"`
+	Customer                   string        `json:",omitempty" storage_type:"keyword"`
+	Code                       string        `json:",omitempty" storage_type:"keyword"`
+	StartTime                  time.Time     `json:",omitempty" storage_type:"date"`
+	EndTime                    time.Time     `json:",omitempty" storage_type:"date"`
+	Message                    string        `json:",omitempty" storage_type:"text"`
+	Details                    string        `json:",omitempty" storage_type:"text"`
+	Trace                      string        `json:",omitempty" storage_type:"text"`
+	Severity                   string        `json:",omitempty" storage_type:"keyword"`
+	BaseEventCount             int           `json:",omitempty" storage_type:"integer"`
+	AggregatedEventCount       int           `json:",omitempty" storage_type:"integer"`
+	AggregationRuleName        string        `json:",omitempty" storage_type:"keyword"`
+	CorrelationRuleName        string        `json:",omitempty" storage_type:"keyword"`
+	OriginEventID              string        `json:",omitempty" storage_type:"keyword"`
+	OriginTimestamp            time.Time     `json:",omitempty" storage_type:"date"`
+	OriginEnvironment          string        `json:",omitempty" storage_type:"keyword"`
+	OriginSeverity             string        `json:",omitempty" storage_type:"keyword"`
+	OriginServiceName          string        `json:",omitempty" storage_type:"keyword"`
+	OriginServiceVersion       string        `json:",omitempty" storage_type:"keyword"`
+	OriginProcessName          string        `json:",omitempty" storage_type:"keyword"`
+	OriginFileName             string        `json:",omitempty" storage_type:"keyword"`
+	OriginDNSName              string        `json:",omitempty" storage_type:"keyword"`
+	OriginZone                 string        `json:",omitempty" storage_type:"keyword"`
+	CollectorIPAddress         string        `json:",omitempty" storage_type:"ip"`
+	CollectorMACAddress        string        `json:",omitempty" storage_type:"keyword"`
+	CollectorDNSName           string        `json:",omitempty" storage_type:"keyword"`
+	CorrelatorIPAddress        string        `json:",omitempty" storage_type:"ip"`
+	CorrelatorMACAddress       string        `json:",omitempty" storage_type:"keyword"`
+	CorrelatorDNSName          string        `json:",omitempty" storage_type:"keyword"`
+	CorrelatorEventSpecID      string        `json:",omitempty" storage_type:"keyword"`
+	StorageTimestamp           time.Time     `json:",omitempty" storage_type:"date"`
+	RequestID                  string        `json:",omitempty" storage_type:"keyword"`
+	RequestApplicationProtocol string        `json:",omitempty" storage_type:"keyword"`
+	RequestTransportProtocol   string        `json:",omitempty" storage_type:"keyword"`
+	RequestURL                 string        `json:",omitempty" storage_type:"keyword"`
+	RequestReferrer            string        `json:",omitempty" storage_type:"keyword"`
+	RequestMethod              string        `json:",omitempty" storage_type:"keyword"`
+	RequestUserAgent           string        `json:",omitempty" storage_type:"keyword"`
+	RequestStatus              int64         `json:",omitempty" storage_type:"integer"`
+	RequestTook                time.Duration `json:",omitempty" storage_type:"long"`
+	RequestBytesIn             int64         `json:",omitempty" storage_type:"long"`
+	RequestBytesOut            int64         `json:",omitempty" storage_type:"long"`
+	RequestResults             int64         `json:",omitempty" storage_type:"long"`
+	RequestUser                string        `json:",omitempty" storage_type:"keyword"`
+	RequestUnit                string        `json:",omitempty" storage_type:"keyword"`
+	RequestOrganization        string        `json:",omitempty" storage_type:"keyword"`
+	RequestDBMSOperations      string        `json:",omitempty" storage_type:"keyword"`
+	ResponseCached             bool          `json:",omitempty" storage_type:"boolean"`
+	SourceIPAddress            string        `json:",omitempty" storage_type:"ip"`
+	SourceMACAddress           string        `json:",omitempty" storage_type:"keyword"`
+	SourceDNSName              string        `json:",omitempty" storage_type:"keyword"`
+	SourcePort                 int64         `json:",omitempty" storage_type:"integer"`
+	DestinationIPAddress       string        `json:",omitempty" storage_type:"ip"`
+	DestinationMACAddress      string        `json:",omitempty" storage_type:"keyword"`
+	DestinationDNSName         string        `json:",omitempty" storage_type:"keyword"`
+	DestinationPort            int64         `json:",omitempty" storage_type:"integer"`
 	baseEvents                 []*Event
-	ParentID                   string        `json:",omitempty"`
-	Customer                   string        `json:",omitempty"`
-	Code                       string        `json:",omitempty"`
-	StartTime                  time.Time     `json:",omitempty"`
-	EndTime                    time.Time     `json:",omitempty"`
-	Message                    string        `json:",omitempty"`
-	Details                    string        `json:",omitempty"`
-	Trace                      string        `json:",omitempty"`
-	Severity                   string        `json:",omitempty"`
-	BaseEventCount             int           `json:",omitempty"`
-	AggregatedEventCount       int           `json:",omitempty"`
-	AggregationRuleName        string        `json:",omitempty"`
-	CorrelationRuleName        string        `json:",omitempty"`
-	OriginEventID              string        `json:",omitempty"`
-	OriginTimestamp            time.Time     `json:",omitempty"`
-	OriginEnvironment          string        `json:",omitempty"`
-	OriginSeverity             string        `json:",omitempty"`
-	OriginServiceName          string        `json:",omitempty"`
-	OriginServiceVersion       string        `json:",omitempty"`
-	OriginProcessName          string        `json:",omitempty"`
-	OriginFileName             string        `json:",omitempty"`
-	OriginDNSName              string        `json:",omitempty"`
-	OriginZone                 string        `json:",omitempty"`
-	CollectorIPAddress         string        `json:",omitempty"`
-	CollectorMACAddress        string        `json:",omitempty"`
-	CollectorDNSName           string        `json:",omitempty"`
-	CorrelatorIPAddress        string        `json:",omitempty"`
-	CorrelatorMACAddress       string        `json:",omitempty"`
-	CorrelatorDNSName          string        `json:",omitempty"`
-	CorrelatorEventSpecID      string        `json:",omitempty"`
-	StorageTimestamp           time.Time     `json:",omitempty"`
-	RequestID                  string        `json:",omitempty"`
-	RequestApplicationProtocol string        `json:",omitempty"`
-	RequestTransportProtocol   string        `json:",omitempty"`
-	RequestURL                 string        `json:",omitempty"`
-	RequestReferrer            string        `json:",omitempty"`
-	RequestMethod              string        `json:",omitempty"`
-	RequestUserAgent           string        `json:",omitempty"`
-	RequestStatus              int64         `json:",omitempty"`
-	RequestTook                time.Duration `json:",omitempty"`
-	RequestBytesIn             int64         `json:",omitempty"`
-	RequestBytesOut            int64         `json:",omitempty"`
-	RequestResults             int64         `json:",omitempty"`
-	RequestUser                string        `json:",omitempty"`
-	RequestUnit                string        `json:",omitempty"`
-	RequestOrganization        string        `json:",omitempty"`
-	RequestDBMSOperations      string        `json:",omitempty"`
-	ResponseCached             bool          `json:",omitempty"`
-	SourceIPAddress            string        `json:",omitempty"`
-	SourceMACAddress           string        `json:",omitempty"`
-	SourceDNSName              string        `json:",omitempty"`
-	SourcePort                 int64         `json:",omitempty"`
-	DestinationIPAddress       string        `json:",omitempty"`
-	DestinationMACAddress      string        `json:",omitempty"`
-	DestinationDNSName         string        `json:",omitempty"`
-	DestinationPort            int64         `json:",omitempty"`
 }
 
 func (e *Event) SetID(id string) {
