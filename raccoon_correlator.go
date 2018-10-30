@@ -13,8 +13,8 @@ type correlatorSettings struct {
 	Core          string `long:"core" default:"http://localhost:7220" description:"core URL"`
 	Bus           string `long:"bus" default:"nats://localhost:4222" description:"bus URL"`
 	Storage       string `long:"storage" default:"http://localhost:9200" description:"storage URL"`
-	ALService     string `long:"al" default:"localhost:6379" description:"active list service URL"`
-	ALServicePool int    `long:"al" default:"10" description:"active list service connection pool size"`
+	ALService     string `long:"al.url" default:"localhost:6379" description:"active list service URL"`
+	ALServicePool int    `long:"al.pool" default:"10" description:"active list service connection pool size"`
 }
 
 func main() {

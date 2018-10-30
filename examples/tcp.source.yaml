@@ -1,0 +1,8 @@
+# Name of a source. Must be unique.
+name: tcp
+
+# Source kind.
+kind: tcp
+
+# Listen address and port.
+url: :1514

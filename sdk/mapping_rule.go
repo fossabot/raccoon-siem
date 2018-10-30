@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	mappingRuleExpressionRegexp = regexp.MustCompile(`(\?)?\s?(\S+)\s(\S+)\s(\S+)\s?\|?\s?(\w+)?`)
+	mappingRuleExpressionRegexp = regexp.MustCompile(`(\?)?\s?(\S+)\s?=\s?(\S+)\s?\|?\s?(\w+)?`)
 )
 
 type mappingRule struct {
@@ -34,7 +34,7 @@ func (mr *mappingRule) compile(expr string, pathIsIndex bool) (*mappingRule, err
 
 	// Path
 
-	mr.path = matches[4]
+	mr.path = matches[3]
 
 	if mr.path == "" {
 		return nil, fmt.Errorf("mapping rule path must not be empty")
@@ -54,7 +54,7 @@ func (mr *mappingRule) compile(expr string, pathIsIndex bool) (*mappingRule, err
 		return mr, nil
 	}
 
-	// Field must be parser in sections
+	// Field must be parsed in sections
 	if mr.eventField == "^variants" {
 		mr.variant = true
 		return mr, nil
@@ -68,7 +68,7 @@ func (mr *mappingRule) compile(expr string, pathIsIndex bool) (*mappingRule, err
 
 	// TimeUnit
 
-	timeUnitStr := matches[5]
+	timeUnitStr := matches[4]
 	mr.timeUnit, err = ValidateAndTransformTimeUnit(timeUnitStr)
 
 	if err != nil {

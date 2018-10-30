@@ -1,7 +1,7 @@
-# Name of a parser. Must be unique.
+# Name of a source. Must be unique.
 name: nats
 
-# Parser kind.
+# Source kind.
 kind: nats
 
 # URL of NATS server.
@@ -18,6 +18,3 @@ loadBalance: true
 # Queue name to use when balancing load. Optional.
 # Empty string is still valid queue name.
 queue: ""
-
-# Debug mode. Do not use in production.
-debug: true

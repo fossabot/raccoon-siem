@@ -1,0 +1,8 @@
+# Name of a source. Must be unique.
+name: udp
+
+# Source kind.
+kind: udp
+
+# Listen address and port.
+url: :1514
