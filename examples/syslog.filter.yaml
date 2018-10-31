@@ -1,0 +1,20 @@
+# Name of a filter. Must be unique among filters.
+name: syslog
+
+# Filter sections.
+# By default section's expressions are evaluated in AND mode.
+# You can set OR/NOT modes explicitly.
+# Available operators are: '==' , '!=' , '>' , '<' , '>=' , '<='.
+sections:
+  - or: false
+    not: false
+    expressions:
+      - "OriginServiceName != 50-motd-news"
+      - "OriginServiceName != CRON"
+      - "OriginServiceName != snapd"
+
+# Indicate whether this parser is root parser or a sub-parser.
+# If true, events will flow through it directly.
+# If false, this parser can only be used as sub-parser.
+root: true
+

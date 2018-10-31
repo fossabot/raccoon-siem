@@ -31,24 +31,32 @@ func RunDestinations(destinations []IDestination) error {
 	return nil
 }
 
-func GetDefaultDestinationSettings(elasticURL string, natsURL string) (settings []DestinationSettings) {
-	if elasticURL != "" {
-		storageSettings := DestinationSettings{
+func GetDefaultDestinationSettings(storageURL string, busURL string) (settings []DestinationSettings) {
+	if busURL == "" && storageURL == "" {
+		settings = append(settings, DestinationSettings{
+			Name: destinationConsole,
+			Kind: destinationConsole,
+		})
+		return
+	}
+
+	if storageURL != "" {
+		settings = append(settings, DestinationSettings{
 			Name:  RaccoonStorageName,
 			Kind:  RaccoonStorageKind,
 			Index: RaccoonStorageIndex,
-			URL:   elasticURL,
-		}
-		settings = append(settings, storageSettings)
+			URL:   storageURL,
+		})
 	}
 
-	correlationBusSettings := DestinationSettings{
-		Name:    RaccoonCorrelationBusName,
-		Kind:    RaccoonCorrelationBusKind,
-		Channel: RaccoonCorrelationBusChannel,
-		URL:     natsURL,
+	if busURL != "" {
+		settings = append(settings, DestinationSettings{
+			Name:    RaccoonCorrelationBusName,
+			Kind:    RaccoonCorrelationBusKind,
+			Channel: RaccoonCorrelationBusChannel,
+			URL:     busURL,
+		})
 	}
 
-	settings = append(settings, correlationBusSettings)
 	return
 }

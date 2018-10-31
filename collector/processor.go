@@ -1,7 +1,9 @@
 package collector
 
 import (
+	"github.com/tephrocactus/raccoon-siem/logger"
 	"github.com/tephrocactus/raccoon-siem/sdk"
+	"log"
 	"time"
 )
 
@@ -14,9 +16,11 @@ type Processor struct {
 	AggregationRules   []sdk.IAggregationRule
 	Sources            []sdk.ISource
 	Destinations       []sdk.IDestination
+	ID                 string
 	Debug              bool
 	hostname           string
 	ip                 string
+	logger             *logger.Instance
 }
 
 func (r *Processor) Start() *Processor {
@@ -30,17 +34,26 @@ func (r *Processor) Start() *Processor {
 
 	sdk.RunAggregationRules(r.AggregationRules)
 
-	err := sdk.RunDestinations(r.Destinations)
-	sdk.PanicOnError(err)
+	if err := sdk.RunDestinations(r.Destinations); err != nil {
+		log.Fatal(err)
+	}
 
-	err = sdk.RunSources(r.Sources)
-	sdk.PanicOnError(err)
+	if err := sdk.RunSources(r.Sources); err != nil {
+		log.Fatal(err)
+	}
 
+	logLevel := logger.LevelError
+	if r.Debug {
+		logLevel = logger.LevelDebug
+	}
+
+	r.logger = logger.NewInstance(r.ID, r.Destinations, logLevel)
 	return r
 }
 
 // Processes incoming events
 func (r *Processor) parsingRoutine() {
+channelLoop:
 	for data := range r.ParsingChannel {
 		if len(data) == 0 {
 			continue
@@ -49,12 +62,22 @@ func (r *Processor) parsingRoutine() {
 		event, err := r.parse(data)
 
 		if err != nil {
+			if r.Debug {
+				r.logger.Debug(err.Error(), &sdk.Event{
+					Details: string(data),
+				})
+			}
 			continue
 		}
 
 		for _, f := range r.Filters {
 			if !f.Pass([]*sdk.Event{event}) {
-				continue
+				if r.Debug {
+					r.logger.Debug("filtered out", &sdk.Event{
+						Details: string(data),
+					})
+				}
+				continue channelLoop
 			}
 		}
 
@@ -81,7 +104,6 @@ func (r *Processor) aggregationRoutine() {
 	for event := range r.AggregationChannel {
 		event.CollectorDNSName = r.hostname
 		event.CollectorIPAddress = r.ip
-
 		for _, dst := range r.Destinations {
 			dst.Send(event)
 		}

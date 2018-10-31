@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-var Interval time.Duration
+var settings *playerSettings
 var Connection net.Conn
 
 type playerSettings struct {
@@ -25,7 +25,7 @@ type playerSettings struct {
 
 func main() {
 	// Parse cmd flags
-	settings := new(playerSettings)
+	settings = new(playerSettings)
 	if _, err := flags.Parse(settings); err != nil {
 		log.Fatal(err)
 	}
@@ -69,7 +69,7 @@ func replayPcapFile(path string) {
 		data = append(data, pld)
 	}
 
-	if Interval > 0 {
+	if settings.Interval > 0 {
 		sendLogsInLoop(data)
 	} else {
 		sendLogs(data)
@@ -89,7 +89,7 @@ func replayTextFile(path string) {
 
 	fmt.Printf(">> Loaded lines from %s\n", path)
 
-	if Interval > 0 {
+	if settings.Interval > 0 {
 		sendLogsInLoop(lines)
 	} else {
 		sendLogs(lines)
@@ -97,20 +97,20 @@ func replayTextFile(path string) {
 }
 
 func sendLogsInLoop(lines [][]byte) {
-	fmt.Printf(">> Sending logs in loop with %s interval ...\n", Interval)
+	fmt.Printf(">> Sending logs in loop with %s interval ...\n", settings.Interval)
 	for {
 		for i := range lines {
 			Connection.Write(lines[i])
-			time.Sleep(Interval)
+			time.Sleep(settings.Interval)
 		}
 	}
 }
 
 func sendLogs(lines [][]byte) {
-	fmt.Printf(">> Sending logs once with %s interval ...\n", Interval)
+	fmt.Printf(">> Sending logs once with %s interval ...\n", settings.Interval)
 	for i := range lines {
 		Connection.Write(lines[i])
-		time.Sleep(Interval)
+		time.Sleep(settings.Interval)
 	}
 }
 

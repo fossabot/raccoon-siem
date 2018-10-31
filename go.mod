@@ -18,6 +18,7 @@ require (
 	github.com/olivere/elastic v6.2.11+incompatible
 	github.com/pkg/errors v0.8.0
 	github.com/satori/go.uuid v1.2.0
+	github.com/tephrocactus/raccoon-sdk v0.0.0-20181029140445-db59f1fc09ca // indirect
 	github.com/tidwall/gjson v1.1.3
 	github.com/tidwall/match v0.0.0-20171002075945-1731857f09b1 // indirect
 	github.com/ugorji/go/codec v0.0.0-20181022190402-e5e69e061d4f // indirect

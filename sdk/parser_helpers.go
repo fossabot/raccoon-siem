@@ -6,9 +6,8 @@ import (
 
 // Reads configs and registers all parsers
 func RegisterParsers(settings []ParserSettings) ([]IParser, error) {
-	if len(settings) == 0 {
-		return nil, nil
-	}
+	// Append default Raccoon Event parser
+	settings = append(settings, ParserSettings{Name: "event", Kind: "event", Root: true})
 
 	parserSpecs := make([]*parserSpecification, 0, len(settings))
 	roots := make(map[string]bool)

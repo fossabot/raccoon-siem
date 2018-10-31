@@ -1,4 +1,4 @@
-# Name (ID) of a collector. Must be unique.
+# Name (ID) of a collector. Must be unique among collectors.
 name: collector-example
 
 # List of source names to include.

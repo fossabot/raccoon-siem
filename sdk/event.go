@@ -83,7 +83,7 @@ type Event struct {
 	OriginProcessName          string        `json:",omitempty" storage_type:"keyword"`
 	OriginFileName             string        `json:",omitempty" storage_type:"keyword"`
 	OriginDNSName              string        `json:",omitempty" storage_type:"keyword"`
-	OriginZone                 string        `json:",omitempty" storage_type:"keyword"`
+	OriginIPAddress            string        `json:",omitempty" storage_type:"ip"`
 	CollectorIPAddress         string        `json:",omitempty" storage_type:"ip"`
 	CollectorMACAddress        string        `json:",omitempty" storage_type:"keyword"`
 	CollectorDNSName           string        `json:",omitempty" storage_type:"keyword"`
@@ -121,7 +121,7 @@ type Event struct {
 }
 
 func (e *Event) SetID(id string) {
-
+	e.ID = id
 }
 
 func (e *Event) SetField(name string, value interface{}, timeUnit byte) {

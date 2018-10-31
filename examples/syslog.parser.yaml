@@ -1,4 +1,4 @@
-# Name of a parser. Must be unique.
+# Name of a parser. Must be unique among parsers.
 name: syslog
 
 # Parser kind.

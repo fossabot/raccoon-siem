@@ -11,8 +11,8 @@ import (
 type collectorSettings struct {
 	ID      string `long:"id" required:"y" description:"collector ID"`
 	Core    string `long:"core" default:"http://localhost:7220" description:"core URL"`
-	Bus     string `long:"bus" default:"nats://localhost:4222" description:"bus URL"`
-	Storage string `long:"storage" default:"http://localhost:9200" description:"storage URL"`
+	Bus     string `long:"bus" default:"" description:"bus URL"`
+	Storage string `long:"storage" default:"" description:"storage URL"`
 }
 
 func main() {
@@ -34,11 +34,6 @@ func main() {
 	// Register parsers
 	registeredParsers, err := sdk.RegisterParsers(pack.Parsers)
 	sdk.PanicOnError(err)
-
-	// Register default event parser
-	eventParser, err := sdk.RegisterParsers([]sdk.ParserSettings{{Name: "event", Kind: "event", Root: true}})
-	sdk.PanicOnError(err)
-	registeredParsers = append(registeredParsers, eventParser...)
 
 	// Registered filters
 	registeredFilters, err := sdk.RegisterFilters(pack.Filters)
@@ -73,6 +68,7 @@ func main() {
 		AggregationRules:   registeredAggregationRules,
 		Sources:            registeredSources,
 		Destinations:       registeredDestinations,
+		ID:                 settings.ID,
 		Debug:              pack.Debug,
 	}
 

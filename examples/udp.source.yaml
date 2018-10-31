@@ -1,4 +1,4 @@
-# Name of a source. Must be unique.
+# Name of a source. Must be unique among sources.
 name: udp
 
 # Source kind.
