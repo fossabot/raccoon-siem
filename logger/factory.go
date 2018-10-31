@@ -26,12 +26,17 @@ func (r *Factory) initDestination(dstSettings sdk.DestinationSettings) error {
 	return nil
 }
 
-func NewFactory(settings []sdk.DestinationSettings) (*Factory, error) {
+func NewFactory(settings ...sdk.DestinationSettings) (*Factory, error) {
+	if len(settings) == 0 {
+		settings = []sdk.DestinationSettings{{Kind: sdk.DestinationConsole}}
+	}
+
 	factory := new(Factory)
 	for i := range settings {
 		if err := factory.initDestination(settings[i]); err != nil {
 			return nil, err
 		}
 	}
+
 	return factory, nil
 }
