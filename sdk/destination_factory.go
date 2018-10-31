@@ -5,15 +5,15 @@ import (
 )
 
 const (
-	destinationConsole       = "console"
-	destinationNATS          = "nats"
-	destinationElasticsearch = "elasticsearch"
+	DestinationConsole       = "console"
+	DestinationNATS          = "nats"
+	DestinationElasticsearch = "elasticsearch"
 )
 
 var knownDestinations = map[string]bool{
-	destinationConsole:       true,
-	destinationNATS:          true,
-	destinationElasticsearch: true,
+	DestinationConsole:       true,
+	DestinationNATS:          true,
+	DestinationElasticsearch: true,
 }
 
 type IDestination interface {
@@ -23,11 +23,11 @@ type IDestination interface {
 
 func NewDestination(settings DestinationSettings) (IDestination, error) {
 	switch settings.Kind {
-	case destinationConsole:
+	case DestinationConsole:
 		return newConsoleDestination(settings), nil
-	case destinationNATS:
+	case DestinationNATS:
 		return newNATSDestination(settings), nil
-	case destinationElasticsearch:
+	case DestinationElasticsearch:
 		return newElasticsearchDestination(settings), nil
 	default:
 		return nil, fmt.Errorf("unknown destination type: %s", settings.Kind)

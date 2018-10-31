@@ -34,8 +34,8 @@ func RunDestinations(destinations []IDestination) error {
 func GetDefaultDestinationSettings(storageURL string, busURL string) (settings []DestinationSettings) {
 	if busURL == "" && storageURL == "" {
 		settings = append(settings, DestinationSettings{
-			Name: destinationConsole,
-			Kind: destinationConsole,
+			Name: DestinationConsole,
+			Kind: DestinationConsole,
 		})
 		return
 	}
