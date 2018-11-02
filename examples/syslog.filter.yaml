@@ -12,6 +12,7 @@ sections:
       - "OriginServiceName != 50-motd-news"
       - "OriginServiceName != CRON"
       - "OriginServiceName != snapd"
+      - "OriginServiceName != grafana-server"
 
 # Indicate whether this parser is root parser or a sub-parser.
 # If true, events will flow through it directly.
