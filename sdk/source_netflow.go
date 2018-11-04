@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func newNetflowSource(settings *SourceSettings, processorChannel chan ProcessorTask) ISource {
+func newNetflowSource(settings *SourceSettings, processorChannel chan *ProcessorTask) ISource {
 	return &netflowSource{
 		processorChannel: processorChannel,
 		settings:         settings,
@@ -20,8 +20,12 @@ func newNetflowSource(settings *SourceSettings, processorChannel chan ProcessorT
 type netflowSource struct {
 	settings         *SourceSettings
 	connection       *net.UDPConn
-	processorChannel chan ProcessorTask
+	processorChannel chan *ProcessorTask
 	templateCache    map[string]*nf9packet.TemplateRecord
+}
+
+func (s *netflowSource) ID() string {
+	return s.settings.Name
 }
 
 func (s *netflowSource) Run() (err error) {
@@ -110,7 +114,10 @@ func (s *netflowSource) process(input []byte, remote string) error {
 				sb.WriteString(" ")
 			}
 
-			s.processorChannel <- []byte(sb.String())
+			s.processorChannel <- &ProcessorTask{
+				Source: s.settings.Name,
+				Data:   []byte(sb.String()),
+			}
 		}
 	}
 

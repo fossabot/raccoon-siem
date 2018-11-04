@@ -16,6 +16,7 @@ type parserSpecification struct {
 	rewrites        []*rewriteRule
 	kvDelimiter     string
 	kvPairDelimiter string
+	kvQuote         rune
 }
 
 func (ps *parserSpecification) compile(settings *ParserSettings) (*parserSpecification, error) {

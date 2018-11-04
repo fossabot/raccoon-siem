@@ -1,4 +1,4 @@
-package resource
+package resources
 
 import (
 	"github.com/spf13/cobra"
@@ -8,8 +8,8 @@ import (
 
 var (
 	Cmd = &cobra.Command{
-		Use:       "resource",
-		Short:     "Configuration server cli",
+		Use:       "resources",
+		Short:     "manage raccoon resources",
 		Args:      cobra.ExactArgs(1),
 		ValidArgs: []string{"create", "delete", "get", "list"},
 		RunE:      cobra.OnlyValidArgs,
@@ -37,7 +37,7 @@ var (
 
 func init() {
 	// Sub commands
-	Cmd.AddCommand(createCmd, deleteCmd)
+	Cmd.AddCommand(createCmd, deleteCmd, getCmd, listCmd)
 
 	// Raccoon core URL
 	Cmd.PersistentFlags().StringVarP(

@@ -1,14 +1,14 @@
 package collector
 
 import (
+	"fmt"
 	"github.com/tephrocactus/raccoon-siem/logger"
 	"github.com/tephrocactus/raccoon-siem/sdk"
-	"log"
 	"time"
 )
 
 type Processor struct {
-	ParsingChannel     chan sdk.ProcessorTask
+	ParsingChannel     chan *sdk.ProcessorTask
 	AggregationChannel chan sdk.AggregationChainTask
 	Workers            int
 	Parsers            []sdk.IParser
@@ -17,13 +17,16 @@ type Processor struct {
 	Sources            []sdk.ISource
 	Destinations       []sdk.IDestination
 	ID                 string
+	MetricsPort        string
 	Debug              bool
+	PrintRaw           bool
 	hostname           string
 	ip                 string
 	logger             *logger.Instance
+	metrics            *metrics
 }
 
-func (r *Processor) Start() *Processor {
+func (r *Processor) Start() error {
 	r.hostname = sdk.GetHostName()
 	r.ip = sdk.GetIPAddress()
 
@@ -35,11 +38,7 @@ func (r *Processor) Start() *Processor {
 	sdk.RunAggregationRules(r.AggregationRules)
 
 	if err := sdk.RunDestinations(r.Destinations); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := sdk.RunSources(r.Sources); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	logLevel := logger.LevelError
@@ -48,55 +47,69 @@ func (r *Processor) Start() *Processor {
 	}
 
 	r.logger = logger.NewInstance(r.ID, r.Destinations, logLevel)
-	return r
+	r.metrics = newMetrics(r.MetricsPort).runServer()
+
+	if err := sdk.RunSources(r.Sources); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Processes incoming events
 func (r *Processor) parsingRoutine() {
-channelLoop:
-	for data := range r.ParsingChannel {
-		if len(data) == 0 {
-			continue
+	for task := range r.ParsingChannel {
+		r.metrics.registerEventInput(task.Source)
+		if len(task.Data) != 0 {
+			start := time.Now()
+
+			if r.PrintRaw {
+				fmt.Println(string(task.Data))
+			}
+
+			r.processEvent(task)
+			r.metrics.registerOverallProcessingDuration(start)
 		}
+	}
+}
 
-		event, err := r.parse(data)
+func (r *Processor) processEvent(task *sdk.ProcessorTask) {
+	event, err := r.parse(task.Data)
 
-		if err != nil {
+	if err != nil {
+		if r.Debug {
+			r.logger.Debug(err.Error(), &sdk.Event{Details: string(task.Data)})
+		}
+		return
+	}
+
+	event.SourceID = task.Source
+
+	for _, f := range r.Filters {
+		if !f.Pass([]*sdk.Event{event}) {
+			r.metrics.registerEventFiltration(f.ID(), task.Source)
 			if r.Debug {
-				r.logger.Debug(err.Error(), &sdk.Event{
-					Details: string(data),
-				})
+				r.logger.Debug("filtered out", &sdk.Event{Details: string(task.Data)})
 			}
-			continue
+			return
 		}
+	}
 
-		for _, f := range r.Filters {
-			if !f.Pass([]*sdk.Event{event}) {
-				if r.Debug {
-					r.logger.Debug("filtered out", &sdk.Event{
-						Details: string(data),
-					})
-				}
-				continue channelLoop
-			}
-		}
+	if event.OriginTimestamp.IsZero() {
+		event.OriginTimestamp = time.Now()
+	}
 
-		if event.OriginTimestamp.IsZero() {
-			event.OriginTimestamp = time.Now()
-		}
+	event.ID = sdk.GetUUID()
+	event.StartTime = event.OriginTimestamp
+	event.EndTime = event.OriginTimestamp
 
-		event.ID = sdk.GetUUID()
-		event.StartTime = event.OriginTimestamp
-		event.EndTime = event.OriginTimestamp
+	if len(r.AggregationRules) == 0 {
+		r.AggregationChannel <- event
+		return
+	}
 
-		if len(r.AggregationRules) == 0 {
-			r.AggregationChannel <- event
-			continue
-		}
-
-		for _, ar := range r.AggregationRules {
-			ar.Feed(event)
-		}
+	for _, ar := range r.AggregationRules {
+		ar.Feed(event)
 	}
 }
 
@@ -104,8 +117,16 @@ func (r *Processor) aggregationRoutine() {
 	for event := range r.AggregationChannel {
 		event.CollectorDNSName = r.hostname
 		event.CollectorIPAddress = r.ip
+
+		if event.AggregatedEventCount > 0 {
+			r.metrics.registerEventAggregation(event.AggregationRuleName, event.AggregatedEventCount, event.SourceID)
+		}
+
 		for _, dst := range r.Destinations {
+			start := time.Now()
 			dst.Send(event)
+			r.metrics.registerSerializationDuration(dst.ID(), start)
+			r.metrics.registerEventOutput(event.SourceID)
 		}
 	}
 }
@@ -113,7 +134,9 @@ func (r *Processor) aggregationRoutine() {
 // Parses events with parser/sub chain
 func (r *Processor) parse(data []byte) (event *sdk.Event, err error) {
 	for _, parser := range r.Parsers {
+		start := time.Now()
 		event, err = parser.Parse(data, nil)
+		r.metrics.registerParsingDuration(parser.ID(), start)
 
 		if err != nil {
 			continue

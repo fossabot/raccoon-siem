@@ -6,7 +6,7 @@ import (
 
 func newNATSSource(
 	settings *SourceSettings,
-	processorChannel chan ProcessorTask,
+	processorChannel chan *ProcessorTask,
 ) ISource {
 	return &natsSource{
 		processorChannel: processorChannel,
@@ -18,7 +18,11 @@ type natsSource struct {
 	settings         *SourceSettings
 	connection       *nats.Conn
 	subscription     *nats.Subscription
-	processorChannel chan ProcessorTask
+	processorChannel chan *ProcessorTask
+}
+
+func (s *natsSource) ID() string {
+	return s.settings.Name
 }
 
 func (s *natsSource) Run() error {
@@ -66,5 +70,8 @@ func (s *natsSource) subscribe() error {
 }
 
 func (s *natsSource) messageHandler(msg *nats.Msg) {
-	s.processorChannel <- msg.Data
+	s.processorChannel <- &ProcessorTask{
+		Source: s.settings.Name,
+		Data:   msg.Data,
+	}
 }

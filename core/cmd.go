@@ -1,162 +1,114 @@
-package collector
+package core
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
-	"github.com/tephrocactus/raccoon-siem/sdk"
-	"runtime"
 )
 
 var (
 	Cmd = &cobra.Command{
-		Use:   "collector",
-		Short: "Start event collector",
+		Use:   "core",
+		Short: "start raccoon configuration server",
 		Args:  cobra.ExactArgs(0),
 		RunE:  run,
 	}
 
 	// String flags variables
-	coreURL, busURL, storageURL, collectorID, metricsPort string
-
-	// Bool flags variables
-	printRaw, debugMode bool
+	listen, dbFile string
 )
 
 func init() {
-	// Raccoon core URL
+	// Listen address
 	Cmd.Flags().StringVarP(
-		&coreURL,
-		"core",
-		"c",
-		"http://localhost:7220",
-		"Raccoon core URL")
+		&listen,
+		"listen",
+		"l",
+		":7220",
+		"listen address")
 
-	// Raccoon bus URL
+	// Raccoon core DB file
 	Cmd.Flags().StringVarP(
-		&busURL,
-		"bus",
-		"b",
-		"nats://localhost:4222",
-		"Raccoon bus URL")
-
-	// Raccoon storage URL
-	Cmd.Flags().StringVarP(
-		&storageURL,
-		"storage",
-		"s",
-		"http://localhost:9200",
-		"Raccoon storage URL")
-
-	// Raccoon collector ID
-	Cmd.Flags().StringVarP(
-		&collectorID,
-		"id",
-		"i",
-		"",
-		"Raccoon collector ID")
-
-	// Prometheus metrics port
-	Cmd.Flags().StringVarP(
-		&metricsPort,
-		"metrics",
-		"m",
-		"7230",
-		"Prometheus metrics port")
-
-	// Print raw messages
-	Cmd.Flags().BoolVarP(
-		&printRaw,
-		"raw",
-		"r",
-		false,
-		"Print raw input messages")
-
-	// Debug mode
-	Cmd.Flags().BoolVarP(
-		&debugMode,
-		"debug",
+		&dbFile,
+		"db",
 		"d",
-		false,
-		"Debug mode")
-
-	Cmd.MarkFlagRequired("id")
+		"raccoon.db",
+		"database file")
 }
 
 func run(_ *cobra.Command, _ []string) error {
-	// Get settings package
-	pack := new(sdk.CollectorPackage)
-	if err := sdk.CoreQuery(coreURL+"/register/collector/"+collectorID, pack); err != nil {
-		return err
-	}
+	// Open database
+	DBConn = NewDB(dbFile)
 
-	// Register dictionaries
-	if err := sdk.RegisterDictionaries(pack.Dictionaries); err != nil {
-		return err
-	}
+	// Register http endpoints
+	httpServer := gin.Default()
 
-	// Register parsers
-	registeredParsers, err := sdk.RegisterParsers(pack.Parsers)
-	if err != nil {
-		return err
-	}
+	// Parsers
+	httpServer.GET("/parser", Parsers)
+	httpServer.GET("/parser/:id", ParserGET)
+	httpServer.PUT("/parser", ParserPUT)
+	httpServer.DELETE("/parser/:id", ParserDELETE)
 
-	// Registered filters
-	registeredFilters, err := sdk.RegisterFilters(pack.Filters)
-	if err != nil {
-		return err
-	}
+	// Collectors
+	httpServer.GET("/collector", Collectors)
+	httpServer.GET("/collector/:id", CollectorGET)
+	httpServer.PUT("/collector", CollectorPUT)
+	httpServer.DELETE("/collector/:id", CollectorDELETE)
 
-	// Register destinations
-	allDestinationSettings := sdk.GetDefaultDestinationSettings(storageURL, busURL, debugMode)
-	allDestinationSettings = append(allDestinationSettings, pack.Destinations...)
-	registeredDestinations, err := sdk.RegisterDestinations(allDestinationSettings)
-	if err != nil {
-		return err
-	}
+	// Correlators
+	httpServer.GET("/correlator", Correlators)
+	httpServer.GET("/correlator/:id", CorrelatorGET)
+	httpServer.PUT("/correlator", CorrelatorPUT)
+	httpServer.DELETE("/correlator/:id", CorrelatorDELETE)
 
-	// Register aggregation rules
-	aggregationChannel := make(chan sdk.AggregationChainTask)
-	registeredAggregationRules, err := sdk.RegisterAggregationRules(
-		pack.AggregationRules,
-		pack.AggregationFilters,
-		aggregationChannel)
-	if err != nil {
-		return err
-	}
+	// Correlation Rules
+	httpServer.GET("/correlationRule", CorrelationRules)
+	httpServer.GET("/correlationRule/:id", CorrelationRuleGET)
+	httpServer.PUT("/correlationRule", CorrelationRulePUT)
+	httpServer.DELETE("/correlationRule/:id", CorrelationRuleDELETE)
 
-	// Register sources
-	parsingChannel := make(chan *sdk.ProcessorTask)
-	registeredSources, err := sdk.RegisterSources(pack.Sources, parsingChannel)
-	if err != nil {
-		return err
-	}
+	// Aggregation Rules
+	httpServer.GET("/aggregationRule", AggregationRules)
+	httpServer.GET("/aggregationRule/:id", AggregationRuleGET)
+	httpServer.PUT("/aggregationRule", AggregationRulePUT)
+	httpServer.DELETE("/aggregationRule/:id", AggregationRuleDELETE)
 
-	// Processor
-	proc := Processor{
-		ParsingChannel:     parsingChannel,
-		AggregationChannel: aggregationChannel,
-		Workers:            runtime.NumCPU(),
-		Parsers:            registeredParsers,
-		Filters:            registeredFilters,
-		AggregationRules:   registeredAggregationRules,
-		Sources:            registeredSources,
-		Destinations:       registeredDestinations,
-		ID:                 collectorID,
-		Debug:              debugMode,
-		PrintRaw:           printRaw,
-		MetricsPort:        metricsPort,
-	}
+	// Filters
+	httpServer.GET("/filter", Filters)
+	httpServer.GET("/filter/:id", FilterGET)
+	httpServer.PUT("/filter", FilterPUT)
+	httpServer.DELETE("/filter/:id", FilterDELETE)
 
-	sdk.PrintConfiguration(
-		registeredSources,
-		registeredParsers,
-		registeredFilters,
-		registeredAggregationRules,
-		registeredDestinations)
+	// Active lists
+	httpServer.GET("/activeList", ActiveLists)
+	httpServer.GET("/activeList/:id", ActiveListGET)
+	httpServer.PUT("/activeList", ActiveListPUT)
+	httpServer.DELETE("/activeList/:id", ActiveListDELETE)
 
-	if err := proc.Start(); err != nil {
-		return err
-	}
+	// Sources
+	httpServer.GET("/source", Sources)
+	httpServer.GET("/source/:id", SourceGET)
+	httpServer.PUT("/source", SourcePUT)
+	httpServer.DELETE("/source/:id", SourceDELETE)
 
-	runtime.Goexit()
-	return nil
+	// Destinations
+	httpServer.GET("/destination", Destinations)
+	httpServer.GET("/destination/:id", DestinationGET)
+	httpServer.PUT("/destination", DestinationPUT)
+	httpServer.DELETE("/destination/:id", DestinationDELETE)
+
+	// Dictionaries
+	httpServer.GET("/dictionary", Dictionaries)
+	httpServer.GET("/dictionary/:id", DictionaryGET)
+	httpServer.PUT("/dictionary", DictionaryPUT)
+	httpServer.DELETE("/dictionary/:id", DictionaryDELETE)
+
+	// Component registration
+	httpServer.GET("/register/collector/:id", CollectorRegister)
+	httpServer.GET("/register/correlator/:id", CorrelatorRegister)
+
+	// Storage mapping generator
+	httpServer.GET("/storage/template", GenerateStorageMapping)
+
+	// Run http server
+	return httpServer.Run(listen)
 }

@@ -5,3 +5,7 @@ type BaseRule struct {
 	aggregation *aggregation
 	eventSpecs  []*eventSpecification
 }
+
+func (r *BaseRule) ID() string {
+	return r.name
+}

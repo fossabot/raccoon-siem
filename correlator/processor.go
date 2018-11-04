@@ -6,7 +6,7 @@ import (
 )
 
 type Processor struct {
-	CorrelationChannel      chan sdk.ProcessorTask
+	CorrelationChannel      chan *sdk.ProcessorTask
 	CorrelationChainChannel chan sdk.CorrelationChainTask
 	Workers                 int
 	Parsers                 []sdk.IParser
@@ -18,7 +18,7 @@ type Processor struct {
 	ip                      string
 }
 
-func (r *Processor) Start() *Processor {
+func (r *Processor) Start() error {
 	r.hostname = sdk.GetHostName()
 	r.ip = sdk.GetIPAddress()
 
@@ -29,19 +29,21 @@ func (r *Processor) Start() *Processor {
 
 	sdk.RunCorrelationRules(r.CorrelationRules)
 
-	err := sdk.RunDestinations(r.Destinations)
-	sdk.PanicOnError(err)
+	if err := sdk.RunDestinations(r.Destinations); err != nil {
+		return err
+	}
 
-	err = sdk.RunSources(r.Sources)
-	sdk.PanicOnError(err)
+	if err := sdk.RunSources(r.Sources); err != nil {
+		return err
+	}
 
-	return r
+	return nil
 }
 
 // Processes incoming events
 func (r *Processor) correlationRoutine() {
-	for data := range r.CorrelationChannel {
-		event, err := r.parse(data)
+	for task := range r.CorrelationChannel {
+		event, err := r.parse(task.Data)
 
 		if err != nil {
 			continue

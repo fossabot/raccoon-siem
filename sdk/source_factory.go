@@ -12,12 +12,13 @@ const (
 )
 
 type ISource interface {
+	ID() string
 	Run() error
 }
 
 func NewSource(
 	settings *SourceSettings,
-	processorChannel chan ProcessorTask,
+	processorChannel chan *ProcessorTask,
 ) (ISource, error) {
 	switch settings.Kind {
 	case sourceNATS:

@@ -1,15 +1,14 @@
-package resource
+package resources
 
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"io/ioutil"
 	"net/http"
 )
 
 var deleteCmd = &cobra.Command{
 	Use:       "delete <resource kind> <resource ID>",
-	Short:     "delete resource",
+	Short:     "delete particular resource",
 	Args:      cobra.ExactArgs(2),
 	ValidArgs: validResourceKinds,
 	RunE: func(cmd *cobra.Command, args []string) error {

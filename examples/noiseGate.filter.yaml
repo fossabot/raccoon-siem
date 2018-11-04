@@ -1,5 +1,5 @@
 # Name of a filter. Must be unique among filters.
-name: syslog
+name: noiseGate
 
 # Filter sections.
 # By default section's expressions are evaluated in AND mode.
@@ -13,9 +13,3 @@ sections:
       - "OriginServiceName != CRON"
       - "OriginServiceName != snapd"
       - "OriginServiceName != grafana-server"
-
-# Indicate whether this parser is root parser or a sub-parser.
-# If true, events will flow through it directly.
-# If false, this parser can only be used as sub-parser.
-root: true
-

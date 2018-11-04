@@ -1,4 +1,4 @@
-package resource
+package resources
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 )
 
 var listCmd = &cobra.Command{
-	Use:       "get <resource kind>",
-	Short:     "get resources of kind",
+	Use:       "list <resource kind>",
+	Short:     "list resources of kind",
 	Args:      cobra.ExactArgs(1),
 	ValidArgs: validResourceKinds,
 	RunE: func(cmd *cobra.Command, args []string) error {

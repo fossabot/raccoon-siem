@@ -20,6 +20,10 @@ type natsDestination struct {
 	inChannel  chan *Event
 }
 
+func (d *natsDestination) ID() string {
+	return d.settings.Name
+}
+
 func (d *natsDestination) Run() error {
 	conn, err := nats.Connect(
 		d.settings.URL,
@@ -46,7 +50,7 @@ func (d *natsDestination) Send(event *Event) {
 func (d *natsDestination) spawnWorker() {
 	go func() {
 		for event := range d.inChannel {
-			data, err := event.ToBSON()
+			data, err := event.ToMsgPack()
 			if err == nil {
 				d.connection.Publish(d.settings.Channel, data)
 			}

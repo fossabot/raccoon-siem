@@ -1,4 +1,4 @@
-package resource
+package resources
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 
 var createCmd = &cobra.Command{
 	Use:       "create",
-	Short:     "create or update resource",
+	Short:     "create or update resource from files",
 	Args:      cobra.ExactArgs(0),
 	ValidArgs: validResourceKinds,
 	RunE: func(cmd *cobra.Command, args []string) error {

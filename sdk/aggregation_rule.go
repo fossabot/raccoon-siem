@@ -5,6 +5,7 @@ import (
 )
 
 type IAggregationRule interface {
+	ID() string
 	Run()
 	Feed(event *Event)
 }

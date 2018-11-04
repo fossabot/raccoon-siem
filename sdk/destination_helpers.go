@@ -31,15 +31,7 @@ func RunDestinations(destinations []IDestination) error {
 	return nil
 }
 
-func GetDefaultDestinationSettings(storageURL string, busURL string) (settings []DestinationSettings) {
-	if busURL == "" && storageURL == "" {
-		settings = append(settings, DestinationSettings{
-			Name: DestinationConsole,
-			Kind: DestinationConsole,
-		})
-		return
-	}
-
+func GetDefaultDestinationSettings(storageURL string, busURL string, debug bool) (settings []DestinationSettings) {
 	if storageURL != "" {
 		settings = append(settings, DestinationSettings{
 			Name:  RaccoonStorageName,
@@ -55,6 +47,13 @@ func GetDefaultDestinationSettings(storageURL string, busURL string) (settings [
 			Kind:    RaccoonCorrelationBusKind,
 			Channel: RaccoonCorrelationBusChannel,
 			URL:     busURL,
+		})
+	}
+
+	if debug {
+		settings = append(settings, DestinationSettings{
+			Name: DestinationConsole,
+			Kind: DestinationConsole,
 		})
 	}
 

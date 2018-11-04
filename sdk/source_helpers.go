@@ -1,6 +1,6 @@
 package sdk
 
-func RegisterSources(sourceSettings []SourceSettings, processorChannel chan ProcessorTask) ([]ISource, error) {
+func RegisterSources(sourceSettings []SourceSettings, processorChannel chan *ProcessorTask) ([]ISource, error) {
 	uniqueSources := make(map[string]ISource)
 	result := make([]ISource, 0, len(sourceSettings))
 

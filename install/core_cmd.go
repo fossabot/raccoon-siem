@@ -11,10 +11,19 @@ var (
 		Args:  cobra.ExactArgs(0),
 		RunE:  runCore,
 	}
+
+	// String flags variables
+	flagCoreListenAddress string
 )
 
 func init() {
-
+	// Listen address
+	Cmd.Flags().StringVarP(
+		&flagCoreListenAddress,
+		"listen",
+		"l",
+		":7220",
+		"listen address")
 }
 
 func runCore(_ *cobra.Command, _ []string) error {
@@ -22,8 +31,5 @@ func runCore(_ *cobra.Command, _ []string) error {
 	if err != nil {
 		return err
 	}
-
-	installer.Install(componentCore)
-
-	return nil
+	return installer.Install(componentCore)
 }

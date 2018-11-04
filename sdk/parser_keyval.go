@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -83,10 +82,6 @@ func (p *keyValParser) Parse(input []byte, target *Event) (*Event, error) {
 
 	if len(p.spec.rewrites) != 0 {
 		processRewrites(p.spec.rewrites, p.spec.variables, event)
-	}
-
-	if event.OriginServiceName != "netflow" {
-		fmt.Println(event)
 	}
 
 	return event, nil
