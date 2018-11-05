@@ -5,7 +5,6 @@ import (
 	"github.com/tephrocactus/raccoon-siem/collector"
 	"github.com/tephrocactus/raccoon-siem/core"
 	"github.com/tephrocactus/raccoon-siem/correlator"
-	"github.com/tephrocactus/raccoon-siem/install"
 	"github.com/tephrocactus/raccoon-siem/player"
 	"github.com/tephrocactus/raccoon-siem/resources"
 )
@@ -25,8 +24,7 @@ func init() {
 		collector.Cmd,
 		correlator.Cmd,
 		player.Cmd,
-		resources.Cmd,
-		install.Cmd)
+		resources.Cmd)
 }
 
 func main() {

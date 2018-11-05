@@ -1,0 +1,16 @@
+[Unit]
+Description=Raccoon SIEM Core
+
+[Service]
+ExecStart=/usr/local/bin/raccoon core \
+    --db /var/lib/raccoon/raccoon.db \
+    --listen 0.0.0.0:7220
+
+User=raccoon
+Group=raccoon
+Restart=always
+RestartSec=5
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
