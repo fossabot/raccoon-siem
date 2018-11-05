@@ -27,6 +27,10 @@ type elasticsearchDestination struct {
 	timeLayout    string
 }
 
+func (d *elasticsearchDestination) ID() string {
+	return d.settings.Name
+}
+
 func (d *elasticsearchDestination) Run() error {
 	conn, bp, err := d.createConnection()
 

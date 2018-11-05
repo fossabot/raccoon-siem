@@ -6,7 +6,7 @@ import (
 	"net"
 )
 
-func newUDPListenerSource(settings *SourceSettings, processorChannel chan ProcessorTask) ISource {
+func newUDPListenerSource(settings *SourceSettings, processorChannel chan *ProcessorTask) ISource {
 	return &udpListenerSource{
 		processorChannel: processorChannel,
 		settings:         settings,
@@ -16,7 +16,11 @@ func newUDPListenerSource(settings *SourceSettings, processorChannel chan Proces
 type udpListenerSource struct {
 	settings         *SourceSettings
 	connection       *net.UDPConn
-	processorChannel chan ProcessorTask
+	processorChannel chan *ProcessorTask
+}
+
+func (s *udpListenerSource) ID() string {
+	return s.settings.Name
 }
 
 func (s *udpListenerSource) Run() (err error) {
@@ -44,7 +48,10 @@ func (s *udpListenerSource) handleData() {
 
 	for {
 		for scanner.Scan() {
-			s.processorChannel <- scanner.Bytes()
+			s.processorChannel <- &ProcessorTask{
+				Source: s.settings.Name,
+				Data:   CopyBytes(scanner.Bytes()),
+			}
 		}
 
 		if err := scanner.Err(); err != nil {

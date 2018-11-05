@@ -6,6 +6,7 @@ import (
 )
 
 type ICorrelationRule interface {
+	ID() string
 	Run()
 	Feed(event *Event)
 }

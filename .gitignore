@@ -17,3 +17,4 @@ vendor
 build
 *.iml
 go.sum
+raccoon.db

@@ -3,6 +3,7 @@ package sdk
 import (
 	"fmt"
 	"github.com/satori/go.uuid"
+	"log"
 	"net"
 	"os"
 	"sort"
@@ -48,6 +49,54 @@ func GetUUID() string {
 	return uuid.NewV4().String()
 }
 
+func CopyBytes(data []byte) []byte {
+	dataCopy := make([]byte, len(data))
+	copy(dataCopy, data)
+	return dataCopy
+}
+
+func PrintConfiguration(resources ...interface{}) {
+	for _, r := range resources {
+		switch r.(type) {
+		case []ISource:
+			fmt.Printf("Sources:\n")
+			for i, v := range r.([]ISource) {
+				fmt.Printf("\t%d.%v\n", i+1, v.ID())
+			}
+		case []IParser:
+			fmt.Printf("Parsers:\n")
+			for i, v := range r.([]IParser) {
+				fmt.Printf("\t%d.%v\n", i+1, v.ID())
+			}
+		case []IFilter:
+			fmt.Printf("Filters:\n")
+			for i, v := range r.([]IFilter) {
+				fmt.Printf("\t%d.%v\n", i+1, v.ID())
+			}
+		case []IAggregationRule:
+			fmt.Printf("Aggregation rules:\n")
+			for i, v := range r.([]IAggregationRule) {
+				fmt.Printf("\t%d.%v\n", i+1, v.ID())
+			}
+		case []IDestination:
+			fmt.Printf("Destinations:\n")
+			for i, v := range r.([]IDestination) {
+				fmt.Printf("\t%d.%v\n", i+1, v.ID())
+			}
+		case []CorrelationRule:
+			fmt.Printf("Correlation rules:\n")
+			for i, v := range r.([]CorrelationRule) {
+				fmt.Printf("\t%d.%v\n", i+1, v.ID())
+			}
+		case []ActiveListSettings:
+			fmt.Printf("Active lists:\n")
+			for i, v := range r.([]ActiveListSettings) {
+				fmt.Printf("\t%d.%v\n", i+1, v.ID())
+			}
+		}
+	}
+}
+
 func DebugError(err error) {
 	if Debug {
 		fmt.Println(err)
@@ -60,7 +109,8 @@ func PanicOnError(err error) {
 	}
 }
 
-func PrintErrorAndExit(err error) {
-	fmt.Println(err)
-	os.Exit(1)
+func FatalOnError(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }

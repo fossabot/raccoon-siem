@@ -1,5 +1,9 @@
 package sdk
 
-type ProcessorTask []byte
+type ProcessorTask struct {
+	Source string
+	Data   []byte
+}
+
 type CorrelationChainTask *Event
 type AggregationChainTask *Event

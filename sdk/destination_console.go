@@ -7,11 +7,16 @@ import (
 )
 
 func newConsoleDestination(settings DestinationSettings) IDestination {
-	return new(consoleDestination)
+	return &consoleDestination{settings: settings}
 }
 
 type consoleDestination struct {
-	mu sync.Mutex
+	mu       sync.Mutex
+	settings DestinationSettings
+}
+
+func (d *consoleDestination) ID() string {
+	return d.settings.Name
 }
 
 func (d *consoleDestination) Run() error {

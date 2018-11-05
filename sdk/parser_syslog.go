@@ -34,7 +34,6 @@ func (p *syslogParser) Parse(input []byte, target *Event) (*Event, error) {
 	}
 
 	sp := rfc3164.NewParser(input)
-
 	if err := sp.Parse(); err != nil {
 		return nil, err
 	}

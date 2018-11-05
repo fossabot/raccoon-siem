@@ -17,6 +17,7 @@ var knownDestinations = map[string]bool{
 }
 
 type IDestination interface {
+	ID() string
 	Run() error
 	Send(event *Event)
 }

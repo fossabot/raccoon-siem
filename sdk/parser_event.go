@@ -21,7 +21,7 @@ func (p *eventParser) ID() string {
 func (p *eventParser) Parse(input []byte, target *Event) (*Event, error) {
 	event := new(Event)
 
-	if err := event.FromBSON(input); err != nil {
+	if err := event.FromMsgPack(input); err != nil {
 		return nil, err
 	}
 

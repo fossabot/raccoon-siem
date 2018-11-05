@@ -7,7 +7,7 @@ import (
 	"net"
 )
 
-func newTCPListenerSource(settings *SourceSettings, processorChannel chan ProcessorTask) ISource {
+func newTCPListenerSource(settings *SourceSettings, processorChannel chan *ProcessorTask) ISource {
 	return &tcpListenerSource{
 		processorChannel: processorChannel,
 		settings:         settings,
@@ -17,7 +17,11 @@ func newTCPListenerSource(settings *SourceSettings, processorChannel chan Proces
 type tcpListenerSource struct {
 	settings         *SourceSettings
 	listener         net.Listener
-	processorChannel chan ProcessorTask
+	processorChannel chan *ProcessorTask
+}
+
+func (s *tcpListenerSource) ID() string {
+	return s.settings.Name
 }
 
 func (s *tcpListenerSource) Run() (err error) {
@@ -53,7 +57,10 @@ func (s *tcpListenerSource) handleConnection(conn net.Conn) {
 	scanner.Split(bufio.ScanLines)
 
 	for scanner.Scan() {
-		s.processorChannel <- scanner.Bytes()
+		s.processorChannel <- &ProcessorTask{
+			Source: s.settings.Name,
+			Data:   CopyBytes(scanner.Bytes()),
+		}
 	}
 
 	if err := scanner.Err(); err != nil {

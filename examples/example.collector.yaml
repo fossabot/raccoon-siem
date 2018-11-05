@@ -1,26 +1,27 @@
 # Name (ID) of a collector. Must be unique among collectors.
-name: collector-example
+name: example-01
 
 # List of source names to include.
 # This is how collector will gather events.
 sources: [nats, tcp, udp, netflow]
 
 # List of parser names to include.
-# Parser 'event' is included by default (for raccoon native events).
+# Parser for raccoon native events is included by default.
 # Incoming events will go through this parser chain until first match.
-parsers: [syslog]
+parsers: [syslog, netflow]
 
 # List of filter names to include.
 # Filters are used to drop noisy events.
-filters: []
+# Aggregation and Correlation rules have their own filters.
+filters: [noiseGate]
 
 # List of aggregation rule names to include.
-rules: []
+rules: [netflow]
 
 # List of destination names to include.
-# Destination 'raccoon-correlators' is included by default.
+# Destination 'raccoon-correlators' is included automatically if bus URL passed to collector process.
 # Destination 'raccoon-storage' is included automatically if storage URL passed to collector process.
 destinations: []
 
 # Debug mode. Do not use in production.
-debug: true
+debug: false
