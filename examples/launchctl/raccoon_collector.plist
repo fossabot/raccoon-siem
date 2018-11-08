@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>raccoon_collector</string>
+
+        <key>ProgramArguments</key>
+        <array>
+                <string>/usr/local/bin/raccoon</string>
+                <string>collector</string>
+                <string>--core</string>
+                <string>http://localhost:7220</string>
+                <string>--bus</string>
+                <string>nats://localhost:4222</string>
+                <string>--storage</string>
+                <string>http://localhost:9200</string>
+                <string>--metrics</string>
+                <string>7221</string>
+                <string>--id</string>
+                <string>example-01</string>
+        </array>
+
+        <key>RunAtLoad</key>
+        <true/>
+    </dict>
+</plist>

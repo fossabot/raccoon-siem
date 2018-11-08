@@ -1,0 +1,19 @@
+[Unit]
+Description=Raccoon SIEM Collector
+
+[Service]
+ExecStart=/usr/local/bin/raccoon collector \
+    --core http://localhost:7220 \
+    --bus nats://localhost:4222 \
+    --storage http://localhost:9200 \
+    --metrics 7221 \
+    --id example-01
+
+User=raccoon
+Group=raccoon
+Restart=always
+RestartSec=5
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
