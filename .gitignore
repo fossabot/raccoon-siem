@@ -13,7 +13,6 @@
 
 .idea
 .vscode
-vendor
 build
 *.iml
 go.sum
