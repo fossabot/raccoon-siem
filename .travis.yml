@@ -1,0 +1,22 @@
+language: go
+go: "1.11.x"
+env: "GO111MODULE=on RACCOON_BINARY=althea RACCOON_ARTIFACT=raccoon-${TRAVIS_TAG}-${TRAVIS_OS_NAME}.tar.gz"
+install: true
+
+jobs:
+  include:
+    - stage: test
+      if: tag =~ ^v
+      script: go test -v -mod=vendor ./...
+    - stage: deploy
+      if: tag =~ ^v
+      script:
+        - 'go build -ldflags "-X main.version=$TRAVIS_TAG" -o $RACCOON_BINARY -mod=vendor main.go'
+        - 'tar -zcf $RACCOON_ARTIFACT $RACCOON_BINARY'
+      deploy:
+        provider: releases
+        api_key: $GITHUB_OAUTH_TOKEN
+        file: $RACCOON_ARTIFACT
+        skip_cleanup: true
+        on:
+          tags: true

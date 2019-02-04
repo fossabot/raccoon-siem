@@ -111,9 +111,12 @@ func (d *elasticsearchDestination) spawnWorker() {
 }
 
 func (d *elasticsearchDestination) makeFinalIndexName(ts time.Time) string {
-	sb := strings.Builder{}
-	sb.WriteString(d.settings.Index)
-	sb.WriteString("-")
-	sb.WriteString(time.Now().Format(d.timeLayout))
-	return sb.String()
+	if d.settings.RotateIndex {
+		sb := strings.Builder{}
+		sb.WriteString(d.settings.Index)
+		sb.WriteString("-")
+		sb.WriteString(time.Now().Format(d.timeLayout))
+		return sb.String()
+	}
+	return d.settings.Index
 }
