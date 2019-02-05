@@ -14,7 +14,7 @@ var rootCmd = &cobra.Command{
 	Use:       "raccoon",
 	Short:     "Raccoon SIEM component launcher",
 	Args:      cobra.ExactArgs(1),
-	ValidArgs: []string{"core", "collector", "correlator", "resources", "player", "generate"},
+	ValidArgs: []string{"core", "collector", "correlator", "resources", "player"},
 	RunE:      cobra.OnlyValidArgs,
 }
 

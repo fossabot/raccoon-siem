@@ -11,7 +11,7 @@ var (
 		Use:       "resources",
 		Short:     "manage raccoon resources",
 		Args:      cobra.ExactArgs(1),
-		ValidArgs: []string{"create", "delete", "get", "list"},
+		ValidArgs: []string{"create", "delete", "get", "list", "generate"},
 		RunE:      cobra.OnlyValidArgs,
 	}
 
@@ -28,6 +28,8 @@ var (
 		"activeList",
 	}
 
+	validGenerateSubjects = []string{"elasticsearch"}
+
 	// String flags variables
 	coreURL, sourcePath string
 
@@ -37,7 +39,7 @@ var (
 
 func init() {
 	// Sub commands
-	Cmd.AddCommand(createCmd, deleteCmd, getCmd, listCmd)
+	Cmd.AddCommand(createCmd, deleteCmd, getCmd, listCmd, generateCmd)
 
 	// Raccoon core URL
 	Cmd.PersistentFlags().StringVarP(
