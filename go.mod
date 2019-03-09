@@ -13,6 +13,7 @@ require (
 	github.com/gogo/protobuf v1.1.1 // indirect
 	github.com/google/go-cmp v0.2.0 // indirect
 	github.com/google/gopacket v1.1.15
+	github.com/gotestyourself/gotest.tools v2.2.0+incompatible // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jeromer/syslogparser v0.0.0-20180622150051-323c7ad120db
 	github.com/json-iterator/go v1.1.5 // indirect
@@ -52,4 +53,5 @@ require (
 	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce
 	gopkg.in/vmihailenco/msgpack.v4 v4.0.1
 	gopkg.in/yaml.v2 v2.2.1
+	gotest.tools v2.2.0+incompatible
 )

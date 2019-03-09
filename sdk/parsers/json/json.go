@@ -2,7 +2,6 @@ package jsonParser
 
 import (
 	"bytes"
-	"fmt"
 )
 
 const (
@@ -32,82 +31,9 @@ const (
 
 type valueKind uint8
 
-type JSONParser struct {
-	index [64][2]int
-}
-
-func (r *JSONParser) BuildIndex(data []byte) {
-	insideString := false
-	level := -1
-	for i := 0; i < len(data); i++ {
-		switch data[i] {
-		case doubleQuote:
-			insideString = !insideString
-		case openCurlyBracket:
-			if !insideString {
-				level++
-				r.index[level][0] = i
-			}
-		case closeCurlyBracket:
-			if !insideString {
-				r.index[level][1] = i
-				level--
-			}
-		}
-	}
-}
-
-func (r *JSONParser) GetValue2(data []byte, path []byte) []byte {
-	fmt.Printf("%+v\n", r.index)
-	dataOffset := 0
-	pathOffset := 0
-	pathLevel := -1
-pathLoop:
-	for pathOffset < len(path) {
-		targetKey := nextPathKey(path, &pathOffset)
-		pathLevel++
-		isLastTargetKey := pathOffset >= len(path)
-		for {
-			idx := bytes.Index(data[dataOffset:], targetKey)
-			if idx == -1 {
-				return nil
-			}
-
-			dataOffset = idx + len(targetKey) - 1
-			if dataOffset < r.index[pathLevel][0] || dataOffset > r.index[pathLevel][1] {
-				continue
-			}
-
-			if nextMeaningfulByte(data, &dataOffset, false) != colon {
-				continue
-			}
-
-			kind, valueStart := determineValueKind(data, &dataOffset)
-			if kind == valueKindInvalid {
-				return nil
-			}
-
-			if kind == valueKindArray {
-				return nil
-			}
-
-			if !isLastTargetKey {
-				if kind != valueKindObject {
-					return nil
-				}
-				continue pathLoop
-			}
-
-			return extractValue(kind, data, &dataOffset, valueStart)
-		}
-	}
-	return nil
-}
-
-func (r *JSONParser) GetValue(data []byte, path []byte) []byte {
+func GetValue(data []byte, path []byte) []byte {
 	pathOffset := 0
 	dataOffset := 0
-
 pathLoop:
 	for pathOffset < len(path) {
 		targetKey := nextPathKey(path, &pathOffset)
@@ -164,10 +90,6 @@ func nextKey(data []byte, offset *int) []byte {
 	keyStart := *offset + 1
 
 	if !goToByte(doubleQuote, data, offset) {
-		return nil
-	}
-
-	if *offset >= len(data) {
 		return nil
 	}
 
@@ -265,10 +187,9 @@ func goToByte(targetByte byte, data []byte, offset *int) bool {
 	i := *offset + 1
 	for ; i < len(data); i++ {
 		currentByte := data[i]
-		if currentByte == targetByte {
-			if data[i-1] == backSlash {
-				continue
-			}
+		if currentByte == backSlash {
+			i++
+		} else if currentByte == targetByte {
 			*offset = i
 			return true
 		}
@@ -282,6 +203,9 @@ func nextMeaningfulByte(data []byte, offset *int, includeSpaces bool) byte {
 	for ; i < len(data); i++ {
 		currentByte := data[i]
 		switch currentByte {
+		case backSlash:
+			i++
+			continue
 		case space, tab, newLine, carriageReturn:
 			if includeSpaces {
 				*offset = i
@@ -289,9 +213,6 @@ func nextMeaningfulByte(data []byte, offset *int, includeSpaces bool) byte {
 			}
 			continue
 		default:
-			if data[i-1] == backSlash {
-				continue
-			}
 			*offset = i
 			return currentByte
 		}
