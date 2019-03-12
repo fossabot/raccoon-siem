@@ -1,6 +1,9 @@
 package rfc5424
 
-import "strconv"
+import (
+    "strconv"
+    "github.com/tephrocactus/raccoon-siem/sdk/helpers"
+)
 
 %%{
     machine syslog;
@@ -38,35 +41,35 @@ func (r *Parser) Parse(data []byte) (map[string]string, bool) {
          }
 
         action setTimestamp {
-            output["time"] = string(data[valueOffset:p])
+            output["time"] = helpers.BytesToString(data[valueOffset:p])
         }
 
         action setHostname {
-            output["host"] = string(data[valueOffset:p])
+            output["host"] = helpers.BytesToString(data[valueOffset:p])
         }
 
         action setAppName {
-            output["app"] = string(data[valueOffset:p])
+            output["app"] = helpers.BytesToString(data[valueOffset:p])
         }
 
         action setProcID {
-            output["pid"] = string(data[valueOffset:p])
+            output["pid"] = helpers.BytesToString(data[valueOffset:p])
         }
 
         action setMsgID {
-            output["mid"] = string(data[valueOffset:p])
+            output["mid"] = helpers.BytesToString(data[valueOffset:p])
         }
 
         action setMsg {
-            output["msg"] = string(data[valueOffset:pe])
+            output["msg"] = helpers.BytesToString(data[valueOffset:pe])
         }
 
         action setSDKey {
-            recentSDKey = string(data[valueOffset:p])
+            recentSDKey = helpers.BytesToString(data[valueOffset:p])
         }
 
         action setSDValue {
-            output[recentSDKey] = string(data[valueOffset:p])
+            output[recentSDKey] = helpers.BytesToString(data[valueOffset:p])
         }
 
         action fail {

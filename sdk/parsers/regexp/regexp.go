@@ -2,6 +2,7 @@ package regexp
 
 import (
 	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"regexp"
 )
 
@@ -20,7 +21,7 @@ func (r *Parser) Parse(data []byte) (map[string]string, bool) {
 			output := make(map[string]string)
 			for i, field := range e.SubexpNames() {
 				if i > 0 {
-					output[field] = string(match[i])
+					output[field] = helpers.BytesToString(match[i])
 				}
 			}
 			return output, true
