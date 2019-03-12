@@ -1,0 +1,11 @@
+# Name of a connector. Must be unique among connectors.
+name: listener
+
+# Connector kind.
+kind: listener
+
+# Transport protocol: "tcp" or "udp".
+protocol: tcp
+
+# Listen address and port.
+url: :1514

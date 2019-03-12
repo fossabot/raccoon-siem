@@ -58,9 +58,9 @@ func CopyBytes(data []byte) []byte {
 func PrintConfiguration(resources ...interface{}) {
 	for _, r := range resources {
 		switch r.(type) {
-		case []ISource:
-			fmt.Printf("Sources:\n")
-			for i, v := range r.([]ISource) {
+		case []IConnector:
+			fmt.Printf("Connectors:\n")
+			for i, v := range r.([]IConnector) {
 				fmt.Printf("\t%d.%v\n", i+1, v.ID())
 			}
 		case []IParser:

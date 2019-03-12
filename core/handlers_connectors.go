@@ -7,21 +7,21 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk"
 )
 
-func Sources(ctx *gin.Context) {
-	records, err := DBConn.ListKeys(dbBucketSource)
+func ConnectorsList(ctx *gin.Context) {
+	records, err := DBConn.ListKeys(dbBucketConnector)
 	reply(ctx, err, records)
 }
 
-func SourceGET(ctx *gin.Context) {
+func ConnectorGET(ctx *gin.Context) {
 	var replyData []byte
 
 	err := DBConn.h.View(func(tx *bolt.Tx) error {
 		id := ctx.Param("id")
 
-		value := tx.Bucket(dbBucketSource).Get([]byte(id))
+		value := tx.Bucket(dbBucketConnector).Get([]byte(id))
 
 		if value == nil {
-			return fmt.Errorf("source '%s' does not exist", id)
+			return fmt.Errorf("connector '%s' does not exist", id)
 		}
 
 		replyData = value
@@ -31,7 +31,7 @@ func SourceGET(ctx *gin.Context) {
 	reply(ctx, err, replyData)
 }
 
-func SourcePUT(ctx *gin.Context) {
+func ConnectorPUT(ctx *gin.Context) {
 	body, err := ctx.GetRawData()
 
 	if err != nil {
@@ -39,7 +39,7 @@ func SourcePUT(ctx *gin.Context) {
 		return
 	}
 
-	s := new(sdk.SourceSettings)
+	s := new(sdk.Config)
 	id, err := unmarshalAndGetID(s, body)
 
 	if err != nil {
@@ -48,13 +48,13 @@ func SourcePUT(ctx *gin.Context) {
 	}
 
 	reply(ctx, DBConn.h.Update(func(tx *bolt.Tx) error {
-		return tx.Bucket(dbBucketSource).Put([]byte(id), body)
+		return tx.Bucket(dbBucketConnector).Put([]byte(id), body)
 	}))
 }
 
-func SourceDELETE(ctx *gin.Context) {
+func ConnectorDELETE(ctx *gin.Context) {
 	reply(ctx, DBConn.h.Update(func(tx *bolt.Tx) error {
 		id := ctx.Param("id")
-		return tx.Bucket(dbBucketSource).Delete([]byte(id))
+		return tx.Bucket(dbBucketConnector).Delete([]byte(id))
 	}))
 }

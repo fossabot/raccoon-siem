@@ -1,9 +1,11 @@
 package json
 
 import (
+	"encoding/json"
 	jp "github.com/tephrocactus/raccoon-siem/sdk/parsers/json"
 	"github.com/tidwall/gjson"
 	"gotest.tools/assert"
+	"log"
 	"testing"
 )
 
@@ -77,6 +79,18 @@ var pathsByte = [][]byte{
 	[]byte("string_arr"),
 	[]byte("медведи и балалайки"),
 	[]byte("level"),
+}
+
+func BenchmarkJSON(b *testing.B) {
+	b.StopTimer()
+	b.ReportAllocs()
+	dst := make(map[string]interface{})
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		if err := json.Unmarshal(sample, &dst); err != nil {
+			log.Fatal(err)
+		}
+	}
 }
 
 func BenchmarkGJSON(b *testing.B) {

@@ -27,20 +27,20 @@ func (r *metrics) runServer() *metrics {
 	return r
 }
 
-func (r *metrics) registerEventInput(source string) {
-	r.events.WithLabelValues("in", source).Inc()
+func (r *metrics) registerEventInput(connector string) {
+	r.events.WithLabelValues("in", connector).Inc()
 }
 
-func (r *metrics) registerEventOutput(source string) {
-	r.events.WithLabelValues("out", source).Inc()
+func (r *metrics) registerEventOutput(connector string) {
+	r.events.WithLabelValues("out", connector).Inc()
 }
 
-func (r *metrics) registerEventFiltration(filter string, source string) {
-	r.filtered.WithLabelValues(filter, source).Inc()
+func (r *metrics) registerEventFiltration(filter string, connector string) {
+	r.filtered.WithLabelValues(filter, connector).Inc()
 }
 
-func (r *metrics) registerEventAggregation(rule string, count int, source string) {
-	r.aggregated.WithLabelValues(rule, source).Add(float64(count))
+func (r *metrics) registerEventAggregation(rule string, count int, connector string) {
+	r.aggregated.WithLabelValues(rule, connector).Add(float64(count))
 }
 
 func (r *metrics) registerParsingDuration(parser string, start time.Time) {

@@ -34,8 +34,6 @@ func (p *regexpParser) Parse(input []byte, target *Event) (*Event, error) {
 		event = new(Event)
 	}
 
-	// Match regexp
-
 	matches := p.spec.regexp.FindStringSubmatch(string(input))
 
 	if matches == nil {

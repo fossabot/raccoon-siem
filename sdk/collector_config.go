@@ -1,22 +1,22 @@
 package sdk
 
-type CollectorSettings struct {
+type CollectorConfig struct {
 	DefaultComponentSettings `yaml:",inline"`
-	Sources                  []string `yaml:"sources,omitempty"`
+	Connectors               []string `yaml:"sources,omitempty"`
 	Parsers                  []string `yaml:"parsers,omitempty"`
 	Destinations             []string `yaml:"destinations,omitempty"`
 	AggregationRules         []string `yaml:"rules,omitempty"`
 	Filters                  []string `yaml:"filters,omitempty"`
 }
 
-func (s *CollectorSettings) ID() string {
+func (s *CollectorConfig) ID() string {
 	return s.Name
 }
 
 type CollectorPackage struct {
 	DefaultComponentSettings `yaml:",inline"`
 	Parsers                  []ParserSettings          `yaml:"parsers,omitempty"`
-	Sources                  []SourceSettings          `yaml:"sources,omitempty"`
+	Connectors               []Config                  `yaml:"connectors,omitempty"`
 	Destinations             []DestinationSettings     `yaml:"destinations,omitempty"`
 	Dictionaries             []DictionarySettings      `yaml:"dictionaries,omitempty"`
 	AggregationRules         []AggregationRuleSettings `yaml:"rules,omitempty"`

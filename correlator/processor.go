@@ -11,7 +11,7 @@ type Processor struct {
 	Workers                 int
 	Parsers                 []sdk.IParser
 	CorrelationRules        []sdk.ICorrelationRule
-	Sources                 []sdk.ISource
+	Connectors              []sdk.IConnector
 	Destinations            []sdk.IDestination
 	Debug                   bool
 	hostname                string
@@ -33,7 +33,7 @@ func (r *Processor) Start() error {
 		return err
 	}
 
-	if err := sdk.RunSources(r.Sources); err != nil {
+	if err := sdk.RunConnectors(r.Connectors); err != nil {
 		return err
 	}
 

@@ -1,8 +1,8 @@
 package sdk
 
 type ProcessorTask struct {
-	Source string
-	Data   []byte
+	Connector string
+	Data      []byte
 }
 
 type CorrelationChainTask *Event

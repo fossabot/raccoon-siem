@@ -1,11 +1,11 @@
-# Name of a source. Must be unique among sources.
+# Name of a connector. Must be unique among connectors.
 name: netflow
 
-# Source kind.
+# Connector kind.
 kind: netflow
 
 # Listen address and port.
 url: :1515
 
 # Buffer size. Default is 8192 bytes.
-buffer: 12288
+buffer_size: 12288

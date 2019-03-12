@@ -1,4 +1,4 @@
-package jsonParser
+package JSONParser
 
 import (
 	"bytes"

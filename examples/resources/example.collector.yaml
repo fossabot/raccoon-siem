@@ -1,9 +1,9 @@
 # Name (ID) of a collector. Must be unique among collectors.
 name: example-01
 
-# List of source names to include.
+# List of connector names to include.
 # This is how collector will gather events.
-sources: [nats, tcp, udp, netflow]
+connectors: [nats, listener, netflow]
 
 # List of parser names to include.
 # Parser for raccoon native events is included by default.

@@ -20,6 +20,12 @@ var knownParserKinds = map[string]bool{
 	parserKV:     true,
 }
 
+type BaseParserConfig struct {
+	Name string
+	Kind string
+	Root bool
+}
+
 type IParser interface {
 	ID() string
 	Parse(data []byte, target *Event) (*Event, error)

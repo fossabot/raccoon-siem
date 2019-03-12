@@ -14,7 +14,7 @@ type Processor struct {
 	Parsers            []sdk.IParser
 	Filters            []sdk.IFilter
 	AggregationRules   []sdk.IAggregationRule
-	Sources            []sdk.ISource
+	Connectors         []sdk.IConnector
 	Destinations       []sdk.IDestination
 	ID                 string
 	MetricsPort        string
@@ -49,7 +49,7 @@ func (r *Processor) Start() error {
 	r.logger = logger.NewInstance(r.ID, r.Destinations, logLevel)
 	r.metrics = newMetrics(r.MetricsPort).runServer()
 
-	if err := sdk.RunSources(r.Sources); err != nil {
+	if err := sdk.RunConnectors(r.Connectors); err != nil {
 		return err
 	}
 
@@ -59,7 +59,7 @@ func (r *Processor) Start() error {
 // Processes incoming events
 func (r *Processor) parsingRoutine() {
 	for task := range r.ParsingChannel {
-		r.metrics.registerEventInput(task.Source)
+		r.metrics.registerEventInput(task.Connector)
 		if len(task.Data) != 0 {
 			start := time.Now()
 
@@ -83,11 +83,11 @@ func (r *Processor) processEvent(task *sdk.ProcessorTask) {
 		return
 	}
 
-	event.SourceID = task.Source
+	event.SourceID = task.Connector
 
 	for _, f := range r.Filters {
 		if !f.Pass([]*sdk.Event{event}) {
-			r.metrics.registerEventFiltration(f.ID(), task.Source)
+			r.metrics.registerEventFiltration(f.ID(), task.Connector)
 			if r.Debug {
 				r.logger.Debug("filtered out", &sdk.Event{Details: string(task.Data)})
 			}

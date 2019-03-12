@@ -20,13 +20,13 @@ func CollectorRegister(ctx *gin.Context) {
 			return fmt.Errorf("collector '%s' does not exist", id)
 		}
 
-		collectorSettings := new(sdk.CollectorSettings)
+		collectorSettings := new(sdk.CollectorConfig)
 
 		if err = yaml.Unmarshal(data, collectorSettings); err != nil {
 			return err
 		}
 
-		pack.Sources, err = readSourcesByIDs(collectorSettings.Sources, tx)
+		pack.Connectors, err = readConnectorsByIDs(collectorSettings.Connectors, tx)
 
 		if err != nil {
 			return err

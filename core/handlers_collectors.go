@@ -39,7 +39,7 @@ func CollectorPUT(ctx *gin.Context) {
 		return
 	}
 
-	s := new(sdk.CollectorSettings)
+	s := new(sdk.CollectorConfig)
 	id, err := unmarshalAndGetID(s, body)
 
 	if err != nil {

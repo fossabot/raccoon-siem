@@ -133,16 +133,16 @@ func run(_ *cobra.Command, _ []string) error {
 	// Run correlation rules
 	sdk.RunCorrelationRules(registeredCorrelationRules)
 
-	// Register default sources
-	allSourceSettings := []sdk.SourceSettings{{
+	// Register default connectors
+	allConnectorConfigs := []sdk.Config{{
 		Name:    sdk.RaccoonCorrelationBusName,
 		Kind:    sdk.RaccoonCorrelationBusKind,
-		Channel: sdk.RaccoonCorrelationBusChannel,
+		Subject: sdk.RaccoonCorrelationBusChannel,
 		URL:     busURL,
 	}}
 
 	correlationChannel := make(chan *sdk.ProcessorTask)
-	registeredSources, err := sdk.RegisterSources(allSourceSettings, correlationChannel)
+	registeredConnectors, err := sdk.RegisterConnectors(allConnectorConfigs, correlationChannel)
 	sdk.PanicOnError(err)
 
 	// Processor
@@ -152,13 +152,13 @@ func run(_ *cobra.Command, _ []string) error {
 		Workers:                 runtime.NumCPU(),
 		Parsers:                 registeredParsers,
 		CorrelationRules:        registeredCorrelationRules,
-		Sources:                 registeredSources,
+		Connectors:              registeredConnectors,
 		Destinations:            registeredDestinations,
 		Debug:                   debugMode,
 	}
 
 	sdk.PrintConfiguration(
-		registeredSources,
+		registeredConnectors,
 		registeredParsers,
 		registeredCorrelationRules,
 		pack.ActiveLists,

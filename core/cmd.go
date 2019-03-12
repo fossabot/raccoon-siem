@@ -84,11 +84,11 @@ func run(_ *cobra.Command, _ []string) error {
 	httpServer.PUT("/activeList", ActiveListPUT)
 	httpServer.DELETE("/activeList/:id", ActiveListDELETE)
 
-	// Sources
-	httpServer.GET("/source", Sources)
-	httpServer.GET("/source/:id", SourceGET)
-	httpServer.PUT("/source", SourcePUT)
-	httpServer.DELETE("/source/:id", SourceDELETE)
+	// Connectors
+	httpServer.GET("/connector", ConnectorsList)
+	httpServer.GET("/connector/:id", ConnectorGET)
+	httpServer.PUT("/connector", ConnectorPUT)
+	httpServer.DELETE("/connector/:id", ConnectorDELETE)
 
 	// Destinations
 	httpServer.GET("/destination", Destinations)

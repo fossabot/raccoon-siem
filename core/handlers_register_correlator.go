@@ -26,7 +26,7 @@ func CorrelatorRegister(ctx *gin.Context) {
 			return err
 		}
 
-		pack.Sources, err = readSourcesByIDs(correlatorSettings.Sources, tx)
+		pack.Connectors, err = readConnectorsByIDs(correlatorSettings.Connectors, tx)
 
 		if err != nil {
 			return err

@@ -9,54 +9,45 @@ import (
 	"strings"
 )
 
-func newNetflowSource(settings *SourceSettings, processorChannel chan *ProcessorTask) ISource {
-	return &netflowSource{
-		processorChannel: processorChannel,
-		settings:         settings,
-		templateCache:    make(map[string]*nf9packet.TemplateRecord),
-	}
+type NetflowConnectorConfig struct {
+	BaseConnectorConfig
+
+	BufferSize int
 }
 
-type netflowSource struct {
-	settings         *SourceSettings
-	connection       *net.UDPConn
-	processorChannel chan *ProcessorTask
-	templateCache    map[string]*nf9packet.TemplateRecord
+type netflowConnector struct {
+	config        NetflowConnectorConfig
+	templateCache map[string]*nf9packet.TemplateRecord
 }
 
-func (s *netflowSource) ID() string {
-	return s.settings.Name
+func (s *netflowConnector) ID() string {
+	return s.config.Name
 }
 
-func (s *netflowSource) Run() (err error) {
-	addr, err := net.ResolveUDPAddr("udp", s.settings.URL)
-
+func (s *netflowConnector) Run() (err error) {
+	addr, err := net.ResolveUDPAddr("udp", s.config.URL)
 	if err != nil {
 		return
 	}
 
-	s.connection, err = net.ListenUDP("udp", addr)
-
+	conn, err := net.ListenUDP("udp", addr)
 	if err != nil {
 		return
 	}
 
-	go s.handleData()
-
+	go s.handleData(conn)
 	return
 }
 
-func (s *netflowSource) handleData() {
+func (s *netflowConnector) handleData(conn *net.UDPConn) {
 	bufSize := 8192
-
-	if s.settings.Buffer > 0 {
-		bufSize = s.settings.Buffer
+	if s.config.BufferSize > 0 {
+		bufSize = s.config.BufferSize
 	}
 
 	buf := make([]byte, bufSize)
-
 	for {
-		length, remote, err := s.connection.ReadFrom(buf)
+		length, remote, err := conn.ReadFrom(buf)
 
 		if err != nil {
 			if Debug {
@@ -69,11 +60,11 @@ func (s *netflowSource) handleData() {
 			continue
 		}
 
-		s.process(buf[:length], remote.String())
+		_ = s.process(buf[:length], remote.String())
 	}
 }
 
-func (s *netflowSource) process(input []byte, remote string) error {
+func (s *netflowConnector) process(input []byte, remote string) error {
 	pkt, err := nf9packet.Decode(input)
 
 	if err != nil {
@@ -114,12 +105,16 @@ func (s *netflowSource) process(input []byte, remote string) error {
 				sb.WriteString(" ")
 			}
 
-			s.processorChannel <- &ProcessorTask{
-				Source: s.settings.Name,
-				Data:   []byte(sb.String()),
+			s.config.OutputChannel <- &ProcessorTask{
+				Connector: s.config.Name,
+				Data:      []byte(sb.String()),
 			}
 		}
 	}
 
 	return nil
+}
+
+func newNetflowConnector(config NetflowConnectorConfig) (IConnector, error) {
+	return &netflowConnector{config: config}, nil
 }

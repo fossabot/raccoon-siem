@@ -1,0 +1,15 @@
+# Name of a connector. Must be unique among connectors.
+name: nats
+
+# Connector kind.
+kind: nats
+
+# URL of NATS server.
+url: nats://localhost:4222
+
+# NATS subject name to subscribe on.
+subject: logs
+
+# Queue name to use when balancing load.
+# Empty string is still valid queue name.
+queue: ""

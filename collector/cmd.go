@@ -123,9 +123,9 @@ func run(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	// Register sources
+	// Register connectors
 	parsingChannel := make(chan *sdk.ProcessorTask)
-	registeredSources, err := sdk.RegisterSources(pack.Sources, parsingChannel)
+	registeredConnectors, err := sdk.RegisterConnectors(pack.Connectors, parsingChannel)
 	if err != nil {
 		return err
 	}
@@ -138,7 +138,7 @@ func run(_ *cobra.Command, _ []string) error {
 		Parsers:            registeredParsers,
 		Filters:            registeredFilters,
 		AggregationRules:   registeredAggregationRules,
-		Sources:            registeredSources,
+		Connectors:         registeredConnectors,
 		Destinations:       registeredDestinations,
 		ID:                 collectorID,
 		Debug:              debugMode,
@@ -147,7 +147,7 @@ func run(_ *cobra.Command, _ []string) error {
 	}
 
 	sdk.PrintConfiguration(
-		registeredSources,
+		registeredConnectors,
 		registeredParsers,
 		registeredFilters,
 		registeredAggregationRules,
