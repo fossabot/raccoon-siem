@@ -16,6 +16,10 @@ type parser struct {
 	expressions []*regexp.Regexp
 }
 
+func (r *parser) ID() string {
+	return r.cfg.Name
+}
+
 func (r *parser) Parse(data []byte) (map[string]string, bool) {
 	for _, e := range r.expressions {
 		if match := e.FindSubmatch(data); match != nil {

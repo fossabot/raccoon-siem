@@ -27,6 +27,10 @@ type parser struct{
     cfg Config
 }
 
+func (r *parser) ID() string {
+	return r.cfg.Name
+}
+
 func NewParser(cfg Config) (*parser, error) {
     return &parser{cfg:cfg}, nil
 }
@@ -40,12 +44,12 @@ func (r *parser) Parse(data []byte) (map[string]string, bool) {
 	output := make(map[string]string)
 
     
-//line parser.go:44
+//line parser.go:48
 	{
 	cs = syslog_start
 	}
 
-//line parser.go:49
+//line parser.go:53
 	{
 	if p == pe {
 		goto _test_eof
@@ -1299,13 +1303,13 @@ func (r *parser) Parse(data []byte) (map[string]string, bool) {
 		}
 		goto st0
 tr3:
-//line parser.rl:79
+//line parser.rl:83
 
             success = false;
             {p++; cs = 0; goto _out }
         
 	goto st0
-//line parser.go:1309
+//line parser.go:1313
 st_case_0:
 	st0:
 		cs = 0
@@ -1320,7 +1324,7 @@ st_case_0:
 		}
 		goto st0
 tr2:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
@@ -1330,7 +1334,7 @@ tr2:
 			goto _test_eof3
 		}
 	st_case_3:
-//line parser.go:1334
+//line parser.go:1338
 		if data[p] == 62 {
 			goto tr5
 		}
@@ -1360,7 +1364,7 @@ tr2:
 		}
 		goto tr3
 tr5:
-//line parser.rl:38
+//line parser.rl:42
 
              priNum, priErr = strconv.Atoi(string(data[valueOffset:p]))
              if priErr == nil {
@@ -1375,7 +1379,7 @@ tr5:
 			goto _test_eof6
 		}
 	st_case_6:
-//line parser.go:1379
+//line parser.go:1383
 		if data[p] == 32 {
 			goto st7
 		}
@@ -1401,7 +1405,7 @@ tr5:
 		}
 		goto tr3
 tr9:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
@@ -1411,7 +1415,7 @@ tr9:
 			goto _test_eof8
 		}
 	st_case_8:
-//line parser.go:1415
+//line parser.go:1419
 		if data[p] == 32 {
 			goto tr11
 		}
@@ -1420,7 +1424,7 @@ tr9:
 		}
 		goto tr3
 tr11:
-//line parser.rl:47
+//line parser.rl:51
 
             output["time"] = string(data[valueOffset:p])
         
@@ -1430,13 +1434,13 @@ tr11:
 			goto _test_eof9
 		}
 	st_case_9:
-//line parser.go:1434
+//line parser.go:1438
 		if 33 <= data[p] && data[p] <= 126 {
 			goto tr12
 		}
 		goto tr3
 tr12:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
@@ -1446,7 +1450,7 @@ tr12:
 			goto _test_eof10
 		}
 	st_case_10:
-//line parser.go:1450
+//line parser.go:1454
 		if data[p] == 32 {
 			goto tr13
 		}
@@ -1460,7 +1464,7 @@ tr12:
 		}
 		goto tr3
 tr13:
-//line parser.rl:51
+//line parser.rl:55
 
             output["host"] = string(data[valueOffset:p])
         
@@ -1470,13 +1474,13 @@ tr13:
 			goto _test_eof11
 		}
 	st_case_11:
-//line parser.go:1474
+//line parser.go:1478
 		if 33 <= data[p] && data[p] <= 126 {
 			goto tr15
 		}
 		goto tr3
 tr15:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
@@ -1486,7 +1490,7 @@ tr15:
 			goto _test_eof12
 		}
 	st_case_12:
-//line parser.go:1490
+//line parser.go:1494
 		if data[p] == 32 {
 			goto tr16
 		}
@@ -1500,7 +1504,7 @@ tr15:
 		}
 		goto tr3
 tr16:
-//line parser.rl:55
+//line parser.rl:59
 
             output["app"] = string(data[valueOffset:p])
         
@@ -1510,13 +1514,13 @@ tr16:
 			goto _test_eof13
 		}
 	st_case_13:
-//line parser.go:1514
+//line parser.go:1518
 		if 33 <= data[p] && data[p] <= 126 {
 			goto tr18
 		}
 		goto tr3
 tr18:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
@@ -1526,7 +1530,7 @@ tr18:
 			goto _test_eof14
 		}
 	st_case_14:
-//line parser.go:1530
+//line parser.go:1534
 		if data[p] == 32 {
 			goto tr19
 		}
@@ -1540,7 +1544,7 @@ tr18:
 		}
 		goto tr3
 tr19:
-//line parser.rl:59
+//line parser.rl:63
 
             output["pid"] = string(data[valueOffset:p])
         
@@ -1550,13 +1554,13 @@ tr19:
 			goto _test_eof15
 		}
 	st_case_15:
-//line parser.go:1554
+//line parser.go:1558
 		if 33 <= data[p] && data[p] <= 126 {
 			goto tr21
 		}
 		goto tr3
 tr21:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
@@ -1566,7 +1570,7 @@ tr21:
 			goto _test_eof16
 		}
 	st_case_16:
-//line parser.go:1570
+//line parser.go:1574
 		if data[p] == 32 {
 			goto tr22
 		}
@@ -1580,7 +1584,7 @@ tr21:
 		}
 		goto tr3
 tr22:
-//line parser.rl:63
+//line parser.rl:67
 
             output["mid"] = string(data[valueOffset:p])
         
@@ -1590,7 +1594,7 @@ tr22:
 			goto _test_eof17
 		}
 	st_case_17:
-//line parser.go:1594
+//line parser.go:1598
 		switch data[p] {
 		case 45:
 			goto tr25
@@ -1599,11 +1603,11 @@ tr22:
 		}
 		goto tr24
 tr24:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
-//line parser.rl:67
+//line parser.rl:71
 
             output["msg"] = string(data[valueOffset:pe])
         
@@ -1613,14 +1617,14 @@ tr24:
 			goto _test_eof510
 		}
 	st_case_510:
-//line parser.go:1617
+//line parser.go:1621
 		goto st510
 tr25:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
-//line parser.rl:67
+//line parser.rl:71
 
             output["msg"] = string(data[valueOffset:pe])
         
@@ -1630,7 +1634,7 @@ tr25:
 			goto _test_eof511
 		}
 	st_case_511:
-//line parser.go:1634
+//line parser.go:1638
 		if data[p] == 32 {
 			goto st512
 		}
@@ -1645,11 +1649,11 @@ tr25:
 	st_case_512:
 		goto tr24
 tr26:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
-//line parser.rl:67
+//line parser.rl:71
 
             output["msg"] = string(data[valueOffset:pe])
         
@@ -1659,7 +1663,7 @@ tr26:
 			goto _test_eof513
 		}
 	st_case_513:
-//line parser.go:1663
+//line parser.go:1667
 		if data[p] == 33 {
 			goto st514
 		}
@@ -1727,7 +1731,7 @@ tr26:
 		}
 		goto st510
 tr519:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
@@ -1737,7 +1741,7 @@ tr519:
 			goto _test_eof516
 		}
 	st_case_516:
-//line parser.go:1741
+//line parser.go:1745
 		switch data[p] {
 		case 33:
 			goto st517
@@ -2363,7 +2367,7 @@ tr519:
 		}
 		goto st510
 tr521:
-//line parser.rl:71
+//line parser.rl:75
 
             recentSDKey = string(data[valueOffset:p])
         
@@ -2373,7 +2377,7 @@ tr521:
 			goto _test_eof548
 		}
 	st_case_548:
-//line parser.go:2377
+//line parser.go:2381
 		if data[p] == 34 {
 			goto st549
 		}
@@ -2385,17 +2389,17 @@ tr521:
 	st_case_549:
 		goto tr553
 tr553:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
 	goto st550
 tr596:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
-//line parser.rl:67
+//line parser.rl:71
 
             output["msg"] = string(data[valueOffset:pe])
         
@@ -2405,37 +2409,37 @@ tr596:
 			goto _test_eof550
 		}
 	st_case_550:
-//line parser.go:2409
+//line parser.go:2413
 		if data[p] == 34 {
 			goto tr555
 		}
 		goto st550
 tr555:
-//line parser.rl:75
+//line parser.rl:79
 
             output[recentSDKey] = string(data[valueOffset:p])
         
 	goto st551
 tr593:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
-//line parser.rl:75
+//line parser.rl:79
 
             output[recentSDKey] = string(data[valueOffset:p])
         
 	goto st551
 tr597:
-//line parser.rl:75
+//line parser.rl:79
 
             output[recentSDKey] = string(data[valueOffset:p])
         
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
-//line parser.rl:67
+//line parser.rl:71
 
             output["msg"] = string(data[valueOffset:pe])
         
@@ -2445,7 +2449,7 @@ tr597:
 			goto _test_eof551
 		}
 	st_case_551:
-//line parser.go:2449
+//line parser.go:2453
 		switch data[p] {
 		case 32:
 			goto st552
@@ -2468,7 +2472,7 @@ tr597:
 		}
 		goto st550
 tr592:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
@@ -2478,7 +2482,7 @@ tr592:
 			goto _test_eof552
 		}
 	st_case_552:
-//line parser.go:2482
+//line parser.go:2486
 		switch data[p] {
 		case 34:
 			goto tr555
@@ -2495,7 +2499,7 @@ tr592:
 		}
 		goto st550
 tr557:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
@@ -2505,7 +2509,7 @@ tr557:
 			goto _test_eof553
 		}
 	st_case_553:
-//line parser.go:2509
+//line parser.go:2513
 		switch data[p] {
 		case 34:
 			goto tr555
@@ -3134,7 +3138,7 @@ tr557:
 		}
 		goto st550
 tr560:
-//line parser.rl:71
+//line parser.rl:75
 
             recentSDKey = string(data[valueOffset:p])
         
@@ -3144,13 +3148,13 @@ tr560:
 			goto _test_eof585
 		}
 	st_case_585:
-//line parser.go:3148
+//line parser.go:3152
 		if data[p] == 34 {
 			goto tr591
 		}
 		goto st550
 tr591:
-//line parser.rl:75
+//line parser.rl:79
 
             output[recentSDKey] = string(data[valueOffset:p])
         
@@ -3160,7 +3164,7 @@ tr591:
 			goto _test_eof586
 		}
 	st_case_586:
-//line parser.go:3164
+//line parser.go:3168
 		switch data[p] {
 		case 32:
 			goto tr592
@@ -3183,7 +3187,7 @@ tr591:
 		}
 		goto tr553
 tr594:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
@@ -3193,7 +3197,7 @@ tr594:
 			goto _test_eof587
 		}
 	st_case_587:
-//line parser.go:3197
+//line parser.go:3201
 		switch data[p] {
 		case 32:
 			goto st588
@@ -11879,7 +11883,7 @@ tr594:
 		}
 		goto tr3
 tr10:
-//line parser.rl:34
+//line parser.rl:38
 
             valueOffset = p
         
@@ -11889,7 +11893,7 @@ tr10:
 			goto _test_eof477
 		}
 	st_case_477:
-//line parser.go:11893
+//line parser.go:11897
 		if 48 <= data[p] && data[p] <= 57 {
 			goto st478
 		}
@@ -12869,19 +12873,19 @@ tr10:
 	if p == eof {
 		switch cs {
 		case 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449, 450, 451, 452, 453, 454, 455, 456, 457, 458, 459, 460, 461, 462, 463, 464, 465, 466, 467, 468, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509:
-//line parser.rl:79
+//line parser.rl:83
 
             success = false;
             {p++; cs = 0; goto _out }
         
-//line parser.go:12878
+//line parser.go:12882
 		}
 	}
 
 	_out: {}
 	}
 
-//line parser.rl:88
+//line parser.rl:92
 
 
     return output, success

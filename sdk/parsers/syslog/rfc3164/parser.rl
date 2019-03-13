@@ -18,6 +18,10 @@ type parser struct{
     cfg Config
 }
 
+func (r *parser) ID() string {
+	return r.cfg.Name
+}
+
 func NewParser(cfg Config) (*parser, error) {
     return &parser{cfg:cfg}, nil
 }

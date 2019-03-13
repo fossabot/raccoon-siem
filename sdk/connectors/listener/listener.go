@@ -18,15 +18,15 @@ type Config struct {
 }
 
 type connector struct {
-	config Config
+	cfg Config
 }
 
 func (r *connector) ID() string {
-	return r.config.Name
+	return r.cfg.Name
 }
 
 func (r *connector) Run() error {
-	listener, err := net.Listen(r.config.Protocol, r.config.URL)
+	listener, err := net.Listen(r.cfg.Protocol, r.cfg.URL)
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func (r *connector) handleConnection(conn net.Conn) {
 	scanner.Split(r.framer)
 
 	for scanner.Scan() {
-		r.config.OutputChannel <- helpers.CopyBytes(scanner.Bytes())
+		r.cfg.OutputChannel <- helpers.CopyBytes(scanner.Bytes())
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -62,7 +62,7 @@ func (r *connector) framer(data []byte, atEOF bool) (advance int, token []byte, 
 	if atEOF && len(data) == 0 {
 		return 0, nil, nil
 	}
-	if i := bytes.IndexByte(data, r.config.Delimiter); i >= 0 {
+	if i := bytes.IndexByte(data, r.cfg.Delimiter); i >= 0 {
 		// We have a full newline-terminated line.
 		return i + 1, data[0:i], nil
 	}
@@ -80,5 +80,5 @@ func NewConnector(config Config) (*connector, error) {
 	default:
 		return nil, fmt.Errorf("unknown protocol: %s", config.Protocol)
 	}
-	return &connector{config: config}, nil
+	return &connector{cfg: config}, nil
 }

@@ -194,6 +194,10 @@ type parser struct {
 	cfg Config
 }
 
+func (r *parser) ID() string {
+	return r.cfg.Name
+}
+
 // Sample:
 // CEF:0|security|threatmanager|1.0|100|detected a \| in message|10|src=10.0.0.1 act=blocked a | dst=1.1.1.1
 func (r *parser) Parse(data []byte) (map[string]string, bool) {

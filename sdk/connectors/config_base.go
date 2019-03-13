@@ -5,7 +5,3 @@ type BaseConfig struct {
 	URL           string
 	OutputChannel chan []byte
 }
-
-func (r *BaseConfig) ID() string {
-	return r.Name
-}
