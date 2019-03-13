@@ -1,6 +1,7 @@
 package rfc5424
 
 import (
+    "github.com/tephrocactus/raccoon-siem/sdk/parsers"
     "strconv"
 )
 
@@ -9,15 +10,19 @@ import (
     write data;
 }%%
 
-type Parser struct{
-    name string
+type Config struct {
+    parsers.BaseConfig
 }
 
-func (r *Parser) ID() string {
-	return r.name
+type parser struct{
+    cfg Config
 }
 
-func (r *Parser) Parse(data []byte) (map[string]string, bool) {
+func NewParser(cfg Config) (*parser, error) {
+    return &parser{cfg:cfg}, nil
+}
+
+func (r *parser) Parse(data []byte) (map[string]string, bool) {
     var cs, p, pe, eof, priNum, facilityNum, valueOffset int
     var recentSDKey string
     var priErr error

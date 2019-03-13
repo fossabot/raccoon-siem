@@ -1,5 +1,7 @@
 package cef
 
+import "github.com/tephrocactus/raccoon-siem/sdk/parsers"
+
 const (
 	space = ' '
 	pipe  = '|'
@@ -184,17 +186,17 @@ var (
 	}
 )
 
-type Parser struct {
-	name string
+type Config struct {
+	parsers.BaseConfig
 }
 
-func (r *Parser) ID() string {
-	return r.name
+type parser struct {
+	cfg Config
 }
 
 // Sample:
 // CEF:0|security|threatmanager|1.0|100|detected a \| in message|10|src=10.0.0.1 act=blocked a | dst=1.1.1.1
-func (r *Parser) Parse(data []byte) (map[string]string, bool) {
+func (r *parser) Parse(data []byte) (map[string]string, bool) {
 	if len(data) < len(entrySequence) {
 		return nil, false
 	}
@@ -264,4 +266,8 @@ func (r *Parser) Parse(data []byte) (map[string]string, bool) {
 	}
 
 	return out, len(out) > 0
+}
+
+func NewParser(cfg Config) (*parser, error) {
+	return &parser{cfg: cfg}, nil
 }

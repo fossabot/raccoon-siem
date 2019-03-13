@@ -3,11 +3,12 @@
 package rfc3164
 
 import (
-   "strconv"
+    "github.com/tephrocactus/raccoon-siem/sdk/parsers"
+    "strconv"
 )
 
 
-//line parser.go:11
+//line parser.go:12
 const syslog_start int = 0
 const syslog_first_final int = 1
 const syslog_error int = -1
@@ -15,18 +16,22 @@ const syslog_error int = -1
 const syslog_en_main int = 0
 
 
-//line parser.rl:10
+//line parser.rl:11
 
 
-type Parser struct{
-    name string
+type Config struct {
+    parsers.BaseConfig
 }
 
-func (r *Parser) ID() string {
-	return r.name
+type parser struct{
+    cfg Config
 }
 
-func (r *Parser) Parse(data []byte) (map[string]string, bool) {
+func NewParser(cfg Config) (*parser, error) {
+    return &parser{cfg:cfg}, nil
+}
+
+func (r *parser) Parse(data []byte) (map[string]string, bool) {
     var cs, p, pe, eof, priNum, facilityNum, valueOffset int
     var priErr error
 	pe = len(data)
@@ -34,12 +39,12 @@ func (r *Parser) Parse(data []byte) (map[string]string, bool) {
 	output := make(map[string]string)
 
     
-//line parser.go:38
+//line parser.go:43
 	{
 	cs = syslog_start
 	}
 
-//line parser.go:43
+//line parser.go:48
 	{
 	if p == pe {
 		goto _test_eof
@@ -311,11 +316,11 @@ func (r *Parser) Parse(data []byte) (map[string]string, bool) {
 		}
 		goto st1
 tr37:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
-//line parser.rl:61
+//line parser.rl:66
 
             output["msg"] = string(data[valueOffset:pe])
         
@@ -325,10 +330,10 @@ tr37:
 			goto _test_eof1
 		}
 	st_case_1:
-//line parser.go:329
+//line parser.go:334
 		goto st1
 tr1:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
@@ -338,7 +343,7 @@ tr1:
 			goto _test_eof2
 		}
 	st_case_2:
-//line parser.go:342
+//line parser.go:347
 		if data[p] == 58 {
 			goto st47
 		}
@@ -548,7 +553,7 @@ tr1:
 		}
 		goto st1
 tr32:
-//line parser.rl:41
+//line parser.rl:46
 
             output["time"] = string(data[valueOffset:p])
         
@@ -558,7 +563,7 @@ tr32:
 			goto _test_eof21
 		}
 	st_case_21:
-//line parser.go:562
+//line parser.go:567
 		switch data[p] {
 		case 58:
 			goto tr40
@@ -584,11 +589,11 @@ tr32:
 		}
 		goto tr37
 tr38:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
-//line parser.rl:61
+//line parser.rl:66
 
             output["msg"] = string(data[valueOffset:pe])
         
@@ -598,7 +603,7 @@ tr38:
 			goto _test_eof22
 		}
 	st_case_22:
-//line parser.go:602
+//line parser.go:607
 		switch data[p] {
 		case 58:
 			goto st34
@@ -624,11 +629,11 @@ tr38:
 		}
 		goto st1
 tr39:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
-//line parser.rl:61
+//line parser.rl:66
 
             output["msg"] = string(data[valueOffset:pe])
         
@@ -638,7 +643,7 @@ tr39:
 			goto _test_eof23
 		}
 	st_case_23:
-//line parser.go:642
+//line parser.go:647
 		switch data[p] {
 		case 32:
 			goto tr44
@@ -671,7 +676,7 @@ tr39:
 		}
 		goto st1
 tr44:
-//line parser.rl:45
+//line parser.rl:50
 
             output["host"] = string(data[valueOffset:p])
         
@@ -681,7 +686,7 @@ tr44:
 			goto _test_eof24
 		}
 	st_case_24:
-//line parser.go:685
+//line parser.go:690
 		switch data[p] {
 		case 32:
 			goto tr47
@@ -695,11 +700,11 @@ tr44:
 		}
 		goto tr46
 tr46:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
-//line parser.rl:61
+//line parser.rl:66
 
             output["msg"] = string(data[valueOffset:pe])
         
@@ -709,7 +714,7 @@ tr46:
 			goto _test_eof25
 		}
 	st_case_25:
-//line parser.go:713
+//line parser.go:718
 		switch data[p] {
 		case 32:
 			goto st1
@@ -725,7 +730,7 @@ tr46:
 		}
 		goto st25
 tr49:
-//line parser.rl:49
+//line parser.rl:54
 
             output["app"] = string(data[valueOffset:p])
         
@@ -735,7 +740,7 @@ tr49:
 			goto _test_eof26
 		}
 	st_case_26:
-//line parser.go:739
+//line parser.go:744
 		switch data[p] {
 		case 32:
 			goto st27
@@ -751,11 +756,11 @@ tr49:
 		}
 		goto st25
 tr47:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
-//line parser.rl:61
+//line parser.rl:66
 
             output["msg"] = string(data[valueOffset:pe])
         
@@ -765,10 +770,10 @@ tr47:
 			goto _test_eof27
 		}
 	st_case_27:
-//line parser.go:769
+//line parser.go:774
 		goto tr37
 tr50:
-//line parser.rl:49
+//line parser.rl:54
 
             output["app"] = string(data[valueOffset:p])
         
@@ -778,13 +783,13 @@ tr50:
 			goto _test_eof28
 		}
 	st_case_28:
-//line parser.go:782
+//line parser.go:787
 		if 48 <= data[p] && data[p] <= 57 {
 			goto tr52
 		}
 		goto st1
 tr52:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
@@ -794,7 +799,7 @@ tr52:
 			goto _test_eof29
 		}
 	st_case_29:
-//line parser.go:798
+//line parser.go:803
 		if data[p] == 93 {
 			goto tr54
 		}
@@ -803,7 +808,7 @@ tr52:
 		}
 		goto st1
 tr54:
-//line parser.rl:53
+//line parser.rl:58
 
             output["pid"] = string(data[valueOffset:p])
         
@@ -813,7 +818,7 @@ tr54:
 			goto _test_eof30
 		}
 	st_case_30:
-//line parser.go:817
+//line parser.go:822
 		if data[p] == 58 {
 			goto st31
 		}
@@ -831,7 +836,7 @@ tr54:
 		}
 		goto st1
 tr45:
-//line parser.rl:45
+//line parser.rl:50
 
             output["host"] = string(data[valueOffset:p])
         
@@ -841,7 +846,7 @@ tr45:
 			goto _test_eof32
 		}
 	st_case_32:
-//line parser.go:845
+//line parser.go:850
 		switch data[p] {
 		case 32:
 			goto st24
@@ -874,7 +879,7 @@ tr45:
 		}
 		goto st1
 tr58:
-//line parser.rl:45
+//line parser.rl:50
 
             output["host"] = string(data[valueOffset:p])
         
@@ -884,7 +889,7 @@ tr58:
 			goto _test_eof33
 		}
 	st_case_33:
-//line parser.go:888
+//line parser.go:893
 		switch data[p] {
 		case 32:
 			goto tr44
@@ -917,11 +922,11 @@ tr58:
 		}
 		goto st1
 tr40:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
-//line parser.rl:61
+//line parser.rl:66
 
             output["msg"] = string(data[valueOffset:pe])
         
@@ -931,7 +936,7 @@ tr40:
 			goto _test_eof34
 		}
 	st_case_34:
-//line parser.go:935
+//line parser.go:940
 		switch data[p] {
 		case 58:
 			goto st33
@@ -1019,7 +1024,7 @@ tr40:
 		}
 		goto st1
 tr35:
-//line parser.rl:41
+//line parser.rl:46
 
             output["time"] = string(data[valueOffset:p])
         
@@ -1029,7 +1034,7 @@ tr35:
 			goto _test_eof40
 		}
 	st_case_40:
-//line parser.go:1033
+//line parser.go:1038
 		if data[p] == 32 {
 			goto st21
 		}
@@ -1038,7 +1043,7 @@ tr35:
 		}
 		goto st1
 tr62:
-//line parser.rl:41
+//line parser.rl:46
 
             output["time"] = string(data[valueOffset:p])
         
@@ -1048,7 +1053,7 @@ tr62:
 			goto _test_eof41
 		}
 	st_case_41:
-//line parser.go:1052
+//line parser.go:1057
 		if data[p] == 32 {
 			goto st21
 		}
@@ -1178,7 +1183,7 @@ tr62:
 		}
 		goto st1
 tr67:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
@@ -1188,7 +1193,7 @@ tr67:
 			goto _test_eof49
 		}
 	st_case_49:
-//line parser.go:1192
+//line parser.go:1197
 		if 48 <= data[p] && data[p] <= 57 {
 			goto st50
 		}
@@ -1221,7 +1226,7 @@ tr67:
 		}
 		goto st1
 tr3:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
@@ -1231,7 +1236,7 @@ tr3:
 			goto _test_eof53
 		}
 	st_case_53:
-//line parser.go:1235
+//line parser.go:1240
 		switch data[p] {
 		case 112:
 			goto st54
@@ -1536,7 +1541,7 @@ tr3:
 		}
 		goto st1
 tr4:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
@@ -1546,7 +1551,7 @@ tr4:
 			goto _test_eof79
 		}
 	st_case_79:
-//line parser.go:1550
+//line parser.go:1555
 		if data[p] == 101 {
 			goto st80
 		}
@@ -1612,7 +1617,7 @@ tr4:
 		}
 		goto st1
 tr5:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
@@ -1622,7 +1627,7 @@ tr5:
 			goto _test_eof86
 		}
 	st_case_86:
-//line parser.go:1626
+//line parser.go:1631
 		if data[p] == 101 {
 			goto st87
 		}
@@ -1688,7 +1693,7 @@ tr5:
 		}
 		goto st1
 tr6:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
@@ -1698,7 +1703,7 @@ tr6:
 			goto _test_eof93
 		}
 	st_case_93:
-//line parser.go:1702
+//line parser.go:1707
 		switch data[p] {
 		case 97:
 			goto st94
@@ -1773,7 +1778,7 @@ tr6:
 		}
 		goto st1
 tr7:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
@@ -1783,7 +1788,7 @@ tr7:
 			goto _test_eof99
 		}
 	st_case_99:
-//line parser.go:1787
+//line parser.go:1792
 		if data[p] == 97 {
 			goto st100
 		}
@@ -1830,7 +1835,7 @@ tr7:
 		}
 		goto st1
 tr8:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
@@ -1840,7 +1845,7 @@ tr8:
 			goto _test_eof103
 		}
 	st_case_103:
-//line parser.go:1844
+//line parser.go:1849
 		if data[p] == 111 {
 			goto st104
 		}
@@ -1855,7 +1860,7 @@ tr8:
 		}
 		goto st1
 tr9:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
@@ -1865,7 +1870,7 @@ tr9:
 			goto _test_eof105
 		}
 	st_case_105:
-//line parser.go:1869
+//line parser.go:1874
 		if data[p] == 99 {
 			goto st106
 		}
@@ -1895,7 +1900,7 @@ tr9:
 		}
 		goto st1
 tr10:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
@@ -1905,7 +1910,7 @@ tr10:
 			goto _test_eof108
 		}
 	st_case_108:
-//line parser.go:1909
+//line parser.go:1914
 		if data[p] == 101 {
 			goto st109
 		}
@@ -1953,7 +1958,7 @@ tr10:
 		}
 		goto st1
 tr122:
-//line parser.rl:28
+//line parser.rl:33
 
             valueOffset = p
         
@@ -1963,7 +1968,7 @@ tr122:
 			goto _test_eof113
 		}
 	st_case_113:
-//line parser.go:1967
+//line parser.go:1972
 		if data[p] == 62 {
 			goto tr124
 		}
@@ -2017,7 +2022,7 @@ tr122:
 		}
 		goto st1
 tr124:
-//line parser.rl:32
+//line parser.rl:37
 
             priNum, priErr = strconv.Atoi(string(data[valueOffset:p]))
             if priErr == nil {
@@ -2032,7 +2037,7 @@ tr124:
 			goto _test_eof118
 		}
 	st_case_118:
-//line parser.go:2036
+//line parser.go:2041
 		switch data[p] {
 		case 65:
 			goto tr3
@@ -2179,20 +2184,21 @@ tr124:
 	if p == eof {
 		switch cs {
 		case 0:
-//line parser.rl:65
+//line parser.rl:70
 
             success = false;
             {p++; cs = 0; goto _out }
         
-//line parser.go:2188
+//line parser.go:2193
 		}
 	}
 
 	_out: {}
 	}
 
-//line parser.rl:74
+//line parser.rl:79
 
 
     return output, success
 }
+
