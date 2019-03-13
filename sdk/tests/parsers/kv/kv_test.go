@@ -12,6 +12,7 @@ var semicolonEqualInput = []byte("key1=value1;key2=value2;")
 var colonEqualInput = []byte("key1=value1:key2=value2;")
 var minusCommaInput = []byte("key1,value1-key2,value2")
 var spacedInput = []byte(" first key = value1, second key = value2 ")
+var escapedInput = []byte("key1\\=key2=value1\\,value2,second key = value2 ")
 
 const (
 	equal     = byte('=')
@@ -59,5 +60,11 @@ func TestParser(t *testing.T) {
 	res, success = p.Parse(spacedInput)
 	assert.Assert(t, success, true)
 	assert.Equal(t, res["first key"], "value1", fmt.Sprintf("Failed: %s != %s", res["first key"], "value1"))
+	assert.Equal(t, res["second key"], "value2")
+
+	p, err = kv.NewParser(comma, equal)
+	res, success = p.Parse(escapedInput)
+	assert.Assert(t, success, true)
+	assert.Equal(t, res["key1\\=key2"], "value1\\,value2")
 	assert.Equal(t, res["second key"], "value2")
 }

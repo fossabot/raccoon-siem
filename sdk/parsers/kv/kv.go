@@ -5,7 +5,10 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 )
 
-const space = byte(' ')
+const (
+	space = byte(' ')
+	bs    = '\\'
+)
 
 type Parser struct {
 	pairSeparator byte
@@ -37,7 +40,7 @@ func (rec *Parser) Parse(data []byte) (map[string]string, bool) {
 	for i := range data {
 
 		// Separator between key and value was met
-		if data[i] == rec.kvSeparator && !lookForValue {
+		if data[i] == rec.kvSeparator && !lookForValue && data[i-1] != bs {
 			// Save current key
 			key = data[start:end]
 			// Wait for value now
@@ -51,7 +54,7 @@ func (rec *Parser) Parse(data []byte) (map[string]string, bool) {
 		}
 
 		// Separator between pairs of "key-value" was met
-		if data[i] == rec.pairSeparator && lookForValue {
+		if data[i] == rec.pairSeparator && lookForValue && data[i-1] != bs {
 			// Save current value to map with early saved key
 			result[helpers.BytesToString(key)] = helpers.BytesToString(data[start:end])
 			// Wait for next key now
