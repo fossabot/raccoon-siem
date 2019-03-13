@@ -1,7 +1,8 @@
-package JSONParser
+package json
 
 import (
-	"bytes"
+	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
+	"github.com/tephrocactus/raccoon-siem/sdk/parsers"
 )
 
 const (
@@ -31,55 +32,72 @@ const (
 
 type valueKind uint8
 
-func GetValue(data []byte, path []byte) []byte {
-	pathOffset := 0
-	dataOffset := 0
-pathLoop:
-	for pathOffset < len(path) {
-		targetKey := nextPathKey(path, &pathOffset)
-		isLastTargetKey := pathOffset >= len(path)
-		for {
-			key := nextKey(data, &dataOffset)
-			if key == nil {
-				return nil
-			}
-
-			kind, valueStart := determineValueKind(data, &dataOffset)
-			if kind == valueKindInvalid {
-				return nil
-			}
-
-			if !bytes.Equal(targetKey, key) {
-				skipValue(kind, data, &dataOffset)
-				continue
-			}
-
-			if kind == valueKindArray {
-				return nil
-			}
-
-			if !isLastTargetKey {
-				if kind != valueKindObject {
-					return nil
-				}
-				continue pathLoop
-			}
-
-			return extractValue(kind, data, &dataOffset, valueStart)
-		}
-	}
-	return nil
+type Config struct {
+	parsers.BaseConfig
 }
 
-func nextPathKey(path []byte, offset *int) []byte {
-	idx := bytes.IndexByte(path[*offset:], dot)
-	if idx == -1 {
-		start := *offset
-		*offset = len(path)
-		return path[start:]
+type parser struct {
+	cfg Config
+}
+
+func (r *parser) ID() string {
+	return r.cfg.Name
+}
+
+func NewParser(cfg Config) (*parser, error) {
+	return &parser{cfg}, nil
+}
+
+func (r *parser) Parse(data []byte) (map[string]string, bool) {
+	result := make(map[string]string)
+	offset := 0
+	success := r.getValue(nil, &offset, data, result)
+	return result, success
+}
+
+func (r *parser) getValue(prefix []byte, dataOffset *int, data []byte, result map[string]string) bool {
+	if !r.validJson(data) {
+		return false
 	}
-	*offset = idx + 1
-	return path[:idx]
+
+	for {
+		key := nextKey(data, dataOffset)
+		if key == nil {
+			break
+		}
+
+		kind, valueStart := determineValueKind(data, dataOffset)
+		if kind == valueKindInvalid {
+			break
+		}
+
+		if kind == valueKindArray {
+			skipValue(kind, data, dataOffset)
+			continue
+		}
+
+		if kind == valueKindObject {
+			r.getValue(append(key, dot), dataOffset, data, result)
+			continue
+		}
+
+		value := extractValue(kind, data, dataOffset, valueStart)
+		if prefix != nil {
+			result[string(append(prefix, key...))] = helpers.BytesToString(value)
+		} else {
+			result[string(key)] = helpers.BytesToString(value)
+		}
+
+		if determineIfObjectEnds(data,	 dataOffset) {
+			return true
+		}
+	}
+
+	return true
+}
+
+func (r *parser) validJson(data []byte) bool {
+	return data[0] == openCurlyBracket && data[len(data) - 1] == closeCurlyBracket
 }
 
 func nextKey(data []byte, offset *int) []byte {
@@ -100,6 +118,17 @@ func nextKey(data []byte, offset *int) []byte {
 	}
 
 	return data[keyStart:keyEnd]
+}
+
+func determineIfObjectEnds(data []byte, offset *int) bool {
+	switch nextMeaningfulByte(data, offset, false) {
+	case closeCurlyBracket:
+		*offset -= 1
+		return true
+	default:
+		*offset -= 1
+		return false
+	}
 }
 
 func determineValueKind(data []byte, offset *int) (kind valueKind, pos int) {
