@@ -3,6 +3,7 @@ package kv
 import (
 	"errors"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
+	"github.com/tephrocactus/raccoon-siem/sdk/parsers"
 )
 
 const (
@@ -10,25 +11,40 @@ const (
 	bs    = '\\'
 )
 
-type Parser struct {
-	pairSeparator byte
-	kvSeparator byte
+type Config struct {
+	parsers.BaseConfig
+
+	PairSeparator byte
+	KvSeparator   byte
 }
 
-func NewParser(pairSeparator byte, kvSeparator byte) (*Parser, error) {
-	if pairSeparator == kvSeparator {
+type parser struct {
+	cfg Config
+}
+
+func (r *parser) ID() string {
+	return r.cfg.Name
+}
+
+func NewParser(config Config) (*parser, error) {
+	if config.PairSeparator == 0 {
+		return nil, errors.New("pair separators cannot be empty")
+	}
+
+	if config.KvSeparator == 0 {
+		return nil, errors.New("kv separators cannot be empty")
+	}
+
+	if config.PairSeparator == config.KvSeparator {
 		return nil, errors.New("kv and pair separators must be different")
 	}
 
-	parser := Parser{
-		pairSeparator: pairSeparator,
-		kvSeparator:   kvSeparator,
-	}
+	parser := parser{config}
 
 	return &parser, nil
 }
 
-func (rec *Parser) Parse(data []byte) (map[string]string, bool) {
+func (r *parser) Parse(data []byte) (map[string]string, bool) {
 	result := make(map[string]string)
 
 	var key []byte
@@ -40,7 +56,7 @@ func (rec *Parser) Parse(data []byte) (map[string]string, bool) {
 	for i := range data {
 
 		// Separator between key and value was met
-		if data[i] == rec.kvSeparator && !lookForValue && data[i-1] != bs {
+		if data[i] == r.cfg.KvSeparator && !lookForValue && data[i-1] != bs {
 			// Save current key
 			key = data[start:end]
 			// Wait for value now
@@ -54,7 +70,7 @@ func (rec *Parser) Parse(data []byte) (map[string]string, bool) {
 		}
 
 		// Separator between pairs of "key-value" was met
-		if data[i] == rec.pairSeparator && lookForValue && data[i-1] != bs {
+		if data[i] == r.cfg.PairSeparator && lookForValue && data[i-1] != bs {
 			// Save current value to map with early saved key
 			result[helpers.BytesToString(key)] = helpers.BytesToString(data[start:end])
 			// Wait for next key now
@@ -88,4 +104,3 @@ func (rec *Parser) Parse(data []byte) (map[string]string, bool) {
 
 	return result, true
 }
-

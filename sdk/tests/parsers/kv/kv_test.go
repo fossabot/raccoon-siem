@@ -24,7 +24,12 @@ const (
 
 func BenchmarkParser(b *testing.B) {
 	b.ReportAllocs()
-	parser, _ := kv.NewParser(semicolon, equal)
+
+	config := kv.Config{
+		PairSeparator: semicolon,
+		KvSeparator: equal,
+	}
+	parser, _ := kv.NewParser(config)
 
 	for i := 0; i < b.N; i++ {
 		parser.Parse(benchmarkInput)
@@ -35,34 +40,58 @@ func TestParser(t *testing.T) {
 	var res map[string]string
 	var success bool
 
-	p, err := kv.NewParser(semicolon, semicolon)
+	config := kv.Config{
+		PairSeparator: semicolon,
+		KvSeparator: semicolon,
+	}
+	p, err := kv.NewParser(config)
 	assert.Error(t, err, "kv and pair separators must be different")
 
-	p, err = kv.NewParser(semicolon, equal)
+	config = kv.Config{
+		PairSeparator: semicolon,
+		KvSeparator: equal,
+	}
+	p, err = kv.NewParser(config)
 	res, success = p.Parse(semicolonEqualInput)
 	assert.Assert(t, success, true)
 	assert.Equal(t, res["key1"], "value1")
 	assert.Equal(t, res["key2"], "value2")
 
-	p, err = kv.NewParser(colon, equal)
+	config = kv.Config{
+		PairSeparator: colon,
+		KvSeparator: equal,
+	}
+	p, err = kv.NewParser(config)
 	res, success = p.Parse(colonEqualInput)
 	assert.Assert(t, success, true)
 	assert.Equal(t, res["key1"], "value1")
 	assert.Equal(t, res["key2"], "value2;")
 
-	p, err = kv.NewParser(minus, comma)
+	config = kv.Config{
+		PairSeparator: minus,
+		KvSeparator: comma,
+	}
+	p, err = kv.NewParser(config)
 	res, success = p.Parse(minusCommaInput)
 	assert.Assert(t, success, true)
 	assert.Equal(t, res["key1"], "value1")
 	assert.Equal(t, res["key2"], "value2")
 
-	p, err = kv.NewParser(comma, equal)
+	config = kv.Config{
+		PairSeparator: comma,
+		KvSeparator: equal,
+	}
+	p, err = kv.NewParser(config)
 	res, success = p.Parse(spacedInput)
 	assert.Assert(t, success, true)
 	assert.Equal(t, res["first key"], "value1", fmt.Sprintf("Failed: %s != %s", res["first key"], "value1"))
 	assert.Equal(t, res["second key"], "value2")
 
-	p, err = kv.NewParser(comma, equal)
+	config = kv.Config{
+		PairSeparator: comma,
+		KvSeparator: equal,
+	}
+	p, err = kv.NewParser(config)
 	res, success = p.Parse(escapedInput)
 	assert.Assert(t, success, true)
 	assert.Equal(t, res["key1\\=key2"], "value1\\,value2")
