@@ -1,8 +1,6 @@
 package cef
 
-import (
-	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
-)
+import "github.com/tephrocactus/raccoon-siem/sdk/parsers"
 
 const (
 	space = ' '
@@ -188,17 +186,17 @@ var (
 	}
 )
 
-type Parser struct {
-	name string
+type Config struct {
+	parsers.BaseConfig
 }
 
-func (r *Parser) ID() string {
-	return r.name
+type parser struct {
+	cfg Config
 }
 
 // Sample:
 // CEF:0|security|threatmanager|1.0|100|detected a \| in message|10|src=10.0.0.1 act=blocked a | dst=1.1.1.1
-func (r *Parser) Parse(data []byte) (map[string]string, bool) {
+func (r *parser) Parse(data []byte) (map[string]string, bool) {
 	if len(data) < len(entrySequence) {
 		return nil, false
 	}
@@ -224,7 +222,7 @@ func (r *Parser) Parse(data []byte) (map[string]string, bool) {
 	headerOK := false
 	for ; pos < len(data); pos++ {
 		if data[pos] == pipe && data[pos-1] != bs {
-			out[headerFields[headerFieldsIdx]] = helpers.BytesToString(data[valueStart:pos])
+			out[headerFields[headerFieldsIdx]] = string(data[valueStart:pos])
 
 			headerFieldsIdx++
 			if headerFieldsIdx == len(headerFields) {
@@ -255,17 +253,21 @@ func (r *Parser) Parse(data []byte) (map[string]string, bool) {
 
 		if data[pos] == eq && data[pos-1] != bs {
 			if valueStart != -1 {
-				out[key] = helpers.BytesToString(data[valueStart:prevSpacePos])
+				out[key] = string(data[valueStart:prevSpacePos])
 			}
-			key = dict[helpers.BytesToString(data[prevSpacePos+1:pos])]
+			key = dict[string(data[prevSpacePos+1:pos])]
 			valueStart = pos + 1
 			continue
 		}
 	}
 
 	if valueStart != -1 {
-		out[key] = helpers.BytesToString(data[valueStart:pos])
+		out[key] = string(data[valueStart:pos])
 	}
 
 	return out, len(out) > 0
+}
+
+func NewParser(cfg Config) (*parser, error) {
+	return &parser{cfg: cfg}, nil
 }

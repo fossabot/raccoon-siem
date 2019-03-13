@@ -1,8 +1,8 @@
 package rfc5424
 
 import (
+    "github.com/tephrocactus/raccoon-siem/sdk/parsers"
     "strconv"
-    "github.com/tephrocactus/raccoon-siem/sdk/helpers"
 )
 
 %%{
@@ -10,15 +10,19 @@ import (
     write data;
 }%%
 
-type Parser struct{
-    name string
+type Config struct {
+    parsers.BaseConfig
 }
 
-func (r *Parser) ID() string {
-	return r.name
+type parser struct{
+    cfg Config
 }
 
-func (r *Parser) Parse(data []byte) (map[string]string, bool) {
+func NewParser(cfg Config) (*parser, error) {
+    return &parser{cfg:cfg}, nil
+}
+
+func (r *parser) Parse(data []byte) (map[string]string, bool) {
     var cs, p, pe, eof, priNum, facilityNum, valueOffset int
     var recentSDKey string
     var priErr error
@@ -41,35 +45,35 @@ func (r *Parser) Parse(data []byte) (map[string]string, bool) {
          }
 
         action setTimestamp {
-            output["time"] = helpers.BytesToString(data[valueOffset:p])
+            output["time"] = string(data[valueOffset:p])
         }
 
         action setHostname {
-            output["host"] = helpers.BytesToString(data[valueOffset:p])
+            output["host"] = string(data[valueOffset:p])
         }
 
         action setAppName {
-            output["app"] = helpers.BytesToString(data[valueOffset:p])
+            output["app"] = string(data[valueOffset:p])
         }
 
         action setProcID {
-            output["pid"] = helpers.BytesToString(data[valueOffset:p])
+            output["pid"] = string(data[valueOffset:p])
         }
 
         action setMsgID {
-            output["mid"] = helpers.BytesToString(data[valueOffset:p])
+            output["mid"] = string(data[valueOffset:p])
         }
 
         action setMsg {
-            output["msg"] = helpers.BytesToString(data[valueOffset:pe])
+            output["msg"] = string(data[valueOffset:pe])
         }
 
         action setSDKey {
-            recentSDKey = helpers.BytesToString(data[valueOffset:p])
+            recentSDKey = string(data[valueOffset:p])
         }
 
         action setSDValue {
-            output[recentSDKey] = helpers.BytesToString(data[valueOffset:p])
+            output[recentSDKey] = string(data[valueOffset:p])
         }
 
         action fail {

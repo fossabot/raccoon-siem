@@ -1,6 +1,7 @@
 package cef
 
 import (
+	"github.com/tephrocactus/raccoon-siem/sdk/parsers"
 	"github.com/tephrocactus/raccoon-siem/sdk/parsers/cef"
 	"gotest.tools/assert"
 	"testing"
@@ -9,7 +10,7 @@ import (
 var sample = []byte(`CEF:0|енот|threatmanager|1.0|100|detected a \| in message|10|src=10.0.0.1 act=blocked message dst=1.1.1.1`)
 
 func TestCEF(t *testing.T) {
-	p := cef.Parser{}
+	p, _ := cef.NewParser(cef.Config{BaseConfig: parsers.BaseConfig{Name: "cef_test"}})
 
 	_, ok := p.Parse([]byte("invalid"))
 	assert.Equal(t, ok, false)
@@ -28,8 +29,10 @@ func TestCEF(t *testing.T) {
 }
 
 func BenchmarkCEF(b *testing.B) {
+	b.StopTimer()
 	b.ReportAllocs()
-	p := cef.Parser{}
+	p, _ := cef.NewParser(cef.Config{BaseConfig: parsers.BaseConfig{Name: "cef_test"}})
+	b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		p.Parse(sample)
 	}

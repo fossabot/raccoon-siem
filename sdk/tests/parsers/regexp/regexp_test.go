@@ -1,6 +1,7 @@
 package regexp
 
 import (
+	"github.com/tephrocactus/raccoon-siem/sdk/parsers"
 	"github.com/tephrocactus/raccoon-siem/sdk/parsers/regexp"
 	"gotest.tools/assert"
 	"testing"
@@ -17,14 +18,39 @@ var expressions = []string{
 }
 
 func TestRegexp(t *testing.T) {
-	_, err := regexp.NewParser("zero_groups", []string{`\S+`})
+	//
+	// Config validation test #1
+	//
+
+	_, err := regexp.NewParser(regexp.Config{
+		BaseConfig:  parsers.BaseConfig{Name: "zero_groups"},
+		Expressions: []string{`\S+`},
+	})
 	assert.Assert(t, err != nil)
 
-	_, err = regexp.NewParser("no_names", []string{`(\S+)`})
+	//
+	// Config validation test #2
+	//
+
+	_, err = regexp.NewParser(regexp.Config{
+		BaseConfig:  parsers.BaseConfig{Name: "no_names"},
+		Expressions: []string{`(\S+)`},
+	})
 	assert.Assert(t, err != nil)
 
-	p, err := regexp.NewParser("valid", expressions)
+	//
+	// Main test
+	//
+
+	p, err := regexp.NewParser(regexp.Config{
+		BaseConfig:  parsers.BaseConfig{Name: "zero_groups"},
+		Expressions: expressions,
+	})
 	assert.Assert(t, err == nil)
+
+	//
+	// Input #1
+	//
 
 	result, ok := p.Parse(messages[0])
 	assert.Equal(t, ok, true)
@@ -35,6 +61,10 @@ func TestRegexp(t *testing.T) {
 	assert.Equal(t, result["app"], "logger")
 	assert.Equal(t, result["mid"], "ID1714")
 	assert.Equal(t, result["msg"], "test message")
+
+	//
+	// Input #2
+	//
 
 	result, ok = p.Parse(messages[1])
 	assert.Equal(t, ok, true)
@@ -48,7 +78,12 @@ func TestRegexp(t *testing.T) {
 func BenchmarkRegexp(b *testing.B) {
 	b.StopTimer()
 	b.ReportAllocs()
-	p, _ := regexp.NewParser("regexp", expressions)
+
+	p, _ := regexp.NewParser(regexp.Config{
+		BaseConfig:  parsers.BaseConfig{Name: "zero_groups"},
+		Expressions: expressions,
+	})
+
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		p.Parse(messages[0])
