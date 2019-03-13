@@ -2,7 +2,6 @@ package rfc3164
 
 import (
    "strconv"
-   "github.com/tephrocactus/raccoon-siem/sdk/helpers"
 )
 
 %%{
@@ -40,27 +39,27 @@ func (r *Parser) Parse(data []byte) (map[string]string, bool) {
         }
 
         action setTimestamp {
-            output["time"] = helpers.BytesToString(data[valueOffset:p])
+            output["time"] = string(data[valueOffset:p])
         }
 
         action setHostname {
-            output["host"] = helpers.BytesToString(data[valueOffset:p])
+            output["host"] = string(data[valueOffset:p])
         }
 
         action setAppName {
-            output["app"] = helpers.BytesToString(data[valueOffset:p])
+            output["app"] = string(data[valueOffset:p])
         }
 
         action setProcID {
-            output["pid"] = helpers.BytesToString(data[valueOffset:p])
+            output["pid"] = string(data[valueOffset:p])
         }
 
         action setMsgID {
-            output["mid"] = helpers.BytesToString(data[valueOffset:p])
+            output["mid"] = string(data[valueOffset:p])
         }
 
         action setMsg {
-            output["msg"] = helpers.BytesToString(data[valueOffset:pe])
+            output["msg"] = string(data[valueOffset:pe])
         }
 
         action fail {
