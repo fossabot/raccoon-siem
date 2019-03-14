@@ -2,8 +2,6 @@ package collector
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/tephrocactus/raccoon-siem/sdk"
-	"runtime"
 )
 
 var (
@@ -82,81 +80,81 @@ func init() {
 }
 
 func run(_ *cobra.Command, _ []string) error {
-	// Get settings package
-	pack := new(sdk.CollectorPackage)
-	if err := sdk.CoreQuery(coreURL+"/register/collector/"+collectorID, pack); err != nil {
-		return err
-	}
-
-	// Register dictionaries
-	if err := sdk.RegisterDictionaries(pack.Dictionaries); err != nil {
-		return err
-	}
-
-	// Register parsers
-	registeredParsers, err := sdk.RegisterParsers(pack.Parsers)
-	if err != nil {
-		return err
-	}
-
-	// Registered filters
-	registeredFilters, err := sdk.RegisterFilters(pack.Filters)
-	if err != nil {
-		return err
-	}
-
-	// Register destinations
-	allDestinationSettings := sdk.GetDefaultDestinationSettings(storageURL, busURL, debugMode)
-	allDestinationSettings = append(allDestinationSettings, pack.Destinations...)
-	registeredDestinations, err := sdk.RegisterDestinations(allDestinationSettings)
-	if err != nil {
-		return err
-	}
-
-	// Register aggregation rules
-	aggregationChannel := make(chan sdk.AggregationChainTask)
-	registeredAggregationRules, err := sdk.RegisterAggregationRules(
-		pack.AggregationRules,
-		pack.AggregationFilters,
-		aggregationChannel)
-	if err != nil {
-		return err
-	}
-
-	// Register connectors
-	parsingChannel := make(chan *sdk.ProcessorTask)
-	registeredConnectors, err := sdk.RegisterConnectors(pack.Connectors, parsingChannel)
-	if err != nil {
-		return err
-	}
-
-	// Processor
-	proc := Processor{
-		ParsingChannel:     parsingChannel,
-		AggregationChannel: aggregationChannel,
-		Workers:            runtime.NumCPU(),
-		Parsers:            registeredParsers,
-		Filters:            registeredFilters,
-		AggregationRules:   registeredAggregationRules,
-		Connectors:         registeredConnectors,
-		Destinations:       registeredDestinations,
-		ID:                 collectorID,
-		Debug:              debugMode,
-		PrintRaw:           printRaw,
-		MetricsPort:        metricsPort,
-	}
-
-	sdk.PrintConfiguration(
-		registeredConnectors,
-		registeredParsers,
-		registeredFilters,
-		registeredAggregationRules,
-		registeredDestinations)
-
-	if err := proc.Start(); err != nil {
-		return err
-	}
-
-	runtime.Goexit()
+	//// Get settings package
+	//pack := new(sdk.CollectorPackage)
+	//if err := sdk.CoreQuery(coreURL+"/register/collector/"+collectorID, pack); err != nil {
+	//	return err
+	//}
+	//
+	//// Register dictionaries
+	//if err := sdk.RegisterDictionaries(pack.Dictionaries); err != nil {
+	//	return err
+	//}
+	//
+	//// Register parsers
+	//registeredParsers, err := sdk.RegisterParsers(pack.Parsers)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//// Registered filters
+	//registeredFilters, err := sdk.RegisterFilters(pack.Filters)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//// Register destinations
+	//allDestinationSettings := sdk.GetDefaultDestinationSettings(storageURL, busURL, debugMode)
+	//allDestinationSettings = append(allDestinationSettings, pack.Destinations...)
+	//registeredDestinations, err := sdk.RegisterDestinations(allDestinationSettings)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//// Register aggregation rules
+	//aggregationChannel := make(chan sdk.AggregationChainTask)
+	//registeredAggregationRules, err := sdk.RegisterAggregationRules(
+	//	pack.AggregationRules,
+	//	pack.AggregationFilters,
+	//	aggregationChannel)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//// Register connectors
+	//parsingChannel := make(chan *sdk.ProcessorTask)
+	//registeredConnectors, err := sdk.RegisterConnectors(pack.Connectors, parsingChannel)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//// InputProcessor
+	//proc := InputProcessor{
+	//	InputChannel:     parsingChannel,
+	//	OutputChannel:    aggregationChannel,
+	//	Workers:          runtime.NumCPU(),
+	//	Normalizer:       registeredParsers,
+	//	Filters:          registeredFilters,
+	//	AggregationRules: registeredAggregationRules,
+	//	Connectors:       registeredConnectors,
+	//	Destinations:     registeredDestinations,
+	//	ID:               collectorID,
+	//	Debug:            debugMode,
+	//	PrintRaw:         printRaw,
+	//	MetricsPort:      metricsPort,
+	//}
+	//
+	//sdk.PrintConfiguration(
+	//	registeredConnectors,
+	//	registeredParsers,
+	//	registeredFilters,
+	//	registeredAggregationRules,
+	//	registeredDestinations)
+	//
+	//if err := proc.Start(); err != nil {
+	//	return err
+	//}
+	//
+	//runtime.Goexit()
 	return nil
 }

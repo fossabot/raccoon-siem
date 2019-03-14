@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"github.com/mediocregopher/radix.v3"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"strings"
 )
 
@@ -39,12 +40,12 @@ func RegisterActiveLists(svcSettings ActiveListServiceSettings, settings []Activ
 	return nil
 }
 
-func makeActiveListKey(alName string, keyFields []string, event *Event) string {
+func makeActiveListKey(alName string, keyFields []string, event *normalization.Event) string {
 	sb := strings.Builder{}
 	sb.WriteString(alName + ":")
 
 	for _, key := range keyFields {
-		sb.WriteString(toString(event.GetFieldNoType(key)))
+		sb.WriteString(normalization.ToString(event.GetFieldNoType(key)))
 		sb.WriteString(".")
 	}
 

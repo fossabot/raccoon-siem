@@ -1,5 +1,7 @@
 package sdk
 
+import "github.com/tephrocactus/raccoon-siem/sdk/normalization"
+
 const (
 	actionActiveListKindAdd = iota
 	actionActiveListKindGet
@@ -28,7 +30,7 @@ type activeListActionFieldSpecification struct {
 	eventField string
 }
 
-func (a *activeListAction) Take(event *Event) error {
+func (a *activeListAction) Take(event *normalization.Event) error {
 	targetAL := activeListsByName[a.spec.name]
 
 	var err error
@@ -49,7 +51,7 @@ func (a *activeListAction) Take(event *Event) error {
 	case actionActiveListKindCount:
 		retValue, err = targetAL.Count(recordKey)
 		if err == nil {
-			event.SetField(a.spec.fields[0].eventField, retValue.(int64), timeUnitNone)
+			event.SetField(a.spec.fields[0].eventField, retValue.(int64), normalization.TimeUnitNone)
 		}
 	}
 
@@ -60,7 +62,7 @@ func (a *activeListAction) Take(event *Event) error {
 	return nil
 }
 
-func (a *activeListAction) makeALValuesMap(event *Event) alMultiValueType {
+func (a *activeListAction) makeALValuesMap(event *normalization.Event) alMultiValueType {
 	m := make(alMultiValueType)
 
 	for _, f := range a.spec.fields {
@@ -70,11 +72,11 @@ func (a *activeListAction) makeALValuesMap(event *Event) alMultiValueType {
 	return m
 }
 
-func (a *activeListAction) setEventFieldsFromALMap(event *Event, m alMultiValueType) {
+func (a *activeListAction) setEventFieldsFromALMap(event *normalization.Event, m alMultiValueType) {
 	for _, f := range a.spec.fields {
 		val, ok := m[f.listField]
 		if ok {
-			event.SetField(f.eventField, val, timeUnitNone)
+			event.SetField(f.eventField, val, normalization.TimeUnitNone)
 		}
 	}
 }

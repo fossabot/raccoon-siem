@@ -2,8 +2,6 @@ package correlator
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/tephrocactus/raccoon-siem/sdk"
-	"runtime"
 )
 
 var (
@@ -89,85 +87,85 @@ func init() {
 		false,
 		"debug mode")
 
-	Cmd.MarkFlagRequired("id")
+	_ = Cmd.MarkFlagRequired("id")
 }
 
 func run(_ *cobra.Command, _ []string) error {
-	// Get settings package
-	pack := new(sdk.CorrelatorPackage)
-	err := sdk.CoreQuery(coreURL+"/register/correlator/"+correlatorID, pack)
-	sdk.PanicOnError(err)
-
-	// Register default event parser
-	registeredParsers, err := sdk.RegisterParsers([]sdk.ParserSettings{{Name: "event", Kind: "event", Root: true}})
-	sdk.PanicOnError(err)
-
-	// Register active lists and run service client
-	alServiceSettings := sdk.ActiveListServiceSettings{
-		Name:     sdk.RaccoonActiveListsServiceName,
-		PoolSize: activeListSvcPoolSize,
-		URL:      activeListSvcURL,
-	}
-
-	err = sdk.RegisterActiveLists(alServiceSettings, pack.ActiveLists)
-	sdk.PanicOnError(err)
-
-	// Register filters
-	registeredFilters, err := sdk.RegisterFilters(pack.Filters)
-	sdk.PanicOnError(err)
-
-	// Register destinations
-	allDestinationSettings := sdk.GetDefaultDestinationSettings(storageURL, busURL, debugMode)
-	allDestinationSettings = append(allDestinationSettings, pack.Destinations...)
-	registeredDestinations, err := sdk.RegisterDestinations(allDestinationSettings)
-	sdk.PanicOnError(err)
-
-	// Register correlation rules
-	correlationChainChannel := make(chan sdk.CorrelationChainTask)
-	registeredCorrelationRules, err := sdk.RegisterCorrelationRules(
-		pack.CorrelationRules,
-		registeredFilters,
-		correlationChainChannel)
-	sdk.PanicOnError(err)
-
-	// Run correlation rules
-	sdk.RunCorrelationRules(registeredCorrelationRules)
-
-	// Register default connectors
-	allConnectorConfigs := []sdk.UniversalConnectorConfig{{
-		Name:    sdk.RaccoonCorrelationBusName,
-		Kind:    sdk.RaccoonCorrelationBusKind,
-		Subject: sdk.RaccoonCorrelationBusChannel,
-		URL:     busURL,
-	}}
-
-	correlationChannel := make(chan *sdk.ProcessorTask)
-	registeredConnectors, err := sdk.RegisterConnectors(allConnectorConfigs, correlationChannel)
-	sdk.PanicOnError(err)
-
-	// Processor
-	proc := Processor{
-		CorrelationChannel:      correlationChannel,
-		CorrelationChainChannel: correlationChainChannel,
-		Workers:                 runtime.NumCPU(),
-		Parsers:                 registeredParsers,
-		CorrelationRules:        registeredCorrelationRules,
-		Connectors:              registeredConnectors,
-		Destinations:            registeredDestinations,
-		Debug:                   debugMode,
-	}
-
-	sdk.PrintConfiguration(
-		registeredConnectors,
-		registeredParsers,
-		registeredCorrelationRules,
-		pack.ActiveLists,
-		registeredDestinations)
-
-	if err := proc.Start(); err != nil {
-		return err
-	}
-
-	runtime.Goexit()
+	//// Get settings package
+	//pack := new(sdk.CorrelatorPackage)
+	//err := sdk.CoreQuery(coreURL+"/register/correlator/"+correlatorID, pack)
+	//sdk.PanicOnError(err)
+	//
+	//// Register default event parser
+	//registeredParsers, err := sdk.RegisterParsers([]sdk.ParserSettings{{Name: "event", Kind: "event", Root: true}})
+	//sdk.PanicOnError(err)
+	//
+	//// Register active lists and run service client
+	//alServiceSettings := sdk.ActiveListServiceSettings{
+	//	Name:     sdk.RaccoonActiveListsServiceName,
+	//	PoolSize: activeListSvcPoolSize,
+	//	URL:      activeListSvcURL,
+	//}
+	//
+	//err = sdk.RegisterActiveLists(alServiceSettings, pack.ActiveLists)
+	//sdk.PanicOnError(err)
+	//
+	//// Register filters
+	//registeredFilters, err := sdk.RegisterFilters(pack.Filters)
+	//sdk.PanicOnError(err)
+	//
+	//// Register destinations
+	//allDestinationSettings := sdk.GetDefaultDestinationSettings(storageURL, busURL, debugMode)
+	//allDestinationSettings = append(allDestinationSettings, pack.Destinations...)
+	//registeredDestinations, err := sdk.RegisterDestinations(allDestinationSettings)
+	//sdk.PanicOnError(err)
+	//
+	//// Register correlation rules
+	//correlationChainChannel := make(chan sdk.CorrelationChainTask)
+	//registeredCorrelationRules, err := sdk.RegisterCorrelationRules(
+	//	pack.CorrelationRules,
+	//	registeredFilters,
+	//	correlationChainChannel)
+	//sdk.PanicOnError(err)
+	//
+	//// Run correlation rules
+	//sdk.RunCorrelationRules(registeredCorrelationRules)
+	//
+	//// Register default connectors
+	//allConnectorConfigs := []sdk.UniversalConnectorConfig{{
+	//	Name:    sdk.RaccoonCorrelationBusName,
+	//	Kind:    sdk.RaccoonCorrelationBusKind,
+	//	Subject: sdk.RaccoonCorrelationBusChannel,
+	//	URL:     busURL,
+	//}}
+	//
+	//correlationChannel := make(chan *sdk.ProcessorTask)
+	//registeredConnectors, err := sdk.RegisterConnectors(allConnectorConfigs, correlationChannel)
+	//sdk.PanicOnError(err)
+	//
+	//// Processor
+	//proc := Processor{
+	//	CorrelationChannel:      correlationChannel,
+	//	CorrelationChainChannel: correlationChainChannel,
+	//	Workers:                 runtime.NumCPU(),
+	//	Parsers:                 registeredParsers,
+	//	CorrelationRules:        registeredCorrelationRules,
+	//	Connectors:              registeredConnectors,
+	//	Destinations:            registeredDestinations,
+	//	Debug:                   debugMode,
+	//}
+	//
+	//sdk.PrintConfiguration(
+	//	registeredConnectors,
+	//	registeredParsers,
+	//	registeredCorrelationRules,
+	//	pack.ActiveLists,
+	//	registeredDestinations)
+	//
+	//if err := proc.Start(); err != nil {
+	//	return err
+	//}
+	//
+	//runtime.Goexit()
 	return nil
 }

@@ -1,9 +1,12 @@
 package sdk
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
+)
 
 func ValidateEventFieldAndGetType(name string) (byte, error) {
-	fType, ok := eventFieldTypeByName[name]
+	fType, ok := normalization.EventFieldTypeByName[name]
 
 	if !ok {
 		return 0, fmt.Errorf("unknown or protected event field '%s'", name)
@@ -60,24 +63,17 @@ func ValidateAndTransformFilterOperator(v string) (byte, error) {
 
 func ValidateAndTransformTimeUnit(v string) (byte, error) {
 	switch v {
-	case timeUnitSecondsString:
-		return timeUnitSeconds, nil
-	case timeUnitMillisecondsString:
-		return timeUnitMilliseconds, nil
-	case timeUnitMicrosecondsString:
-		return timeUnitMicroseconds, nil
-	case timeUnitNanosecondsString:
-		return timeUnitNanoseconds, nil
+	case normalization.TimeUnitSecondsString:
+		return normalization.TimeUnitSeconds, nil
+	case normalization.TimeUnitMillisecondsString:
+		return normalization.TimeUnitMilliseconds, nil
+	case normalization.TimeUnitMicrosecondsString:
+		return normalization.TimeUnitMicroseconds, nil
+	case normalization.TimeUnitNanosecondsString:
+		return normalization.TimeUnitNanoseconds, nil
 	default:
-		return timeUnitNone, nil
+		return normalization.TimeUnitNone, nil
 	}
-}
-
-func ValidateParserKind(v string) error {
-	if _, ok := knownParserKinds[v]; !ok {
-		return fmt.Errorf("unknown parser '%s'", v)
-	}
-	return nil
 }
 
 func ValidateAndTransformVariableSource(s string) (byte, error) {

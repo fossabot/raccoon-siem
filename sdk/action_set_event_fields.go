@@ -1,5 +1,7 @@
 package sdk
 
+import "github.com/tephrocactus/raccoon-siem/sdk/normalization"
+
 func newSetEventFieldAction(spec *setEventFieldActionSpecification) IAction {
 	return &setEventFieldsAction{spec: spec}
 }
@@ -17,7 +19,7 @@ type setEventFieldsAction struct {
 	spec *setEventFieldActionSpecification
 }
 
-func (a *setEventFieldsAction) Take(event *Event) error {
+func (a *setEventFieldsAction) Take(event *normalization.Event) error {
 	for _, field := range a.spec.fields {
 		event.SetFieldNoConversion(field.name, field.value)
 	}

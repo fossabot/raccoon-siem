@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"regexp"
 	"strings"
 )
@@ -119,7 +120,7 @@ func (v *variable) compile(expr string) (*variable, error) {
 	return v, nil
 }
 
-func (v *variable) getValue(event *Event) (interface{}, error) {
+func (v *variable) getValue(event *normalization.Event) (interface{}, error) {
 	switch v.sourceKind {
 	case variableSourceActiveList:
 		return v.getValueFromActiveList(event)
@@ -130,7 +131,7 @@ func (v *variable) getValue(event *Event) (interface{}, error) {
 	}
 }
 
-func (v *variable) getValueFromActiveList(event *Event) (interface{}, error) {
+func (v *variable) getValueFromActiveList(event *normalization.Event) (interface{}, error) {
 	key := makeActiveListKey(v.sourceName, v.sourceKeys, event)
 	al := activeListsByName[v.sourceName]
 
@@ -158,7 +159,7 @@ func (v *variable) getValueFromActiveList(event *Event) (interface{}, error) {
 	}
 }
 
-func (v *variable) getValueFromDictionary(event *Event) (interface{}, error) {
+func (v *variable) getValueFromDictionary(event *normalization.Event) (interface{}, error) {
 	dict := dictionariesByName[v.sourceName]
 	key := event.GetFieldNoType(v.sourceKeys[0])
 

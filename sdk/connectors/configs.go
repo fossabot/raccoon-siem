@@ -1,12 +1,6 @@
 package connectors
 
-type BaseConfig struct {
-	Name          string
-	URL           string
-	OutputChannel OutputChannel
-}
-
-type UserConfig struct {
+type Config struct {
 	Name       string `yaml:"name,omitempty"`
 	Kind       string `yaml:"kind,omitempty"`
 	URL        string `yaml:"url"`
@@ -18,6 +12,6 @@ type UserConfig struct {
 	MaxLen     int    `yaml:"max_len"`
 }
 
-func (s *UserConfig) ID() string {
+func (s *Config) ID() string {
 	return s.Name
 }

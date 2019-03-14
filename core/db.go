@@ -12,7 +12,7 @@ var (
 	dbBucketCorrelationRule = []byte("correlationRule")
 	dbBucketAggregationRule = []byte("aggregationRule")
 	dbBucketFilter          = []byte("filter")
-	dbBucketParser          = []byte("parser")
+	dbBucketNormalizer      = []byte("normalizer")
 	dbBucketCollector       = []byte("collector")
 	dbBucketCorrelator      = []byte("correlator")
 	dbBucketActiveList      = []byte("activeList")
@@ -22,7 +22,7 @@ var (
 )
 
 var bucketNames = [][]byte{
-	dbBucketCorrelationRule, dbBucketFilter, dbBucketParser, dbBucketCollector,
+	dbBucketCorrelationRule, dbBucketFilter, dbBucketNormalizer, dbBucketCollector,
 	dbBucketCorrelator, dbBucketActiveList, dbBucketConnector, dbBucketAggregationRule,
 	dbBucketDestination, dbBucketDictionary,
 }

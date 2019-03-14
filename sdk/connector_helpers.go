@@ -1,15 +1,20 @@
 package sdk
 
-func RegisterConnectors(configs []UniversalConnectorConfig, processorChannel chan *ProcessorTask) ([]IConnector, error) {
-	uniqueConnectors := make(map[string]IConnector)
-	result := make([]IConnector, 0)
+import "github.com/tephrocactus/raccoon-siem/sdk/connectors"
+
+func RegisterConnectors(
+	configs []connectors.Config,
+	channel connectors.OutputChannel,
+) ([]connectors.IConnector, error) {
+	uniqueConnectors := make(map[string]connectors.IConnector)
+	result := make([]connectors.IConnector, 0)
 
 	for _, config := range configs {
 		if _, ok := uniqueConnectors[config.Name]; ok {
 			continue
 		}
 
-		s, err := NewConnector(config, processorChannel)
+		s, err := connectors.New(config, channel)
 		if err != nil {
 			return nil, err
 		}
@@ -21,7 +26,7 @@ func RegisterConnectors(configs []UniversalConnectorConfig, processorChannel cha
 	return result, nil
 }
 
-func RunConnectors(connectors []IConnector) error {
+func RunConnectors(connectors []connectors.IConnector) error {
 	for _, connector := range connectors {
 		if err := connector.Run(); err != nil {
 			return err

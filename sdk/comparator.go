@@ -1,6 +1,9 @@
 package sdk
 
-import "time"
+import (
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
+	"time"
+)
 
 const (
 	opEQ = iota
@@ -32,15 +35,15 @@ func (ef *comparator) compareValues(src interface{}, srcType byte, dst interface
 	}
 
 	switch srcType {
-	case fieldTypeInt:
+	case normalization.FieldTypeInt:
 		return ef.compareInt(src.(int64), dst, op)
-	case fieldTypeFloat:
+	case normalization.FieldTypeFloat:
 		return ef.compareFloat(src.(float64), dst, op)
-	case fieldTypeTime:
+	case normalization.FieldTypeTime:
 		return ef.compareTime(src.(time.Time), dst, op)
-	case fieldTypeDuration:
+	case normalization.FieldTypeDuration:
 		return ef.compareDuration(src.(time.Duration), dst, op)
-	case fieldTypeString:
+	case normalization.FieldTypeString:
 		return ef.compareString(src.(string), dst, op)
 	}
 

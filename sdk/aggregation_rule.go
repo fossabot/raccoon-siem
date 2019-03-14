@@ -2,12 +2,13 @@ package sdk
 
 import (
 	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
 type IAggregationRule interface {
 	ID() string
 	Run()
-	Feed(event *Event)
+	Feed(event *normalization.Event)
 }
 
 type AggregationRule struct {
@@ -24,9 +25,9 @@ func (ar *AggregationRule) Run() {
 	)
 }
 
-func (ar *AggregationRule) Feed(event *Event) {
+func (ar *AggregationRule) Feed(event *normalization.Event) {
 	for _, eventSpec := range ar.eventSpecs {
-		if eventSpec.filter.Pass([]*Event{event}) {
+		if eventSpec.filter.Pass([]*normalization.Event{event}) {
 			ar.aggregator.feed(event, eventSpec)
 			return
 		}

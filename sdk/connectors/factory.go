@@ -2,9 +2,6 @@ package connectors
 
 import (
 	"fmt"
-	"github.com/tephrocactus/raccoon-siem/sdk/connectors/listener"
-	"github.com/tephrocactus/raccoon-siem/sdk/connectors/nats"
-	"github.com/tephrocactus/raccoon-siem/sdk/connectors/netflow"
 )
 
 const (
@@ -18,39 +15,22 @@ type IConnector interface {
 	Run() error
 }
 
-func NewConnector(config UserConfig, channel OutputChannel) (IConnector, error) {
-	switch config.Kind {
+type Output struct {
+	Connector string
+	Data      []byte
+}
+
+type OutputChannel chan Output
+
+func New(cfg Config, channel OutputChannel) (IConnector, error) {
+	switch cfg.Kind {
 	case connectorListener:
-		return listener.NewConnector(listener.Config{
-			BaseConfig: BaseConfig{
-				Name:          config.Name,
-				URL:           config.URL,
-				OutputChannel: channel,
-			},
-			Protocol:   config.Protocol,
-			Delimiter:  config.Delimiter,
-			BufferSize: config.BufferSize,
-		})
+		return newListenerConnector(cfg, channel)
 	case connectorNats:
-		return nats.NewConnector(nats.Config{
-			BaseConfig: BaseConfig{
-				Name:          config.Name,
-				URL:           config.URL,
-				OutputChannel: channel,
-			},
-			Subject: config.Subject,
-			Queue:   config.Queue,
-		})
+		return newNATSConnector(cfg, channel)
 	case connectorNetflow:
-		return netflow.NewConnector(netflow.Config{
-			BaseConfig: BaseConfig{
-				Name:          config.Name,
-				URL:           config.URL,
-				OutputChannel: channel,
-			},
-			BufferSize: config.BufferSize,
-		})
+		return newNetflowConnector(cfg, channel)
 	default:
-		return nil, fmt.Errorf("unknown connector kind: %s", config.Kind)
+		return nil, fmt.Errorf("unknown connector kind: %s", cfg.Kind)
 	}
 }

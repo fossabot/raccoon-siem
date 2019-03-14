@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"log"
 	"sync"
 )
@@ -23,7 +24,7 @@ func (d *consoleDestination) Run() error {
 	return nil
 }
 
-func (d *consoleDestination) Send(event *Event) {
+func (d *consoleDestination) Send(event *normalization.Event) {
 	d.mu.Lock()
 	fmt.Println(event)
 	if event.Trace != "" {

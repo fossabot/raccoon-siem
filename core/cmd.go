@@ -42,11 +42,11 @@ func run(_ *cobra.Command, _ []string) error {
 	// Register http endpoints
 	httpServer := gin.Default()
 
-	// Parsers
-	httpServer.GET("/parser", Parsers)
-	httpServer.GET("/parser/:id", ParserGET)
-	httpServer.PUT("/parser", ParserPUT)
-	httpServer.DELETE("/parser/:id", ParserDELETE)
+	// Normalizer
+	httpServer.GET("/parser", Normalizers)
+	httpServer.GET("/parser/:id", NormalizerGET)
+	httpServer.PUT("/parser", NormalizerPUT)
+	httpServer.DELETE("/parser/:id", NormalizerDELETE)
 
 	// Collectors
 	httpServer.GET("/collector", Collectors)
@@ -105,9 +105,6 @@ func run(_ *cobra.Command, _ []string) error {
 	// Component registration
 	httpServer.GET("/register/collector/:id", CollectorRegister)
 	httpServer.GET("/register/correlator/:id", CorrelatorRegister)
-
-	// Storage mapping generator
-	httpServer.GET("/storage/template", GenerateStorageMapping)
 
 	// Run http server
 	return httpServer.Run(listen)

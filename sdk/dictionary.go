@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
 const (
@@ -34,7 +35,7 @@ func (d *dictionary) compile(settings *DictionarySettings) (*dictionary, error) 
 	}
 
 	for k, v := range settings.Data {
-		d.data[to64Bits(k)] = to64Bits(v)
+		d.data[normalization.To64Bits(k)] = normalization.To64Bits(v)
 	}
 
 	return d, nil

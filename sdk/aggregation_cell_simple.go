@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"time"
 )
 
@@ -11,7 +12,7 @@ type simpleAggregationCell struct {
 	sumFields []string
 }
 
-func (ac *simpleAggregationCell) put(event *Event, eventSpec *eventSpecification) {
+func (ac *simpleAggregationCell) put(event *normalization.Event, eventSpec *eventSpecification) {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
 
@@ -21,12 +22,12 @@ func (ac *simpleAggregationCell) put(event *Event, eventSpec *eventSpecification
 	}
 }
 
-func (ac *simpleAggregationCell) callTrigger(trigger string, eventSpec *eventSpecification, event *Event) {
+func (ac *simpleAggregationCell) callTrigger(trigger string, spec *eventSpecification, event *normalization.Event) {
 	payload := &triggerPayload{
-		eventSpec:  eventSpec,
+		eventSpec:  spec,
 		eventSpecs: ac.container.eventSpecs,
 		cellKey:    ac.key,
-		events:     ac.aggregatedEvents.get(eventSpec.id),
+		events:     ac.aggregatedEvents.get(spec.id),
 	}
 	ac.container.triggerFunc(trigger, payload)
 }

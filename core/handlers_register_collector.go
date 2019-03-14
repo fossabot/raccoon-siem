@@ -32,7 +32,7 @@ func CollectorRegister(ctx *gin.Context) {
 			return err
 		}
 
-		pack.Parsers, err = readParsersByIDs(collectorSettings.Parsers, true, nil, tx)
+		pack.Normalizers, err = readNormalizersByIDs(collectorSettings.Parsers, true, nil, tx)
 
 		if err != nil {
 			return err

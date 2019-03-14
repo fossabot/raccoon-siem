@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
 type aggregation struct {
@@ -64,7 +65,7 @@ func (s *AggregationSettings) compile() (*aggregation, error) {
 		}
 
 		switch ft {
-		case fieldTypeInt, fieldTypeFloat, fieldTypeDuration:
+		case normalization.FieldTypeInt, normalization.FieldTypeFloat, normalization.FieldTypeDuration:
 		default:
 			return nil, fmt.Errorf("field '%s' can not be summarized", field)
 		}

@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"regexp"
 )
 
@@ -47,7 +48,7 @@ func (s SetEventFieldsActionSettings) compileField(
 		return nil, err
 	}
 
-	af.value = convertValue(matches[2], eventFieldType, timeUnitNone)
+	af.value = normalization.ConvertValue(matches[2], eventFieldType, normalization.TimeUnitNone)
 
 	return af, nil
 }

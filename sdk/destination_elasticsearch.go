@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/olivere/elastic"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"runtime"
 	"strings"
 	"sync"
@@ -13,7 +14,7 @@ import (
 func newElasticsearchDestination(settings DestinationSettings) IDestination {
 	return &elasticsearchDestination{
 		settings:   settings,
-		inChannel:  make(chan *Event),
+		inChannel:  make(chan *normalization.Event),
 		timeLayout: "2006-01-02",
 	}
 }
@@ -23,7 +24,7 @@ type elasticsearchDestination struct {
 	settings      DestinationSettings
 	connection    *elastic.Client
 	bulkProcessor *elastic.BulkProcessor
-	inChannel     chan *Event
+	inChannel     chan *normalization.Event
 	timeLayout    string
 }
 
@@ -45,7 +46,7 @@ func (d *elasticsearchDestination) Run() error {
 	return nil
 }
 
-func (d *elasticsearchDestination) Send(event *Event) {
+func (d *elasticsearchDestination) Send(event *normalization.Event) {
 	d.inChannel <- event
 }
 
@@ -96,9 +97,8 @@ func (d *elasticsearchDestination) spawnWorker() {
 	go func() {
 		for event := range d.inChannel {
 			ts := time.Now()
-			event.setStorageTS(ts)
-			eventsToSend := []*Event{event}
-			eventsToSend = append(eventsToSend, event.baseEvents...)
+			eventsToSend := []*normalization.Event{event}
+			eventsToSend = append(eventsToSend, event.BaseEvents...)
 			for _, eventToSend := range eventsToSend {
 				request := elastic.NewBulkIndexRequest().
 					Index(d.makeFinalIndexName(ts)).

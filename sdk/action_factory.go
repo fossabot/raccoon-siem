@@ -1,7 +1,9 @@
 package sdk
 
+import "github.com/tephrocactus/raccoon-siem/sdk/normalization"
+
 type IAction interface {
-	Take(event *Event) error
+	Take(event *normalization.Event) error
 }
 
 type actionSpecifications struct {

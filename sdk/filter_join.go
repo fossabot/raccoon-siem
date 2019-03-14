@@ -1,6 +1,9 @@
 package sdk
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
+)
 
 type filterJoin struct {
 	comparator
@@ -13,8 +16,8 @@ func (f *filterJoin) ID() string {
 	return f.name
 }
 
-func (f *filterJoin) Pass(events []*Event) bool {
-	eventsBySpecID := make(map[string]*Event)
+func (f *filterJoin) Pass(events []*normalization.Event) bool {
+	eventsBySpecID := make(map[string]*normalization.Event)
 
 	for _, e := range events {
 		eventsBySpecID[e.CorrelatorEventSpecID] = e
@@ -54,8 +57,8 @@ func (f *filterJoin) compile(settings *FilterSettings) (*filterJoin, error) {
 }
 
 func (f *filterJoin) checkSection(
-	correlationEvents []*Event,
-	eventsBySpecID map[string]*Event,
+	correlationEvents []*normalization.Event,
+	eventsBySpecID map[string]*normalization.Event,
 	section *filterJoinSection,
 ) bool {
 	for _, cond := range section.conditions {
@@ -81,9 +84,9 @@ func (f *filterJoin) checkSection(
 }
 
 func (f *filterJoin) joinConditionMatch(
-	srcEvent *Event,
+	srcEvent *normalization.Event,
 	srcEventField string,
-	dstEvent *Event,
+	dstEvent *normalization.Event,
 	dstEventField string,
 	op byte,
 ) bool {

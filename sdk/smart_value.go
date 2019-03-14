@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"regexp"
 	"strings"
 	"sync"
@@ -32,7 +33,7 @@ func (v *smartValue) compile(expr string) *smartValue {
 	return v
 }
 
-func (v *smartValue) resolve(vars map[string]*variable, event *Event) (interface{}, error) {
+func (v *smartValue) resolve(vars map[string]*variable, event *normalization.Event) (interface{}, error) {
 	if v.source == smartValueSourceEventField {
 		return event.GetFieldNoType(v.name), nil
 	}
@@ -45,7 +46,7 @@ func (v *smartValue) resolve(vars map[string]*variable, event *Event) (interface
 			return nil, err
 		}
 
-		return convertValue(val, v.kind, timeUnitNone), nil
+		return normalization.ConvertValue(val, v.kind, normalization.TimeUnitNone), nil
 	}
 
 	return v.value, nil
@@ -61,20 +62,20 @@ func (v *smartValue) parseUntyped(expr string) {
 
 	if v.isVariable(expr) {
 		v.source = smartValueSourceVariable
-		v.kind = fieldTypeString
+		v.kind = normalization.FieldTypeString
 		v.name = expr[len(variablePrefix):]
 		return
 	}
 
 	if expr == "false" {
 		v.value = false
-		v.kind = fieldTypeBool
+		v.kind = normalization.FieldTypeBool
 	} else if expr == "true" {
 		v.value = true
-		v.kind = fieldTypeBool
+		v.kind = normalization.FieldTypeBool
 	} else {
 		v.value = expr
-		v.kind = fieldTypeString
+		v.kind = normalization.FieldTypeString
 	}
 
 	v.source = smartValueSourceConstant
@@ -98,7 +99,7 @@ func (v *smartValue) parseTyped(expr string) bool {
 		v.name = val[len(variablePrefix):]
 	} else {
 		v.source = smartValueSourceConstant
-		v.value = convertValue(val, v.kind, timeUnitNone)
+		v.value = normalization.ConvertValue(val, v.kind, normalization.TimeUnitNone)
 	}
 
 	return true
@@ -118,17 +119,17 @@ func (v *smartValue) isVariable(s string) bool {
 func (v *smartValue) setKindFromString(s string) bool {
 	switch s {
 	case "string":
-		v.kind = fieldTypeString
+		v.kind = normalization.FieldTypeString
 	case "int":
-		v.kind = fieldTypeInt
+		v.kind = normalization.FieldTypeInt
 	case "float":
-		v.kind = fieldTypeFloat
+		v.kind = normalization.FieldTypeFloat
 	case "bool":
-		v.kind = fieldTypeBool
+		v.kind = normalization.FieldTypeBool
 	case "time":
-		v.kind = fieldTypeTime
+		v.kind = normalization.FieldTypeTime
 	case "duration":
-		v.kind = fieldTypeDuration
+		v.kind = normalization.FieldTypeDuration
 	default:
 		return false
 	}

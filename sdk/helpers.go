@@ -3,6 +3,9 @@ package sdk
 import (
 	"fmt"
 	"github.com/satori/go.uuid"
+	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalizers"
 	"log"
 	"net"
 	"os"
@@ -35,7 +38,7 @@ func GetIPAddress() string {
 }
 
 // Sort eventSpecs by EndTime DESC
-func sortEventsByEndTime(events []*Event, asc bool) {
+func sortEventsByEndTime(events []*normalization.Event, asc bool) {
 	sort.SliceStable(events, func(i, j int) bool {
 		if asc {
 			return events[i].EndTime.UnixNano() < events[j].EndTime.UnixNano()
@@ -58,14 +61,14 @@ func CopyBytes(data []byte) []byte {
 func PrintConfiguration(resources ...interface{}) {
 	for _, r := range resources {
 		switch r.(type) {
-		case []IConnector:
+		case []connectors.IConnector:
 			fmt.Printf("Connectors:\n")
-			for i, v := range r.([]IConnector) {
+			for i, v := range r.([]connectors.IConnector) {
 				fmt.Printf("\t%d.%v\n", i+1, v.ID())
 			}
-		case []IParser:
-			fmt.Printf("Parsers:\n")
-			for i, v := range r.([]IParser) {
+		case []normalizers.INormalizer:
+			fmt.Printf("Normalizer:\n")
+			for i, v := range r.([]normalizers.INormalizer) {
 				fmt.Printf("\t%d.%v\n", i+1, v.ID())
 			}
 		case []IFilter:

@@ -1,10 +1,11 @@
 package sdk
 
 import (
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"time"
 )
 
-func sumEventFields(fields []string, events []*Event, targetEvent *Event) {
+func sumEventFields(fields []string, events []*normalization.Event, targetEvent *normalization.Event) {
 	for _, f := range fields {
 		fieldValue := targetEvent.GetFieldNoType(f)
 		switch fieldValue.(type) {
@@ -20,7 +21,7 @@ func sumEventFields(fields []string, events []*Event, targetEvent *Event) {
 	}
 }
 
-func sumIntFields(events []*Event, field string) (sum int64) {
+func sumIntFields(events []*normalization.Event, field string) (sum int64) {
 	for _, e := range events {
 		v := e.GetFieldNoType(field).(int64)
 		sum += v
@@ -28,7 +29,7 @@ func sumIntFields(events []*Event, field string) (sum int64) {
 	return
 }
 
-func sumFloatFields(events []*Event, field string) (sum float64) {
+func sumFloatFields(events []*normalization.Event, field string) (sum float64) {
 	for _, e := range events {
 		v := e.GetFieldNoType(field).(float64)
 		sum += v
@@ -36,7 +37,7 @@ func sumFloatFields(events []*Event, field string) (sum float64) {
 	return
 }
 
-func sumDurationFields(events []*Event, field string) (sum time.Duration) {
+func sumDurationFields(events []*normalization.Event, field string) (sum time.Duration) {
 	for _, e := range events {
 		v := e.GetFieldNoType(field).(time.Duration)
 		sum += v

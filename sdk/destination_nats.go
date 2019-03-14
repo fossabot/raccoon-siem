@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"github.com/nats-io/go-nats"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"runtime"
 	"sync"
 )
@@ -9,7 +10,7 @@ import (
 func newNATSDestination(settings DestinationSettings) IDestination {
 	return &natsDestination{
 		settings:  settings,
-		inChannel: make(chan *Event, runtime.NumCPU()),
+		inChannel: make(chan *normalization.Event, runtime.NumCPU()),
 	}
 }
 
@@ -17,7 +18,7 @@ type natsDestination struct {
 	mu         sync.Mutex
 	settings   DestinationSettings
 	connection *nats.Conn
-	inChannel  chan *Event
+	inChannel  chan *normalization.Event
 }
 
 func (d *natsDestination) ID() string {
@@ -43,7 +44,7 @@ func (d *natsDestination) Run() error {
 	return nil
 }
 
-func (d *natsDestination) Send(event *Event) {
+func (d *natsDestination) Send(event *normalization.Event) {
 	d.inChannel <- event
 }
 

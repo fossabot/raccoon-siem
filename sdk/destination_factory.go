@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
 const (
@@ -19,7 +20,7 @@ var knownDestinations = map[string]bool{
 type IDestination interface {
 	ID() string
 	Run() error
-	Send(event *Event)
+	Send(event *normalization.Event)
 }
 
 func NewDestination(settings DestinationSettings) (IDestination, error) {

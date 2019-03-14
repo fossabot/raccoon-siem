@@ -1,6 +1,9 @@
 package sdk
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
+)
 
 type filter struct {
 	comparator
@@ -14,7 +17,7 @@ func (f *filter) ID() string {
 	return f.name
 }
 
-func (f *filter) Pass(events []*Event) bool {
+func (f *filter) Pass(events []*normalization.Event) bool {
 	for _, section := range f.sections {
 		if !f.checkSection(events[0], section) {
 			return f.not
@@ -66,7 +69,7 @@ func (f *filter) compile(settings *FilterSettings) (*filter, error) {
 	return f, nil
 }
 
-func (f *filter) checkSection(event *Event, section *filterSection) bool {
+func (f *filter) checkSection(event *normalization.Event, section *filterSection) bool {
 	for _, cond := range section.conditions {
 		if !section.or {
 			if !f.conditionMatch(event, cond) {
@@ -86,9 +89,9 @@ func (f *filter) checkSection(event *Event, section *filterSection) bool {
 	}
 }
 
-func (f *filter) conditionMatch(event *Event, cond *filterCondition) bool {
+func (f *filter) conditionMatch(event *normalization.Event, cond *filterCondition) bool {
 	if cond.incFilter != nil {
-		return cond.incFilter.Pass([]*Event{event})
+		return cond.incFilter.Pass([]*normalization.Event{event})
 	}
 
 	lv, err := cond.leftValue.resolve(f.variables, event)

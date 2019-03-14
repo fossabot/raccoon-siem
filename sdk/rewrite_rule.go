@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"regexp"
 )
 
@@ -32,7 +33,7 @@ func (r *rewriteRule) compile(expr string) (*rewriteRule, error) {
 	return r, nil
 }
 
-func (r *rewriteRule) exec(vars map[string]*variable, event *Event) {
+func (r *rewriteRule) exec(vars map[string]*variable, event *normalization.Event) {
 	v, err := r.sourceValue.resolve(vars, event)
 
 	if err != nil {
@@ -42,5 +43,5 @@ func (r *rewriteRule) exec(vars map[string]*variable, event *Event) {
 		return
 	}
 
-	event.SetField(r.targetEventField, v, timeUnitNone)
+	event.SetField(r.targetEventField, v, normalization.TimeUnitNone)
 }

@@ -2,13 +2,14 @@ package sdk
 
 import (
 	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"time"
 )
 
 type ICorrelationRule interface {
 	ID() string
 	Run()
-	Feed(event *Event)
+	Feed(event *normalization.Event)
 }
 
 type CorrelationRule struct {
@@ -28,9 +29,9 @@ func (cr *CorrelationRule) Run() {
 	)
 }
 
-func (cr *CorrelationRule) Feed(event *Event) {
+func (cr *CorrelationRule) Feed(event *normalization.Event) {
 	for _, eventSpec := range cr.eventSpecs {
-		if eventSpec.filter.Pass([]*Event{event}) {
+		if eventSpec.filter.Pass([]*normalization.Event{event}) {
 			cr.aggregator.feed(event, eventSpec)
 			break
 		}
@@ -92,8 +93,8 @@ func (cr *CorrelationRule) onRootTrigger(trigger string, payload *triggerPayload
 	cr.correlationChain <- correlationEvent
 }
 
-func (cr *CorrelationRule) createCorrelationEvent(baseEvents []*Event, root bool) *Event {
-	event := new(Event)
+func (cr *CorrelationRule) createCorrelationEvent(baseEvents []*normalization.Event, root bool) *normalization.Event {
+	event := new(normalization.Event)
 	now := time.Now()
 
 	event.ID = GetUUID()
@@ -110,7 +111,7 @@ func (cr *CorrelationRule) createCorrelationEvent(baseEvents []*Event, root bool
 	}
 
 	sortEventsByEndTime(baseEvents, false)
-	event.baseEvents = baseEvents
+	event.BaseEvents = baseEvents
 
 	firstBaseEvent := baseEvents[len(baseEvents)-1]
 	lastBaseEvent := baseEvents[0]
@@ -123,8 +124,8 @@ func (cr *CorrelationRule) createCorrelationEvent(baseEvents []*Event, root bool
 	}
 
 	if root {
-		event.baseEvents = cr.flattenBaseEvents(event.baseEvents, event.ID)
-		event.BaseEventCount = len(event.baseEvents) - len(cr.eventSpecs)
+		event.BaseEvents = cr.flattenBaseEvents(event.BaseEvents, event.ID)
+		event.BaseEventCount = len(event.BaseEvents) - len(cr.eventSpecs)
 	} else {
 		sumEventFields(cr.aggregation.sumFields, baseEvents, event)
 	}
@@ -132,14 +133,14 @@ func (cr *CorrelationRule) createCorrelationEvent(baseEvents []*Event, root bool
 	return event
 }
 
-func (cr *CorrelationRule) flattenBaseEvents(baseEvents []*Event, parentID string) []*Event {
-	allBaseEvents := make([]*Event, 0)
+func (cr *CorrelationRule) flattenBaseEvents(baseEvents []*normalization.Event, parentID string) []*normalization.Event {
+	allBaseEvents := make([]*normalization.Event, 0)
 
 	for _, baseEvent := range baseEvents {
 		baseEvent.ParentID = parentID
 		allBaseEvents = append(allBaseEvents, baseEvent)
-		if len(baseEvent.baseEvents) > 0 {
-			anotherBaseEvents := cr.flattenBaseEvents(baseEvent.baseEvents, parentID)
+		if len(baseEvent.BaseEvents) > 0 {
+			anotherBaseEvents := cr.flattenBaseEvents(baseEvent.BaseEvents, parentID)
 			allBaseEvents = append(allBaseEvents, anotherBaseEvents...)
 		}
 	}

@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"time"
 )
 
@@ -9,7 +10,7 @@ type simpleAggregator struct {
 	aggregationCells *simpleAggregationCells
 }
 
-func (a *simpleAggregator) feed(event *Event, eventSpec *eventSpecification) {
+func (a *simpleAggregator) feed(event *normalization.Event, eventSpec *eventSpecification) {
 	cellKey := event.HashFields(a.identicalFields)
 	cell, exists := a.aggregationCells.get(cellKey)
 
@@ -20,7 +21,7 @@ func (a *simpleAggregator) feed(event *Event, eventSpec *eventSpecification) {
 	cell.put(event, eventSpec)
 }
 
-func (a *simpleAggregator) feedRoot(event *Event, eventSpec *eventSpecification, cellKey string) {
+func (a *simpleAggregator) feedRoot(event *normalization.Event, eventSpec *eventSpecification, cellKey string) {
 	panic("not implemented")
 }
 

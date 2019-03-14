@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"time"
 )
 
@@ -11,14 +12,14 @@ type aggregationCell struct {
 	uniqueHashes eventUniqueHashes
 }
 
-func (ac *aggregationCell) Put(event *Event, uniqueKey string, eventSpec *eventSpecification) {
+func (ac *aggregationCell) Put(event *normalization.Event, uniqueKey string, eventSpec *eventSpecification) {
 	ac.mu.Lock()
 
 	resetSpec := ""
 	triggers := make([]string, 0, 8)
 	defer ac.fireTriggersResetsAndUnlock(&triggers, &resetSpec, eventSpec, event)
 
-	if uniqueKey != defaultEventFieldsHash {
+	if uniqueKey != normalization.DefaultEventFieldsHash {
 		if !ac.uniqueHashes.addIfNotExists(eventSpec.id, uniqueKey) {
 			return
 		}
@@ -73,7 +74,7 @@ func (ac *aggregationCell) fireTriggersResetsAndUnlock(
 	triggers *[]string,
 	resetSpec *string,
 	eventSpec *eventSpecification,
-	event *Event,
+	event *normalization.Event,
 ) {
 	for _, t := range *triggers {
 		ac.callTrigger(t, eventSpec, event)
@@ -86,7 +87,7 @@ func (ac *aggregationCell) fireTriggersResetsAndUnlock(
 	ac.mu.Unlock()
 }
 
-func (ac *aggregationCell) callTrigger(trigger string, eventSpec *eventSpecification, event *Event) {
+func (ac *aggregationCell) callTrigger(trigger string, eventSpec *eventSpecification, event *normalization.Event) {
 	payload := &triggerPayload{
 		eventSpec:  eventSpec,
 		eventSpecs: ac.container.eventSpecs,
@@ -99,9 +100,9 @@ func (ac *aggregationCell) callTrigger(trigger string, eventSpec *eventSpecifica
 
 	switch trigger {
 	case triggerEveryEvent, triggerFirstEvent, triggerSubsequentEvents:
-		payload.events = []*Event{event}
+		payload.events = []*normalization.Event{event}
 	case triggerTimeout:
-		payload.events = make([]*Event, 0)
+		payload.events = make([]*normalization.Event, 0)
 	case triggerAllThresholdsReached:
 		payload.events = ac.aggregatedEvents.getAll()
 	default:
