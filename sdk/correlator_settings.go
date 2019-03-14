@@ -14,9 +14,9 @@ func (s *CorrelatorSettings) ID() string {
 
 type CorrelatorPackage struct {
 	DefaultComponentSettings `yaml:",inline"`
-	Connectors               []Config                  `yaml:"sources,omitempty"`
-	Filters                  []FilterSettings          `yaml:"filters,omitempty"`
-	CorrelationRules         []CorrelationRuleSettings `yaml:"rules,omitempty"`
-	Destinations             []DestinationSettings     `yaml:"destinations,omitempty"`
-	ActiveLists              []ActiveListSettings      `yaml:"activeLists,omitempty"`
+	Connectors               []UniversalConnectorConfig `yaml:"sources,omitempty"`
+	Filters                  []FilterSettings           `yaml:"filters,omitempty"`
+	CorrelationRules         []CorrelationRuleSettings  `yaml:"rules,omitempty"`
+	Destinations             []DestinationSettings      `yaml:"destinations,omitempty"`
+	ActiveLists              []ActiveListSettings       `yaml:"activeLists,omitempty"`
 }

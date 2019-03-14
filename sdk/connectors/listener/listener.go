@@ -1,4 +1,4 @@
-package connectors
+package listener
 
 import (
 	"bufio"
@@ -11,10 +11,9 @@ import (
 
 type Config struct {
 	connectors.BaseConfig
-	Protocol      string
-	Delimiter     byte
-	BufferSize    int
-	OutputChannel chan []byte
+	Protocol   string
+	Delimiter  byte
+	BufferSize int
 }
 
 type connector struct {
@@ -50,7 +49,10 @@ func (r *connector) handleConnection(conn net.Conn) {
 	scanner.Split(r.framer)
 
 	for scanner.Scan() {
-		r.cfg.OutputChannel <- helpers.CopyBytes(scanner.Bytes())
+		r.cfg.OutputChannel <- connectors.Output{
+			Connector: r.cfg.Name,
+			Data:      helpers.CopyBytes(scanner.Bytes()),
+		}
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -74,11 +76,11 @@ func (r *connector) framer(data []byte, atEOF bool) (advance int, token []byte, 
 	return 0, nil, nil
 }
 
-func NewConnector(config Config) (*connector, error) {
-	switch config.Protocol {
+func NewConnector(cfg Config) (*connector, error) {
+	switch cfg.Protocol {
 	case "tcp", "udp":
 	default:
-		return nil, fmt.Errorf("unknown protocol: %s", config.Protocol)
+		return nil, fmt.Errorf("unknown protocol: %s", cfg.Protocol)
 	}
-	return &connector{cfg: config}, nil
+	return &connector{cfg: cfg}, nil
 }

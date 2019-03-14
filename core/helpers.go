@@ -66,8 +66,8 @@ func readParsersByIDs(ids []string, root bool, uniqueIDs map[string]bool, tx *bo
 	return result, nil
 }
 
-func readConnectorsByIDs(ids []string, tx *bolt.Tx) ([]sdk.Config, error) {
-	result := make([]sdk.Config, 0)
+func readConnectorsByIDs(ids []string, tx *bolt.Tx) ([]sdk.UniversalConnectorConfig, error) {
+	result := make([]sdk.UniversalConnectorConfig, 0)
 	b := tx.Bucket(dbBucketConnector)
 
 	for _, id := range ids {
@@ -77,7 +77,7 @@ func readConnectorsByIDs(ids []string, tx *bolt.Tx) ([]sdk.Config, error) {
 			return nil, fmt.Errorf("source '%s' does not exist", id)
 		}
 
-		settings := sdk.Config{}
+		settings := sdk.UniversalConnectorConfig{}
 
 		if err := yaml.Unmarshal(rawSettings, &settings); err != nil {
 			return nil, err

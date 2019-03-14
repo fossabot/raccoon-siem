@@ -134,7 +134,7 @@ func run(_ *cobra.Command, _ []string) error {
 	sdk.RunCorrelationRules(registeredCorrelationRules)
 
 	// Register default connectors
-	allConnectorConfigs := []sdk.Config{{
+	allConnectorConfigs := []sdk.UniversalConnectorConfig{{
 		Name:    sdk.RaccoonCorrelationBusName,
 		Kind:    sdk.RaccoonCorrelationBusKind,
 		Subject: sdk.RaccoonCorrelationBusChannel,

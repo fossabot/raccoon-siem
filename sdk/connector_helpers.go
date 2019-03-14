@@ -1,6 +1,6 @@
 package sdk
 
-func RegisterConnectors(configs []Config, processorChannel chan *ProcessorTask) ([]IConnector, error) {
+func RegisterConnectors(configs []UniversalConnectorConfig, processorChannel chan *ProcessorTask) ([]IConnector, error) {
 	uniqueConnectors := make(map[string]IConnector)
 	result := make([]IConnector, 0)
 

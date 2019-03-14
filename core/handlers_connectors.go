@@ -39,7 +39,7 @@ func ConnectorPUT(ctx *gin.Context) {
 		return
 	}
 
-	s := new(sdk.Config)
+	s := new(sdk.UniversalConnectorConfig)
 	id, err := unmarshalAndGetID(s, body)
 
 	if err != nil {

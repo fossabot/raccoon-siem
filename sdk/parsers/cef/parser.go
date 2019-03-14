@@ -19,7 +19,7 @@ var (
 		"name",
 		"severity",
 	}
-	dict = map[string]string{
+	Dict = map[string]string{
 		"act":                                 "deviceAction",
 		"app":                                 "applicationProtocol",
 		"c6a1":                                "deviceCustomIPv6Address1",
@@ -259,7 +259,7 @@ func (r *parser) Parse(data []byte) (map[string]string, bool) {
 			if valueStart != -1 {
 				out[key] = string(data[valueStart:prevSpacePos])
 			}
-			key = dict[string(data[prevSpacePos+1:pos])]
+			key = Dict[string(data[prevSpacePos+1:pos])]
 			valueStart = pos + 1
 			continue
 		}

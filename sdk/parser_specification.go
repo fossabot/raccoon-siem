@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/parsers"
 	"regexp"
 )
 
@@ -19,7 +20,7 @@ type parserSpecification struct {
 	kvQuote         rune
 }
 
-func (ps *parserSpecification) compile(settings *ParserSettings) (*parserSpecification, error) {
+func (ps *parserSpecification) compile(settings *parsers.UserConfig) (*parserSpecification, error) {
 	// Name
 
 	ps.name = settings.Name

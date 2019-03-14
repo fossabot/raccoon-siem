@@ -15,11 +15,11 @@ func (s *CollectorConfig) ID() string {
 
 type CollectorPackage struct {
 	DefaultComponentSettings `yaml:",inline"`
-	Parsers                  []ParserSettings          `yaml:"parsers,omitempty"`
-	Connectors               []Config                  `yaml:"connectors,omitempty"`
-	Destinations             []DestinationSettings     `yaml:"destinations,omitempty"`
-	Dictionaries             []DictionarySettings      `yaml:"dictionaries,omitempty"`
-	AggregationRules         []AggregationRuleSettings `yaml:"rules,omitempty"`
-	AggregationFilters       []FilterSettings          `yaml:"aggregationFilters,omitempty"`
-	Filters                  []FilterSettings          `yaml:"filters,omitempty"`
+	Parsers                  []ParserSettings           `yaml:"parsers,omitempty"`
+	Connectors               []UniversalConnectorConfig `yaml:"connectors,omitempty"`
+	Destinations             []DestinationSettings      `yaml:"destinations,omitempty"`
+	Dictionaries             []DictionarySettings       `yaml:"dictionaries,omitempty"`
+	AggregationRules         []AggregationRuleSettings  `yaml:"rules,omitempty"`
+	AggregationFilters       []FilterSettings           `yaml:"aggregationFilters,omitempty"`
+	Filters                  []FilterSettings           `yaml:"filters,omitempty"`
 }

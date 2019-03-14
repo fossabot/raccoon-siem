@@ -3,6 +3,7 @@ package nats
 import (
 	"github.com/nats-io/go-nats"
 	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
+	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 )
 
 type Config struct {
@@ -12,22 +13,29 @@ type Config struct {
 }
 
 type connector struct {
-	config Config
+	cfg Config
 }
 
-func (s *connector) Run() error {
-	conn, err := nats.Connect(s.config.URL)
+func (r *connector) ID() string {
+	return r.cfg.Name
+}
+
+func (r *connector) Run() error {
+	conn, err := nats.Connect(r.cfg.URL)
 	if err != nil {
 		return err
 	}
-	_, err = conn.QueueSubscribe(s.config.Subject, s.config.Queue, s.messageHandler)
+	_, err = conn.QueueSubscribe(r.cfg.Subject, r.cfg.Queue, r.messageHandler)
 	return err
 }
 
-func (s *connector) messageHandler(msg *nats.Msg) {
-	s.config.OutputChannel <- msg.Data
+func (r *connector) messageHandler(msg *nats.Msg) {
+	r.cfg.OutputChannel <- connectors.Output{
+		Connector: r.cfg.Name,
+		Data:      helpers.CopyBytes(msg.Data),
+	}
 }
 
-func newNatsConnector(config Config) (*Conn, error) {
-	return &connector{config: config}, nil
+func NewConnector(cfg Config) (*connector, error) {
+	return &connector{cfg: cfg}, nil
 }

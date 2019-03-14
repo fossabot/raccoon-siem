@@ -3,29 +3,28 @@ package netflow
 import (
 	"fmt"
 	"github.com/fln/nf9packet"
-	"log"
+	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
 	"net"
 	"strconv"
 	"strings"
 )
 
-type NetflowConnectorConfig struct {
-	BaseConnectorConfig
-
+type Config struct {
+	connectors.BaseConfig
 	BufferSize int
 }
 
-type netflowConnector struct {
-	config        NetflowConnectorConfig
+type connector struct {
+	cfg           Config
 	templateCache map[string]*nf9packet.TemplateRecord
 }
 
-func (s *netflowConnector) ID() string {
-	return s.config.Name
+func (r *connector) ID() string {
+	return r.cfg.Name
 }
 
-func (s *netflowConnector) Run() (err error) {
-	addr, err := net.ResolveUDPAddr("udp", s.config.URL)
+func (r *connector) Run() (err error) {
+	addr, err := net.ResolveUDPAddr("udp", r.cfg.URL)
 	if err != nil {
 		return
 	}
@@ -35,14 +34,14 @@ func (s *netflowConnector) Run() (err error) {
 		return
 	}
 
-	go s.handleData(conn)
+	go r.handleData(conn)
 	return
 }
 
-func (s *netflowConnector) handleData(conn *net.UDPConn) {
+func (r *connector) handleData(conn *net.UDPConn) {
 	bufSize := 8192
-	if s.config.BufferSize > 0 {
-		bufSize = s.config.BufferSize
+	if r.cfg.BufferSize > 0 {
+		bufSize = r.cfg.BufferSize
 	}
 
 	buf := make([]byte, bufSize)
@@ -50,9 +49,6 @@ func (s *netflowConnector) handleData(conn *net.UDPConn) {
 		length, remote, err := conn.ReadFrom(buf)
 
 		if err != nil {
-			if Debug {
-				log.Println(err)
-			}
 			continue
 		}
 
@@ -60,11 +56,11 @@ func (s *netflowConnector) handleData(conn *net.UDPConn) {
 			continue
 		}
 
-		_ = s.process(buf[:length], remote.String())
+		_ = r.process(buf[:length], remote.String())
 	}
 }
 
-func (s *netflowConnector) process(input []byte, remote string) error {
+func (r *connector) process(input []byte, remote string) error {
 	pkt, err := nf9packet.Decode(input)
 
 	if err != nil {
@@ -73,12 +69,12 @@ func (s *netflowConnector) process(input []byte, remote string) error {
 
 	for _, t := range pkt.TemplateRecords() {
 		templateKey := fmt.Sprintf("%s|%b|%v", remote, pkt.SourceId, t.TemplateId)
-		s.templateCache[templateKey] = t
+		r.templateCache[templateKey] = t
 	}
 
 	for _, set := range pkt.DataFlowSets() {
 		templateKey := fmt.Sprintf("%s|%b|%v", remote, pkt.SourceId, set.Id)
-		template, ok := s.templateCache[templateKey]
+		template, ok := r.templateCache[templateKey]
 
 		if !ok {
 			continue
@@ -86,27 +82,27 @@ func (s *netflowConnector) process(input []byte, remote string) error {
 
 		records := template.DecodeFlowSet(&set)
 
-		for _, r := range records {
+		for _, rec := range records {
 			sb := strings.Builder{}
 
-			for i := range r.Values {
+			for i := range rec.Values {
 				fName := template.Fields[i].Name()
 
 				sb.WriteString(fName)
 				sb.WriteString("=")
 
 				if fName == "PROTOCOL" {
-					protoUint := template.Fields[i].DataToUint64(r.Values[i])
+					protoUint := template.Fields[i].DataToUint64(rec.Values[i])
 					sb.WriteString(strconv.FormatUint(protoUint, 10))
 				} else {
-					sb.WriteString(template.Fields[i].DataToString(r.Values[i]))
+					sb.WriteString(template.Fields[i].DataToString(rec.Values[i]))
 				}
 
 				sb.WriteString(" ")
 			}
 
-			s.config.OutputChannel <- &ProcessorTask{
-				Connector: s.config.Name,
+			r.cfg.OutputChannel <- connectors.Output{
+				Connector: r.cfg.Name,
 				Data:      []byte(sb.String()),
 			}
 		}
@@ -115,6 +111,6 @@ func (s *netflowConnector) process(input []byte, remote string) error {
 	return nil
 }
 
-func newNetflowConnector(config NetflowConnectorConfig) (IConnector, error) {
-	return &netflowConnector{config: config}, nil
+func NewConnector(config Config) (*connector, error) {
+	return &connector{cfg: config}, nil
 }

@@ -1,7 +1,10 @@
-package sdk
+package connectors
 
 import (
 	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/connectors/listener"
+	"github.com/tephrocactus/raccoon-siem/sdk/connectors/nats"
+	"github.com/tephrocactus/raccoon-siem/sdk/connectors/netflow"
 )
 
 const (
@@ -10,50 +13,44 @@ const (
 	connectorNats     = "nats"
 )
 
-type BaseConnectorConfig struct {
-	Name          string
-	URL           string
-	OutputChannel chan *ProcessorTask
-}
-
 type IConnector interface {
 	ID() string
 	Run() error
 }
 
-func NewConnector(config Config, processorChannel chan *ProcessorTask) (IConnector, error) {
+func NewConnector(config UserConfig, channel OutputChannel) (IConnector, error) {
 	switch config.Kind {
 	case connectorListener:
-		return newListenerConnector(ListenerConnectorConfig{
-			BaseConnectorConfig: BaseConnectorConfig{
+		return listener.NewConnector(listener.Config{
+			BaseConfig: BaseConfig{
 				Name:          config.Name,
 				URL:           config.URL,
-				OutputChannel: processorChannel,
+				OutputChannel: channel,
 			},
 			Protocol:   config.Protocol,
 			Delimiter:  config.Delimiter,
 			BufferSize: config.BufferSize,
 		})
 	case connectorNats:
-		return newNatsConnector(NatsConnectorConfig{
-			BaseConnectorConfig: BaseConnectorConfig{
+		return nats.NewConnector(nats.Config{
+			BaseConfig: BaseConfig{
 				Name:          config.Name,
 				URL:           config.URL,
-				OutputChannel: processorChannel,
+				OutputChannel: channel,
 			},
 			Subject: config.Subject,
 			Queue:   config.Queue,
 		})
 	case connectorNetflow:
-		return newNetflowConnector(NetflowConnectorConfig{
-			BaseConnectorConfig: BaseConnectorConfig{
+		return netflow.NewConnector(netflow.Config{
+			BaseConfig: BaseConfig{
 				Name:          config.Name,
 				URL:           config.URL,
-				OutputChannel: processorChannel,
+				OutputChannel: channel,
 			},
 			BufferSize: config.BufferSize,
 		})
 	default:
-		return nil, fmt.Errorf("unknown source type: %s", config.Kind)
+		return nil, fmt.Errorf("unknown connector kind: %s", config.Kind)
 	}
 }
