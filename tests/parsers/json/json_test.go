@@ -54,7 +54,11 @@ var sample = []byte(`{
 }`)
 
 func TestJSONParser(t *testing.T) {
-	result, success := json.Parse(sample)
+	var result map[string][]byte
+	var success bool
+	for i := 0; i < 5; i++ {
+		result, success = json.Parse(sample)
+	}
 	assert.Equal(t, success, true)
 
 	assert.DeepEqual(t, result["first"], []byte("timestamp"))
