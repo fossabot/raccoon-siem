@@ -1,4 +1,4 @@
-package sdk
+package filters
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ func (f *filterJoin) ID() string {
 	return f.name
 }
 
-func (f *filterJoin) Pass(events []*normalization.Event) bool {
+func (f *filterJoin) Pass(events ...*normalization.Event) bool {
 	eventsBySpecID := make(map[string]*normalization.Event)
 
 	for _, e := range events {

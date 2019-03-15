@@ -126,6 +126,7 @@ func (r *Event) Set(field string, value []byte, timeUnit byte) {
 	if len(value) == 0 {
 		return
 	}
+
 	switch field {
 	case "Message":
 		r.Message = BytesToString(value)
@@ -199,6 +200,85 @@ func (r *Event) Set(field string, value []byte, timeUnit byte) {
 		r.DestinationDNSName = BytesToString(value)
 	case "DestinationPort":
 		r.DestinationPort = BytesToString(value)
+	}
+}
+
+func (r *Event) Get(field string) interface{} {
+	switch field {
+	case "Message":
+		return r.Message
+	case "Details":
+		return r.Details
+	case "Trace":
+		return r.Trace
+	case "OriginEventID":
+		return r.OriginEventID
+	case "OriginTimestamp":
+		return r.OriginTimestamp
+	case "OriginEnvironment":
+		return r.OriginEnvironment
+	case "OriginSeverity":
+		return r.OriginSeverity
+	case "OriginServiceName":
+		return r.OriginServiceName
+	case "OriginServiceVersion":
+		return r.OriginServiceVersion
+	case "OriginProcessName":
+		return r.OriginProcessName
+	case "OriginFileName":
+		return r.OriginFileName
+	case "OriginDNSName":
+		return r.OriginDNSName
+	case "OriginIPAddress":
+		return r.OriginIPAddress
+	case "RequestID":
+		return r.RequestID
+	case "RequestApplicationProtocol":
+		return r.RequestApplicationProtocol
+	case "RequestTransportProtocol":
+		return r.RequestTransportProtocol
+	case "RequestURL":
+		return r.RequestURL
+	case "RequestReferrer":
+		return r.RequestReferrer
+	case "RequestMethod":
+		return r.RequestMethod
+	case "RequestUserAgent":
+		return r.RequestUserAgent
+	case "RequestStatus":
+		return r.RequestStatus
+	case "RequestTook":
+		return r.RequestTook
+	case "RequestBytesIn":
+		return r.RequestBytesIn
+	case "RequestBytesOut":
+		return r.RequestBytesOut
+	case "RequestResults":
+		return r.RequestResults
+	case "RequestUser":
+		return r.RequestUser
+	case "RequestUnit":
+		return r.RequestUnit
+	case "RequestOrganization":
+		return r.RequestOrganization
+	case "SourceIPAddress":
+		return r.SourceIPAddress
+	case "SourceMACAddress":
+		return r.SourceMACAddress
+	case "SourceDNSName":
+		return r.SourceDNSName
+	case "SourcePort":
+		return r.SourcePort
+	case "DestinationIPAddress":
+		return r.DestinationIPAddress
+	case "DestinationMACAddress":
+		return r.DestinationMACAddress
+	case "DestinationDNSName":
+		return r.DestinationDNSName
+	case "DestinationPort":
+		return r.DestinationPort
+	default:
+		return nil
 	}
 }
 

@@ -4,7 +4,6 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"regexp"
 	"strings"
-	"sync"
 )
 
 const (
@@ -18,7 +17,6 @@ var (
 )
 
 type smartValue struct {
-	mu     sync.Mutex
 	value  interface{}
 	kind   byte
 	source byte

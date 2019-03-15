@@ -1,4 +1,4 @@
-package sdk
+package filters
 
 import (
 	"fmt"

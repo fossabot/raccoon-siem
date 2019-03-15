@@ -1,4 +1,4 @@
-package sdk
+package filters
 
 type filterJoinSection struct {
 	or         bool
@@ -6,7 +6,7 @@ type filterJoinSection struct {
 	conditions []*filterJoinCondition
 }
 
-func (s *filterJoinSection) compile(settings *FilterSectionSettings) (*filterJoinSection, error) {
+func (s *filterJoinSection) compile(settings *SectionConfig) (*filterJoinSection, error) {
 	s.or = settings.Or
 	s.not = settings.Not
 

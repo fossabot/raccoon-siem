@@ -1,7 +1,6 @@
 package collector
 
 import (
-	"fmt"
 	"github.com/tephrocactus/raccoon-siem/sdk"
 	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
@@ -13,7 +12,7 @@ type InputProcessor struct {
 	AggregationChannel chan *normalization.Event
 	OutputChannel      chan *normalization.Event
 	Normalizer         normalizers.INormalizer
-	DropFilters        []sdk.IFilter
+	Filters            []sdk.IFilter
 	Workers            int
 }
 
@@ -31,9 +30,11 @@ func (r *InputProcessor) inputRoutine() {
 			continue
 		}
 
+		for _, filter := range r.Filters {
+			filter.Pass()
+		}
+
 		event.ID = sdk.GetUUID()
 		event.SourceID = input.Connector
-
-		fmt.Println(event)
 	}
 }

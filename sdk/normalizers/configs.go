@@ -3,7 +3,6 @@ package normalizers
 type Config struct {
 	Name          string          `yaml:"name,omitempty"`
 	Kind          string          `yaml:"kind,omitempty"`
-	Root          bool            `yaml:"root,omitempty"`
 	Expressions   []string        `yaml:"expressions,omitempty"`
 	PairDelimiter byte            `yaml:"pair_delimiter,omitempty"`
 	KVDelimiter   byte            `yaml:"kv_delimiter,omitempty"`

@@ -1,4 +1,4 @@
-package sdk
+package filters
 
 type filterSection struct {
 	or         bool
@@ -6,7 +6,7 @@ type filterSection struct {
 	conditions []*filterCondition
 }
 
-func (s *filterSection) compile(settings *FilterSectionSettings) (*filterSection, error) {
+func (s *filterSection) compile(settings *SectionConfig) (*filterSection, error) {
 	s.or = settings.Or
 	s.not = settings.Not
 

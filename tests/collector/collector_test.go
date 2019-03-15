@@ -34,7 +34,11 @@ func BenchmarkParsingNormalization(b *testing.B) {
 			{SourceField: "host", EventField: "OriginDNSName"},
 			{SourceField: "timestamp", EventField: "OriginTimestamp"},
 			{SourceField: "severity", EventField: "OriginSeverity"},
-			{SourceField: "msg", Extra: &normalizers.ExtraConfig{Normalizer: extraNormalizer}},
+			{SourceField: "msg", Extra: &normalizers.ExtraConfig{
+				Normalizer:   extraNormalizer,
+				TriggerField: "app",
+				TriggerValue: []byte("rest"),
+			}},
 		},
 	})
 
@@ -50,7 +54,6 @@ func BenchmarkParsingNormalization(b *testing.B) {
 	}
 
 	b.StartTimer()
-
 	for i := 0; i < b.N; i++ {
 		in <- connectors.Output{
 			Connector: "test",

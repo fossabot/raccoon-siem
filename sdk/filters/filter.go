@@ -1,4 +1,4 @@
-package sdk
+package filters
 
 import (
 	"fmt"
@@ -7,17 +7,16 @@ import (
 
 type filter struct {
 	comparator
-	not       bool
-	name      string
-	sections  []*filterSection
-	variables map[string]*variable
+	not      bool
+	name     string
+	sections []*filterSection
 }
 
 func (f *filter) ID() string {
 	return f.name
 }
 
-func (f *filter) Pass(events []*normalization.Event) bool {
+func (f *filter) Pass(events ...*normalization.Event) bool {
 	for _, section := range f.sections {
 		if !f.checkSection(events[0], section) {
 			return f.not
@@ -91,7 +90,7 @@ func (f *filter) checkSection(event *normalization.Event, section *filterSection
 
 func (f *filter) conditionMatch(event *normalization.Event, cond *filterCondition) bool {
 	if cond.incFilter != nil {
-		return cond.incFilter.Pass([]*normalization.Event{event})
+		return cond.incFilter.Pass(event)
 	}
 
 	lv, err := cond.leftValue.resolve(f.variables, event)

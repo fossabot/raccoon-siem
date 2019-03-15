@@ -1,31 +1,21 @@
-package sdk
+package filters
 
 import (
-	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"time"
 )
 
 const (
-	opEQ = iota
-	opNEQ
-	opGTorEQ
-	opGT
-	opLTorEQ
-	opLT
-)
-
-const (
-	opEQString     = "=="
-	opNEQString    = "!="
-	opGTorEQString = ">="
-	opGTString     = ">"
-	opLTorEQString = "<="
-	opLTString     = "<"
+	opEQ     = "=="
+	opNEQ    = "!="
+	opGTorEQ = ">="
+	opGT     = ">"
+	opLTorEQ = "<="
+	opLT     = "<"
 )
 
 type comparator struct{}
 
-func (ef *comparator) compareValues(src interface{}, srcType byte, dst interface{}, op byte) bool {
+func (r *comparator) compareValues(src interface{}, srcType byte, dst interface{}, op string) bool {
 	if op == opEQ {
 		return src == dst
 	}
@@ -34,23 +24,23 @@ func (ef *comparator) compareValues(src interface{}, srcType byte, dst interface
 		return src != dst
 	}
 
-	switch srcType {
-	case normalization.FieldTypeInt:
-		return ef.compareInt(src.(int64), dst, op)
-	case normalization.FieldTypeFloat:
-		return ef.compareFloat(src.(float64), dst, op)
-	case normalization.FieldTypeTime:
-		return ef.compareTime(src.(time.Time), dst, op)
-	case normalization.FieldTypeDuration:
-		return ef.compareDuration(src.(time.Duration), dst, op)
-	case normalization.FieldTypeString:
-		return ef.compareString(src.(string), dst, op)
+	switch src.(type) {
+	case int64:
+		return r.compareInt(src.(int64), dst, op)
+	case float64:
+		return r.compareFloat(src.(float64), dst, op)
+	case time.Time:
+		return r.compareTime(src.(time.Time), dst, op)
+	case time.Duration:
+		return r.compareDuration(src.(time.Duration), dst, op)
+	case string:
+		return r.compareString(src.(string), dst, op)
+	default:
+		return false
 	}
-
-	return false
 }
 
-func (ef *comparator) compareInt(src int64, dst interface{}, op byte) bool {
+func (r *comparator) compareInt(src int64, dst interface{}, op string) bool {
 	dstVal := dst.(int64)
 	switch op {
 	case opGT:
@@ -65,7 +55,7 @@ func (ef *comparator) compareInt(src int64, dst interface{}, op byte) bool {
 	return false
 }
 
-func (ef *comparator) compareFloat(src float64, dst interface{}, op byte) bool {
+func (r *comparator) compareFloat(src float64, dst interface{}, op string) bool {
 	dstVal := dst.(float64)
 	switch op {
 	case opGT:
@@ -80,7 +70,7 @@ func (ef *comparator) compareFloat(src float64, dst interface{}, op byte) bool {
 	return false
 }
 
-func (ef *comparator) compareString(src string, dst interface{}, op byte) bool {
+func (r *comparator) compareString(src string, dst interface{}, op string) bool {
 	dstVal := dst.(string)
 	switch op {
 	case opGT:
@@ -95,7 +85,7 @@ func (ef *comparator) compareString(src string, dst interface{}, op byte) bool {
 	return false
 }
 
-func (ef *comparator) compareTime(src time.Time, dst interface{}, op byte) bool {
+func (r *comparator) compareTime(src time.Time, dst interface{}, op string) bool {
 	dstVal := dst.(time.Time)
 	switch op {
 	case opGT:
@@ -110,7 +100,7 @@ func (ef *comparator) compareTime(src time.Time, dst interface{}, op byte) bool 
 	return false
 }
 
-func (ef *comparator) compareDuration(src time.Duration, dst interface{}, op byte) bool {
+func (r *comparator) compareDuration(src time.Duration, dst interface{}, op string) bool {
 	dstVal := dst.(time.Duration)
 	switch op {
 	case opGT:

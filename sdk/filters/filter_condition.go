@@ -1,4 +1,4 @@
-package sdk
+package filters
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ type filterCondition struct {
 	incFilterName string
 	incFilter     *filter
 	leftValue     *smartValue
-	operator      byte
+	operator      string
 	rightValue    *smartValue
 }
 
