@@ -1,6 +1,9 @@
 package sdk
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/filters"
+)
 
 type CorrelationRuleSettings struct {
 	Name        string                       `yaml:"name,omitempty"`
@@ -14,7 +17,7 @@ func (s *CorrelationRuleSettings) ID() string {
 	return s.Name
 }
 
-func (s *CorrelationRuleSettings) Compile(filters []IFilter) (*CorrelationRule, error) {
+func (s *CorrelationRuleSettings) Compile(filters []filters.IFilter) (*CorrelationRule, error) {
 	var err error
 
 	cr := new(CorrelationRule)

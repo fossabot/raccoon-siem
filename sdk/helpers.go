@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/satori/go.uuid"
 	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
+	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalizers"
 	"log"
@@ -71,9 +72,9 @@ func PrintConfiguration(resources ...interface{}) {
 			for i, v := range r.([]normalizers.INormalizer) {
 				fmt.Printf("\t%d.%v\n", i+1, v.ID())
 			}
-		case []IFilter:
+		case []filters.IFilter:
 			fmt.Printf("Filters:\n")
-			for i, v := range r.([]IFilter) {
+			for i, v := range r.([]filters.IFilter) {
 				fmt.Printf("\t%d.%v\n", i+1, v.ID())
 			}
 		case []IAggregationRule:

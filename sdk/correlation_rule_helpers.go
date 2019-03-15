@@ -1,9 +1,11 @@
 package sdk
 
+import "github.com/tephrocactus/raccoon-siem/sdk/filters"
+
 // Loads, compiles and runs correlation rules
 func RegisterCorrelationRules(
 	settings []CorrelationRuleSettings,
-	filters []IFilter,
+	filters []filters.IFilter,
 	correlationChainChannel chan CorrelationChainTask,
 ) ([]ICorrelationRule, error) {
 	rulesToReturn := make([]ICorrelationRule, 0)

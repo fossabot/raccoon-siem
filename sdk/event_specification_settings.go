@@ -1,6 +1,9 @@
 package sdk
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/filters"
+)
 
 type EventSpecificationSettings struct {
 	ID        string `yaml:"id,omitempty"`
@@ -8,7 +11,7 @@ type EventSpecificationSettings struct {
 	Filter    string `yaml:"filter,omitempty"`
 }
 
-func (s *EventSpecificationSettings) compile(filters []IFilter) (*eventSpecification, error) {
+func (s *EventSpecificationSettings) compile(filters []filters.IFilter) (*eventSpecification, error) {
 	es := &eventSpecification{
 		id:        s.ID,
 		threshold: s.Threshold,

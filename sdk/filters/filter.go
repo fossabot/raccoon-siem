@@ -1,15 +1,14 @@
 package filters
 
 import (
-	"fmt"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
 type filter struct {
 	comparator
-	not      bool
 	name     string
-	sections []*filterSection
+	not      bool
+	sections []SectionConfig
 }
 
 func (f *filter) ID() string {
@@ -25,87 +24,46 @@ func (f *filter) Pass(events ...*normalization.Event) bool {
 	return !f.not
 }
 
-func (f *filter) compile(settings *FilterSettings) (*filter, error) {
-	f.not = settings.Not
-	f.variables = make(map[string]*variable)
-
-	// Name
-
-	if settings.Name == "" {
-		return nil, fmt.Errorf("filter must have a name")
-	}
-
-	f.name = settings.Name
-
-	// Sections
-
-	for _, sect := range settings.Sections {
-		compiledSect, err := sect.compile()
-
-		if err != nil {
-			return nil, err
-		}
-
-		f.sections = append(f.sections, compiledSect)
-	}
-
-	// Variables
-
-	for _, expr := range settings.Variables {
-		vb, err := new(variable).compile(expr)
-
-		if err != nil {
-			return nil, err
-		}
-
-		if _, ok := f.variables[vb.name]; ok {
-			continue
-		}
-
-		f.variables[vb.name] = vb
-	}
-
-	return f, nil
-}
-
-func (f *filter) checkSection(event *normalization.Event, section *filterSection) bool {
-	for _, cond := range section.conditions {
-		if !section.or {
+func (f *filter) checkSection(event *normalization.Event, section SectionConfig) bool {
+	for _, cond := range section.Conditions {
+		if !section.Or {
 			if !f.conditionMatch(event, cond) {
-				return section.not
+				return section.Not
 			}
 		} else {
 			if f.conditionMatch(event, cond) {
-				return !section.not
+				return !section.Not
 			}
 		}
 	}
 
-	if !section.or {
-		return !section.not
+	if !section.Or {
+		return !section.Not
 	} else {
-		return section.not
+		return section.Not
 	}
 }
 
-func (f *filter) conditionMatch(event *normalization.Event, cond *filterCondition) bool {
-	if cond.incFilter != nil {
-		return cond.incFilter.Pass(event)
-	}
-
-	lv, err := cond.leftValue.resolve(f.variables, event)
-
-	if err != nil {
-		DebugError(err)
+func (f *filter) conditionMatch(event *normalization.Event, cond ConditionConfig) bool {
+	lv := event.Get(cond.Field)
+	switch cond.RvSource {
+	case RvSourceField:
+		return f.compareValues(lv, event.Get(cond.Rv.(string)), cond.Op)
+	case RvSourceDict:
+		// TODO: ask dictionary for value
 		return false
-	}
-
-	rv, err := cond.rightValue.resolve(f.variables, event)
-
-	if err != nil {
-		DebugError(err)
+	case RvSourceAL:
+		// TODO: ask active list for value
 		return false
+	default:
+		return f.compareValues(lv, cond.Rv, cond.Op)
 	}
+}
 
-	return f.compareValues(lv, cond.leftValue.kind, rv, cond.operator)
+func newFilter(cfg Config) (*filter, error) {
+	return &filter{
+		name:     cfg.Name,
+		not:      cfg.Not,
+		sections: cfg.Sections,
+	}, nil
 }

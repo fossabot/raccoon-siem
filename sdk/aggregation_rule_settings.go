@@ -1,6 +1,9 @@
 package sdk
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/filters"
+)
 
 type AggregationRuleSettings struct {
 	Name        string                       `yaml:"name,omitempty"`
@@ -12,7 +15,7 @@ func (s *AggregationRuleSettings) ID() string {
 	return s.Name
 }
 
-func (s *AggregationRuleSettings) Compile(filters []IFilter) (*AggregationRule, error) {
+func (s *AggregationRuleSettings) Compile(filters []filters.IFilter) (*AggregationRule, error) {
 	var err error
 
 	ar := new(AggregationRule)

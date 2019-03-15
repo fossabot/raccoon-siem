@@ -1,22 +1,21 @@
 package filters
 
 import (
-	"fmt"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
-type filterJoin struct {
+type joinFilter struct {
 	comparator
 	not      bool
 	name     string
-	sections []*filterJoinSection
+	sections []JoinSectionConfig
 }
 
-func (f *filterJoin) ID() string {
+func (f *joinFilter) ID() string {
 	return f.name
 }
 
-func (f *filterJoin) Pass(events ...*normalization.Event) bool {
+func (f *joinFilter) Pass(events ...*normalization.Event) bool {
 	eventsBySpecID := make(map[string]*normalization.Event)
 
 	for _, e := range events {
@@ -32,65 +31,51 @@ func (f *filterJoin) Pass(events ...*normalization.Event) bool {
 	return !f.not
 }
 
-func (f *filterJoin) compile(settings *FilterSettings) (*filterJoin, error) {
-	// Name
-
-	if settings.Name == "" {
-		return nil, fmt.Errorf("filter must have a name")
-	}
-
-	f.name = settings.Name
-
-	// Sections
-
-	for _, sect := range settings.Sections {
-		compiledJoinSect, err := sect.compileJoin()
-
-		if err != nil {
-			return nil, err
-		}
-
-		f.sections = append(f.sections, compiledJoinSect)
-	}
-
-	return f, nil
-}
-
-func (f *filterJoin) checkSection(
+func (f *joinFilter) checkSection(
 	correlationEvents []*normalization.Event,
 	eventsBySpecID map[string]*normalization.Event,
-	section *filterJoinSection,
+	section JoinSectionConfig,
 ) bool {
-	for _, cond := range section.conditions {
+	for _, cond := range section.Conditions {
 		srcEvent := eventsBySpecID[cond.LeftEventID]
 		dstEvent := eventsBySpecID[cond.RightEventID]
 
-		if !section.or {
+		if !section.Or {
 			if !f.joinConditionMatch(srcEvent, cond.LeftEventField, dstEvent, cond.RightEventField, cond.Operator) {
-				return section.not
+				return section.Not
 			}
 		} else {
 			if f.joinConditionMatch(srcEvent, cond.LeftEventField, dstEvent, cond.RightEventField, cond.Operator) {
-				return !section.not
+				return !section.Not
 			}
 		}
 	}
 
-	if !section.or {
-		return !section.not
+	if !section.Or {
+		return !section.Not
 	} else {
-		return section.not
+		return section.Not
 	}
 }
 
-func (f *filterJoin) joinConditionMatch(
+func (f *joinFilter) joinConditionMatch(
 	srcEvent *normalization.Event,
 	srcEventField string,
 	dstEvent *normalization.Event,
 	dstEventField string,
-	op byte,
+	op string,
 ) bool {
-	srcEventValue, srcEventType := srcEvent.GetField(srcEventField)
-	dstEventValue := dstEvent.GetFieldNoType(dstEventField)
-	return f.compareValues(srcEventValue, srcEventType, dstEventValue, op)
+	return f.compareValues(
+		srcEvent.Get(srcEventField),
+		dstEvent.Get(dstEventField),
+		op,
+	)
+}
+
+func newJoinFilter(cfg Config) (*joinFilter, error) {
+	return &joinFilter{
+		name:     cfg.Name,
+		not:      cfg.Not,
+		sections: cfg.JoinSections,
+	}, nil
 }

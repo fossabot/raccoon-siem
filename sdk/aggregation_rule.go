@@ -27,7 +27,7 @@ func (ar *AggregationRule) Run() {
 
 func (ar *AggregationRule) Feed(event *normalization.Event) {
 	for _, eventSpec := range ar.eventSpecs {
-		if eventSpec.filter.Pass([]*normalization.Event{event}) {
+		if eventSpec.filter.Pass(event) {
 			ar.aggregator.feed(event, eventSpec)
 			return
 		}

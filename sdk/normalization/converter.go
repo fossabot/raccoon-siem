@@ -26,40 +26,36 @@ func BytesToString(input []byte) string {
 	return *(*string)(unsafe.Pointer(&input))
 }
 
-func BytesToFloat(input []byte) float64 {
-	str := BytesToString(input)
-	float, err := strconv.ParseFloat(str, 64)
+func BytesToFloat(input string) float64 {
+	float, err := strconv.ParseFloat(input, 64)
 	if err != nil {
 		return 0
 	}
 	return float
 }
 
-func BytesToInt(input []byte) int64 {
-	str := BytesToString(input)
-	num, err := strconv.ParseInt(str, 10, 64)
+func StringToInt(input string) int64 {
+	num, err := strconv.ParseInt(input, 10, 64)
 	if err != nil {
 		return 0
 	}
 	return num
 }
 
-func BytesToBool(input []byte) bool {
-	return BytesToString(input) == "true"
+func StringToBool(input string) bool {
+	return input == "true"
 }
 
-func BytesToDuration(input []byte, unit byte) time.Duration {
-	str := BytesToString(input)
-	num, err := strconv.ParseInt(str, 10, 64)
+func StringToDuration(input string, unit byte) time.Duration {
+	num, err := strconv.ParseInt(input, 10, 64)
 	if err != nil {
 		return 0
 	}
 	return DurationFromInt(num, unit)
 }
 
-func BytesToTime(input []byte, unit byte) time.Time {
-	str := BytesToString(input)
-	num, err := strconv.ParseInt(str, 10, 64)
+func StringToTime(input string, unit byte) time.Time {
+	num, err := strconv.ParseInt(input, 10, 64)
 	if err != nil {
 		return time.Unix(0, 0)
 	}

@@ -68,7 +68,8 @@ type Event struct {
 	Code                       string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
 	StartTime                  time.Time     `json:",omitempty" msgpack:",omitempty" storage_type:"date"`
 	EndTime                    time.Time     `json:",omitempty" msgpack:",omitempty" storage_type:"date"`
-	Severity                   int64         `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	Severity                   int64         `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
+	Score                      int64         `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
 	BaseEventCount             int           `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
 	AggregatedEventCount       int           `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
 	AggregationRuleName        string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
@@ -122,85 +123,88 @@ func (r *Event) SetID(id string) {
 	r.ID = id
 }
 
-func (r *Event) Set(field string, value []byte, timeUnit byte) {
+func (r *Event) Set(field string, value string, timeUnit byte) {
 	if len(value) == 0 {
 		return
 	}
-
 	switch field {
 	case "Message":
-		r.Message = BytesToString(value)
+		r.Message = value
 	case "Details":
-		r.Details = BytesToString(value)
+		r.Details = value
 	case "Trace":
-		r.Trace = BytesToString(value)
+		r.Trace = value
 	case "OriginEventID":
-		r.OriginEventID = BytesToString(value)
+		r.OriginEventID = value
 	case "OriginTimestamp":
-		r.OriginTimestamp = BytesToTime(value, timeUnit)
+		r.OriginTimestamp = StringToTime(value, timeUnit)
 	case "OriginEnvironment":
-		r.OriginEnvironment = BytesToString(value)
+		r.OriginEnvironment = value
 	case "OriginSeverity":
-		r.OriginSeverity = BytesToString(value)
+		r.OriginSeverity = value
 	case "OriginServiceName":
-		r.OriginServiceName = BytesToString(value)
+		r.OriginServiceName = value
 	case "OriginServiceVersion":
-		r.OriginServiceVersion = BytesToString(value)
+		r.OriginServiceVersion = value
 	case "OriginProcessName":
-		r.OriginProcessName = BytesToString(value)
+		r.OriginProcessName = value
 	case "OriginFileName":
-		r.OriginFileName = BytesToString(value)
+		r.OriginFileName = value
 	case "OriginDNSName":
-		r.OriginDNSName = BytesToString(value)
+		r.OriginDNSName = value
 	case "OriginIPAddress":
-		r.OriginIPAddress = BytesToString(value)
+		r.OriginIPAddress = value
 	case "RequestID":
-		r.RequestID = BytesToString(value)
+		r.RequestID = value
 	case "RequestApplicationProtocol":
-		r.RequestApplicationProtocol = BytesToString(value)
+		r.RequestApplicationProtocol = value
 	case "RequestTransportProtocol":
-		r.RequestTransportProtocol = BytesToString(value)
+		r.RequestTransportProtocol = value
 	case "RequestURL":
-		r.RequestURL = BytesToString(value)
+		r.RequestURL = value
 	case "RequestReferrer":
-		r.RequestReferrer = BytesToString(value)
+		r.RequestReferrer = value
 	case "RequestMethod":
-		r.RequestMethod = BytesToString(value)
+		r.RequestMethod = value
 	case "RequestUserAgent":
-		r.RequestUserAgent = BytesToString(value)
+		r.RequestUserAgent = value
 	case "RequestStatus":
-		r.RequestStatus = BytesToString(value)
+		r.RequestStatus = value
 	case "RequestTook":
-		r.RequestTook = BytesToDuration(value, timeUnit)
+		r.RequestTook = StringToDuration(value, timeUnit)
 	case "RequestBytesIn":
-		r.RequestBytesIn = BytesToInt(value)
+		r.RequestBytesIn = StringToInt(value)
 	case "RequestBytesOut":
-		r.RequestBytesOut = BytesToInt(value)
+		r.RequestBytesOut = StringToInt(value)
 	case "RequestResults":
-		r.RequestResults = BytesToInt(value)
+		r.RequestResults = StringToInt(value)
 	case "RequestUser":
-		r.RequestUser = BytesToString(value)
+		r.RequestUser = value
 	case "RequestUnit":
-		r.RequestUnit = BytesToString(value)
+		r.RequestUnit = value
 	case "RequestOrganization":
-		r.RequestOrganization = BytesToString(value)
+		r.RequestOrganization = value
 	case "SourceIPAddress":
-		r.SourceIPAddress = BytesToString(value)
+		r.SourceIPAddress = value
 	case "SourceMACAddress":
-		r.SourceMACAddress = BytesToString(value)
+		r.SourceMACAddress = value
 	case "SourceDNSName":
-		r.SourceDNSName = BytesToString(value)
+		r.SourceDNSName = value
 	case "SourcePort":
-		r.SourcePort = BytesToString(value)
+		r.SourcePort = value
 	case "DestinationIPAddress":
-		r.DestinationIPAddress = BytesToString(value)
+		r.DestinationIPAddress = value
 	case "DestinationMACAddress":
-		r.DestinationMACAddress = BytesToString(value)
+		r.DestinationMACAddress = value
 	case "DestinationDNSName":
-		r.DestinationDNSName = BytesToString(value)
+		r.DestinationDNSName = value
 	case "DestinationPort":
-		r.DestinationPort = BytesToString(value)
+		r.DestinationPort = value
 	}
+}
+
+func (r *Event) SetBytes(field string, value []byte, timeUnit byte) {
+	r.Set(field, BytesToString(value), timeUnit)
 }
 
 func (r *Event) Get(field string) interface{} {

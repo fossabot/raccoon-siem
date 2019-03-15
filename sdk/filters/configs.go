@@ -1,17 +1,18 @@
 package filters
 
 const (
-	RVKindField = "field"
-	RVKindConst = "const"
-	RVKindDict  = "dict"
-	RVKindAL    = "al"
+	RvSourceField = "field"
+	RvSourceConst = "const"
+	RvSourceAL    = "al"
+	RvSourceDict  = "dict"
 )
 
 type Config struct {
-	Name     string          `yaml:"name,omitempty"`
-	Not      bool            `yaml:"not,omitempty"`
-	Join     bool            `yaml:"join,omitempty"`
-	Sections []SectionConfig `yaml:"sections,omitempty"`
+	Name         string              `yaml:"name,omitempty"`
+	Not          bool                `yaml:"not,omitempty"`
+	Join         bool                `yaml:"join,omitempty"`
+	Sections     []SectionConfig     `yaml:"sections,omitempty"`
+	JoinSections []JoinSectionConfig `yaml:"joinSections,omitempty"`
 }
 
 type SectionConfig struct {
@@ -21,8 +22,22 @@ type SectionConfig struct {
 }
 
 type ConditionConfig struct {
-	Lv     string `yaml:"lv,omitempty"`
-	Op     string `yaml:"operator,omitempty"`
-	Rv     string `yaml:"rv,omitempty"`
-	RvKind string `yaml:"rv_kind,omitempty"`
+	Field    string      `yaml:"field,omitempty"`
+	Op       string      `yaml:"op,omitempty"`
+	Rv       interface{} `yaml:"rv,omitempty"`
+	RvSource string      `yaml:"rvKind,omitempty"`
+}
+
+type JoinSectionConfig struct {
+	Or         bool                  `yaml:"or,omitempty"`
+	Not        bool                  `yaml:"not,omitempty"`
+	Conditions []JoinConditionConfig `yaml:"conditions,omitempty"`
+}
+
+type JoinConditionConfig struct {
+	LeftEventID     string
+	LeftEventField  string
+	Operator        string
+	RightEventID    string
+	RightEventField string
 }
