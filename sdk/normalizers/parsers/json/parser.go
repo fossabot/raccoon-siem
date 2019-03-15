@@ -1,5 +1,9 @@
 package json
 
+import (
+	"bytes"
+)
+
 const (
 	dot               = byte('.')
 	doubleQuote       = byte('"')
@@ -30,11 +34,11 @@ type valueKind uint8
 func Parse(data []byte) (map[string][]byte, bool) {
 	result := make(map[string][]byte)
 	offset := 0
-	success := getValue(nil, &offset, data, result)
+	success := getValue(bytes.Buffer{}, &offset, data, result)
 	return result, success
 }
 
-func getValue(prefix []byte, dataOffset *int, data []byte, result map[string][]byte) bool {
+func getValue(b bytes.Buffer, dataOffset *int, data []byte, result map[string][]byte) bool {
 	if !validJson(data) {
 		return false
 	}
@@ -56,13 +60,18 @@ func getValue(prefix []byte, dataOffset *int, data []byte, result map[string][]b
 		}
 
 		if kind == valueKindObject {
-			getValue(append(key, dot), dataOffset, data, result)
+			b.Write(key)
+			b.Write([]byte{'.'})
+			getValue(b, dataOffset, data, result)
+			b.Truncate(b.Len() - len(key) - 1)
 			continue
 		}
 
 		value := extractValue(kind, data, dataOffset, valueStart)
-		if prefix != nil {
-			result[string(append(prefix, key...))] = value
+		if b.Len() > 0 {
+			b.Write(key)
+			result[b.String()] = value
+			b.Truncate(b.Len() - len(key))
 		} else {
 			result[string(key)] = value
 		}
