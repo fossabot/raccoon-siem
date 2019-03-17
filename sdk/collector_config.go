@@ -26,6 +26,6 @@ type CollectorPackage struct {
 	Destinations             []DestinationSettings     `yaml:"destinations,omitempty"`
 	Dictionaries             []DictionarySettings      `yaml:"dictionaries,omitempty"`
 	AggregationRules         []AggregationRuleSettings `yaml:"rules,omitempty"`
-	AggregationFilters       []filters.Config          `yaml:"aggregationFilters,omitempty"`
-	Filters                  []filters.Config          `yaml:"filters,omitempty"`
+	AggregationFilters       []filters.FilterConfig    `yaml:"aggregationFilters,omitempty"`
+	Filters                  []filters.FilterConfig    `yaml:"filters,omitempty"`
 }

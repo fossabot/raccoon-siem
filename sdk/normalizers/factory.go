@@ -16,7 +16,7 @@ const (
 
 type INormalizer interface {
 	ID() string
-	Normalize(data []byte, event *normalization.Event) *normalization.Event
+	Normalize(data []byte, event *normalization.Event) (normalization.Event, bool)
 }
 
 func New(cfg Config) (INormalizer, error) {

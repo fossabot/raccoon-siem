@@ -4,27 +4,27 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
-type filter struct {
+type Filter struct {
 	comparator
 	name     string
 	not      bool
 	sections []SectionConfig
 }
 
-func (f *filter) ID() string {
+func (f *Filter) ID() string {
 	return f.name
 }
 
-func (f *filter) Pass(events ...*normalization.Event) bool {
+func (f *Filter) Pass(event normalization.Event) bool {
 	for _, section := range f.sections {
-		if !f.checkSection(events[0], section) {
+		if !f.checkSection(event, section) {
 			return f.not
 		}
 	}
 	return !f.not
 }
 
-func (f *filter) checkSection(event *normalization.Event, section SectionConfig) bool {
+func (f *Filter) checkSection(event normalization.Event, section SectionConfig) bool {
 	for _, cond := range section.Conditions {
 		if !section.Or {
 			if !f.conditionMatch(event, cond) {
@@ -44,11 +44,11 @@ func (f *filter) checkSection(event *normalization.Event, section SectionConfig)
 	}
 }
 
-func (f *filter) conditionMatch(event *normalization.Event, cond ConditionConfig) bool {
-	lv := event.Get(cond.Field)
+func (f *Filter) conditionMatch(event normalization.Event, cond ConditionConfig) bool {
+	lv := event.GetAnyField(cond.Field)
 	switch cond.RvSource {
 	case RvSourceField:
-		return f.compareValues(lv, event.Get(cond.Rv.(string)), cond.Op)
+		return f.compareValues(lv, event.GetAnyField(cond.Rv.(string)), cond.Op)
 	case RvSourceDict:
 		// TODO: ask dictionary for value
 		return false
@@ -60,8 +60,8 @@ func (f *filter) conditionMatch(event *normalization.Event, cond ConditionConfig
 	}
 }
 
-func newFilter(cfg Config) (*filter, error) {
-	return &filter{
+func NewFilter(cfg Config) (*Filter, error) {
+	return &Filter{
 		name:     cfg.Name,
 		not:      cfg.Not,
 		sections: cfg.Sections,

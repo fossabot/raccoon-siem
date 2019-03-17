@@ -47,10 +47,16 @@ func StringToBool(input string) bool {
 }
 
 func StringToDuration(input string, unit byte) time.Duration {
+	dur, err := time.ParseDuration(input)
+	if err == nil {
+		return dur
+	}
+
 	num, err := strconv.ParseInt(input, 10, 64)
 	if err != nil {
 		return 0
 	}
+
 	return DurationFromInt(num, unit)
 }
 

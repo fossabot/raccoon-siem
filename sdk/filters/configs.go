@@ -8,10 +8,14 @@ const (
 )
 
 type Config struct {
+	Name     string          `yaml:"name,omitempty"`
+	Not      bool            `yaml:"not,omitempty"`
+	Sections []SectionConfig `yaml:"sections,omitempty"`
+}
+
+type JoinConfig struct {
 	Name         string              `yaml:"name,omitempty"`
 	Not          bool                `yaml:"not,omitempty"`
-	Join         bool                `yaml:"join,omitempty"`
-	Sections     []SectionConfig     `yaml:"sections,omitempty"`
 	JoinSections []JoinSectionConfig `yaml:"joinSections,omitempty"`
 }
 
@@ -35,9 +39,9 @@ type JoinSectionConfig struct {
 }
 
 type JoinConditionConfig struct {
-	LeftEventID     string
-	LeftEventField  string
-	Operator        string
-	RightEventID    string
-	RightEventField string
+	LeftTag    string `yaml:"leftTag,omitempty"`
+	LeftField  string `yaml:"leftField,omitempty"`
+	Op         string `yaml:"op,omitempty"`
+	RightTag   string `yaml:"rightTag,omitempty"`
+	RightField string `yaml:"rightField,omitempty"`
 }

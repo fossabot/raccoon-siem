@@ -15,7 +15,7 @@ func (r *syslogNormalizer) ID() string {
 	return r.name
 }
 
-func (r *syslogNormalizer) Normalize(data []byte, event *normalization.Event) *normalization.Event {
+func (r *syslogNormalizer) Normalize(data []byte, event *normalization.Event) (normalization.Event, bool) {
 	parsingResult, ok := rfc5424.Parse(data)
 	if !ok {
 		parsingResult, ok = rfc3164.Parse(data)

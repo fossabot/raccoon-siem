@@ -18,7 +18,7 @@ type EnrichConfig struct {
 func Enrich(cfg EnrichConfig, event *normalization.Event) *normalization.Event {
 	switch cfg.From {
 	case FromConst:
-		event.Set(cfg.TargetField, cfg.Const, normalization.TimeUnitNone)
+		event.SetAnyField(cfg.TargetField, cfg.Const, normalization.TimeUnitNone)
 	case FromDict:
 
 	}

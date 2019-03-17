@@ -69,7 +69,7 @@ func startCollector() connectors.OutputChannel {
 		},
 	})
 
-	dropFilter, _ := filters.New(filters.Config{
+	dropFilter, _ := filters.NewFilter(filters.Config{
 		Name: "drop cron",
 		Sections: []filters.SectionConfig{{
 			Conditions: []filters.ConditionConfig{{
@@ -81,10 +81,10 @@ func startCollector() connectors.OutputChannel {
 	})
 
 	channel := make(connectors.OutputChannel)
-	processor := collector.InputProcessor{
+	processor := collector.Processor{
 		InputChannel: channel,
 		Normalizer:   mainNormalizer,
-		DropFilters:  []filters.IFilter{dropFilter},
+		DropFilters:  []*filters.Filter{dropFilter},
 	}
 
 	if err := processor.Start(); err != nil {

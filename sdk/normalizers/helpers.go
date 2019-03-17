@@ -15,7 +15,7 @@ func normalize(
 	}
 
 	for _, m := range mapping {
-		event.SetBytes(m.EventField, parsingResult[m.SourceField], m.timeFormat)
+		event.SetAnyFieldBytes(m.EventField, parsingResult[m.SourceField], m.timeFormat)
 	}
 
 	for _, m := range mapping {

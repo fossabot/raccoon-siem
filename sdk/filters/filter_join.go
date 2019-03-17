@@ -4,26 +4,25 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
-type joinFilter struct {
+type JoinFilter struct {
 	comparator
 	not      bool
 	name     string
 	sections []JoinSectionConfig
 }
 
-func (f *joinFilter) ID() string {
+func (f *JoinFilter) ID() string {
 	return f.name
 }
 
-func (f *joinFilter) Pass(events ...*normalization.Event) bool {
-	eventsBySpecID := make(map[string]*normalization.Event)
-
-	for _, e := range events {
-		eventsBySpecID[e.CorrelatorEventSpecID] = e
+func (f *JoinFilter) Pass(events ...normalization.Event) bool {
+	eventTags := make(map[string]normalization.Event)
+	for _, event := range events {
+		eventTags[event.AggregationRuleName] = event
 	}
 
 	for _, section := range f.sections {
-		if !f.checkSection(events, eventsBySpecID, section) {
+		if !f.checkSection(eventTags, section) {
 			return f.not
 		}
 	}
@@ -31,21 +30,17 @@ func (f *joinFilter) Pass(events ...*normalization.Event) bool {
 	return !f.not
 }
 
-func (f *joinFilter) checkSection(
-	correlationEvents []*normalization.Event,
-	eventsBySpecID map[string]*normalization.Event,
-	section JoinSectionConfig,
-) bool {
+func (f *JoinFilter) checkSection(eventsByTag map[string]normalization.Event, section JoinSectionConfig) bool {
 	for _, cond := range section.Conditions {
-		srcEvent := eventsBySpecID[cond.LeftEventID]
-		dstEvent := eventsBySpecID[cond.RightEventID]
+		srcEvent := eventsByTag[cond.LeftTag]
+		dstEvent := eventsByTag[cond.RightTag]
 
 		if !section.Or {
-			if !f.joinConditionMatch(srcEvent, cond.LeftEventField, dstEvent, cond.RightEventField, cond.Operator) {
+			if !f.joinConditionMatch(srcEvent, cond.LeftField, dstEvent, cond.RightField, cond.Op) {
 				return section.Not
 			}
 		} else {
-			if f.joinConditionMatch(srcEvent, cond.LeftEventField, dstEvent, cond.RightEventField, cond.Operator) {
+			if f.joinConditionMatch(srcEvent, cond.LeftField, dstEvent, cond.RightField, cond.Op) {
 				return !section.Not
 			}
 		}
@@ -58,22 +53,22 @@ func (f *joinFilter) checkSection(
 	}
 }
 
-func (f *joinFilter) joinConditionMatch(
-	srcEvent *normalization.Event,
+func (f *JoinFilter) joinConditionMatch(
+	srcEvent normalization.Event,
 	srcEventField string,
-	dstEvent *normalization.Event,
+	dstEvent normalization.Event,
 	dstEventField string,
 	op string,
 ) bool {
 	return f.compareValues(
-		srcEvent.Get(srcEventField),
-		dstEvent.Get(dstEventField),
+		srcEvent.GetAnyField(srcEventField),
+		dstEvent.GetAnyField(dstEventField),
 		op,
 	)
 }
 
-func newJoinFilter(cfg Config) (*joinFilter, error) {
-	return &joinFilter{
+func NewJoinFilter(cfg JoinConfig) (*JoinFilter, error) {
+	return &JoinFilter{
 		name:     cfg.Name,
 		not:      cfg.Not,
 		sections: cfg.JoinSections,
