@@ -27,7 +27,7 @@ func TestDictionary(t *testing.T) {
 	dictionariesData[raccoon] = raccoonDict
 	dictionariesData[weird] = weirdDict
 
-	dictionaries := dictionary.NewDictionary(dictionary.Config{Data: dictionariesData})
+	dictionaries := dictionary.NewDictionaryStorage(dictionary.Config{Data: dictionariesData})
 
 	assert.Equal(t, dictionaries.Get(raccoon, "ERROR"), "error")
 	assert.Equal(t, dictionaries.Get(weird, "2"), "debug")

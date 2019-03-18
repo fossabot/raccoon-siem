@@ -1,7 +1,7 @@
 package enrichment
 
 import (
-	"github.com/tephrocactus/raccoon-siem/sdk/dictionary"
+	"github.com/tephrocactus/raccoon-siem/sdk/globals"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"strconv"
 	"time"
@@ -9,45 +9,61 @@ import (
 
 const (
 	FromConst = "const"
-	FromField = "field"
 	FromDict  = "dict"
 	FromAL    = "al"
 )
 
 type EnrichConfig struct {
-	// Поле event, куда записываем результат
-	TargetField string `yaml:"targetField,omitempty"`
-	KeyField    string `yaml:"keyField,omitempty"`
-	From        string `yaml:"from,omitempty"`
-	FromKey     string `yaml:"fromKey,omitempty"`
-	Const       string `yaml:"const,omitempty"`
+	Field            string   `yaml:"field,omitempty"`
+	Constant         string   `yaml:"constant,omitempty"`
+	KeyFields        []string `yaml:"keyFields,omitempty"`
+	ValueSourceKind  string   `yaml:"valueSourceKind,omitempty"`
+	ValueSourceName  string   `yaml:"valueSourceName,omitempty"`
+	ValueSourceField string   `yaml:"valueSourceField,omitempty"`
+	TriggerField     string   `yaml:"trigger_field,omitempty"`
+	TriggerValue     string   `yaml:"trigger_value,omitempty"`
 }
 
 func Enrich(cfg EnrichConfig, event *normalization.Event) *normalization.Event {
-	switch cfg.From {
-	case FromField:
-		srcValue := event.GetAnyField(cfg.KeyField)
-		switch srcValue.(type) {
-		case string:
-			event.SetAnyField(cfg.TargetField, srcValue.(string), normalization.TimeUnitNone)
-		case int64:
-			event.SetAnyField(cfg.TargetField, strconv.FormatInt(srcValue.(int64), 10), normalization.TimeUnitNone)
-		case time.Duration:
-			duration := srcValue.(time.Duration)
-			event.SetAnyField(cfg.TargetField, strconv.FormatInt(duration.Nanoseconds(), 10), normalization.TimeUnitNone)
-		case time.Time:
-			t := srcValue.(time.Time)
-			event.SetAnyField(cfg.TargetField, strconv.FormatInt(t.UnixNano(), 10), normalization.TimeUnitNone)
-		default:
+	if cfg.TriggerField != "" {
+		triggerValue, success := getStringValue(event.GetAnyField(cfg.TriggerField))
+		if !success || cfg.TriggerValue != triggerValue {
 			return event
 		}
-	case FromConst:
-		event.SetAnyField(cfg.TargetField, cfg.Const, normalization.TimeUnitNone)
+	}
+
+	switch cfg.ValueSourceKind {
 	case FromDict:
-		value := dictionary.MockDictionary.Get(cfg.FromKey, cfg.KeyField)
-		event.SetAnyField(cfg.TargetField, value, 0)
+		srcValue := event.GetAnyField(cfg.KeyFields[0])
+		key, success := getStringValue(srcValue)
+		if !success {
+			return event
+		}
+
+		value := globals.DictionaryStorage.Get(cfg.ValueSourceName, key)
+		event.SetAnyField(cfg.Field, value, 0)
+	case FromConst:
+		event.SetAnyField(cfg.Field, cfg.Constant, normalization.TimeUnitNone)
+	case FromAL:
 	default:
 		return event
 	}
 	return event
+}
+
+func getStringValue(src interface{}) (string, bool) {
+	var key string
+	switch src.(type) {
+	case string:
+		key = src.(string)
+	case int64:
+		key = strconv.FormatInt(src.(int64), 10)
+	case time.Duration:
+		key = strconv.FormatInt(src.(time.Duration).Nanoseconds(), 10)
+	case time.Time:
+		key = strconv.FormatInt(src.(time.Time).UnixNano(), 10)
+	default:
+		return "", false
+	}
+	return key, true
 }
