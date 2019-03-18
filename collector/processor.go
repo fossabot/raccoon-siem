@@ -4,6 +4,7 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk"
 	"github.com/tephrocactus/raccoon-siem/sdk/aggregation"
 	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
+	"github.com/tephrocactus/raccoon-siem/sdk/enrichment"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalizers"
@@ -18,6 +19,7 @@ type Processor struct {
 	Normalizer         normalizers.INormalizer
 	DropFilters        []*filters.Filter
 	AggregationRules   []aggregation.Rule
+	EnrichConfigs      []enrichment.EnrichConfig
 }
 
 func (r *Processor) Start() error {
@@ -41,6 +43,10 @@ mainLoop:
 			}
 		}
 
+		for _, config := range r.EnrichConfigs {
+			enrichment.Enrich(config, event)
+		}
+		
 		event.Timestamp = time.Now()
 		event.ID = sdk.GetUUID()
 		event.SourceID = input.Connector
