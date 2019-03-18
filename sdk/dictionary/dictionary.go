@@ -14,6 +14,8 @@ func NewDictionary(cfg Config) *dictionary {
 	return &dictionary{cfg}
 }
 
+var MockDictionary *dictionary = NewDictionary(Config{})
+
 func (r *dictionary) Get(dictionaryName string, field string) string {
 	dictionary, found := r.cfg.Data[dictionaryName]
 	if !found {
