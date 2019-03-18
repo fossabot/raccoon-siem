@@ -35,6 +35,7 @@ type Config struct {
 	Triggers         map[string]TriggerConfig `yaml:"triggers,omitempty"`
 	Unexpected       []string                 `yaml:"unexpected,omitempty"`
 	Window           time.Duration            `yaml:"window,omitempty"`
+	ResetWindowOn    string                   `yaml:"resetWindowOn,omitempty"`
 }
 
 type TriggerConfig struct {

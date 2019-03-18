@@ -10,7 +10,7 @@ import (
 )
 
 func TestRule(t *testing.T) {
-	channel := make(chan *normalization.Event)
+	channel := make(chan normalization.Event)
 	threshold := 10
 
 	rule, err := NewRule(Config{
@@ -32,7 +32,7 @@ func TestRule(t *testing.T) {
 			case <-timeout:
 				wg.Done()
 			case event := <-channel:
-				aggregatedEvents = append(aggregatedEvents, event)
+				aggregatedEvents = append(aggregatedEvents, &event)
 			}
 		}
 	}()
@@ -61,7 +61,7 @@ func TestRule(t *testing.T) {
 }
 
 func TestRuleWindow(t *testing.T) {
-	channel := make(chan *normalization.Event)
+	channel := make(chan normalization.Event)
 	window := time.Second
 
 	rule, err := NewRule(Config{
@@ -83,7 +83,7 @@ func TestRuleWindow(t *testing.T) {
 			case <-timeout:
 				wg.Done()
 			case event := <-channel:
-				aggregatedEvents = append(aggregatedEvents, event)
+				aggregatedEvents = append(aggregatedEvents, &event)
 			}
 		}
 	}()
@@ -101,7 +101,7 @@ func TestRuleWindow(t *testing.T) {
 }
 
 func BenchmarkRule(b *testing.B) {
-	channel := make(chan *normalization.Event)
+	channel := make(chan normalization.Event)
 	rule, _ := NewRule(Config{
 		Filter:          getTestFilterConfig(),
 		Threshold:       100,
@@ -130,7 +130,7 @@ func getTestFilterConfig() filters.Config {
 			Conditions: []filters.ConditionConfig{{
 				Field: "OriginServiceName",
 				Op:    filters.OpEQ,
-				Rv:    "netflow",
+				Value: "netflow",
 			}},
 		}},
 	}

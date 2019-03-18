@@ -6,7 +6,11 @@ import (
 	"time"
 )
 
-func SumEvents(dst *normalization.Event, src *normalization.Event, fields []string, sep byte) {
+const (
+	sumDelimiter = ','
+)
+
+func SumEvents(dst *normalization.Event, src *normalization.Event, fields []string) {
 	for _, field := range fields {
 		dstValue := dst.GetAnyField(field)
 		switch dstValue.(type) {
@@ -24,7 +28,7 @@ func SumEvents(dst *normalization.Event, src *normalization.Event, fields []stri
 			if ok {
 				sb := strings.Builder{}
 				if srcValue != "" {
-					sb.WriteByte(sep)
+					sb.WriteByte(sumDelimiter)
 				}
 				sb.WriteString(srcValue)
 				dst.SetAnyField(field, sb.String(), normalization.TimeUnitNone)

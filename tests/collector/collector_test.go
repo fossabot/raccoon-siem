@@ -75,7 +75,7 @@ func startCollector() connectors.OutputChannel {
 			Conditions: []filters.ConditionConfig{{
 				Field: "OriginProcessName",
 				Op:    filters.OpEQ,
-				Rv:    "cron",
+				Value: "cron",
 			}},
 		}},
 	})

@@ -1,7 +1,6 @@
 package aggregation
 
 import (
-	"fmt"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
@@ -22,17 +21,16 @@ type bucket struct {
 type Rule struct {
 	name            string
 	filter          *filters.Filter
-	outputChannel   chan *normalization.Event
-	callback        Callback
 	identicalFields []string
 	uniqueFields    []string
 	sumFields       []string
-	sumDelimiter    byte
 	threshold       int
 	window          time.Duration
 	mu              sync.Mutex
 	buckets         map[string]*bucket
 	ticker          *time.Ticker
+	outputChannel   chan normalization.Event
+	callback        Callback
 }
 
 func (r *Rule) ID() string {
@@ -101,7 +99,7 @@ func (r *Rule) Feed(event *normalization.Event) bool {
 	}
 
 	if !isFirstEvent && len(r.sumFields) > 0 {
-		helpers.SumEvents(&b.event, event, r.sumFields, r.sumDelimiter)
+		helpers.SumEvents(&b.event, event, r.sumFields)
 	}
 
 	b.eventCount++
@@ -124,7 +122,7 @@ func (r *Rule) sendEvent(event *normalization.Event, key string) {
 	if r.callback != nil {
 		r.callback(event, key)
 	} else if r.outputChannel != nil {
-		r.outputChannel <- event
+		r.outputChannel <- *event
 	}
 }
 
@@ -158,7 +156,7 @@ func (r *Rule) timeoutRoutine() {
 	}
 }
 
-func NewRule(cfg Config, channel chan *normalization.Event, callback Callback) (*Rule, error) {
+func NewRule(cfg Config, channel chan normalization.Event, callback Callback) (*Rule, error) {
 	r := &Rule{
 		name:            cfg.Name,
 		threshold:       cfg.Threshold,
@@ -177,14 +175,5 @@ func NewRule(cfg Config, channel chan *normalization.Event, callback Callback) (
 	}
 
 	r.filter = filter
-
-	if cfg.SumDelimiter != "" {
-		delimiterBytes := []byte(cfg.SumDelimiter)
-		if len(delimiterBytes) > 1 {
-			return nil, fmt.Errorf("sum delimiter must be single byte ASCII character: %s", cfg.Name)
-		}
-		r.sumDelimiter = delimiterBytes[0]
-	}
-
 	return r, nil
 }

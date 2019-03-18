@@ -28,10 +28,11 @@ type Rule struct {
 	unexpected       map[string]bool
 	actions          map[string][]ActionConfig
 	window           time.Duration
+	resetWindowOn    string
 	mu               sync.Mutex
 	buckets          map[string]*bucket
 	ticker           *time.Ticker
-	outputChannel    chan *normalization.Event
+	outputChannel    chan normalization.Event
 }
 
 func (r *Rule) Start() {
@@ -67,9 +68,69 @@ func (r *Rule) Feed(event *normalization.Event) {
 	}
 }
 
-func (r *Rule) releaseEvent(event normalization.Event) {
+func (r *Rule) eventReady(event *normalization.Event, hash string) {
+	r.mu.Lock()
+
+	if r.unexpected[event.AggregationRuleName] {
+		r.resetBucket(hash)
+		r.mu.Unlock()
+		return
+	}
+
+	b := r.buckets[hash]
+	firstEvent := b == nil
+
+	if firstEvent {
+		b = &bucket{
+			resetAt:    time.Now().Add(r.window).Unix(),
+			subBuckets: make(map[string]*subBucket),
+		}
+		r.buckets[hash] = b
+	}
+
+	sb := b.subBuckets[event.AggregationRuleName]
+	if sb == nil {
+		sb = &subBucket{}
+		b.subBuckets[event.AggregationRuleName] = sb
+	}
+
+	sb.event = *event
+	sb.eventCount++
+
+	if sb.eventCount == 1 {
+		r.fireTrigger(TriggerFirstEvent, b, sb)
+	} else {
+		r.fireTrigger(TriggerSubsequentEvents, b, sb)
+	}
+
+	r.fireTrigger(TriggerEveryEvent, b, sb)
+
+	thresholdReached := true
+	for _, aggRule := range r.aggregationRules {
+		if !r.unexpected[aggRule.ID()] {
+			if _, ok := b.subBuckets[aggRule.ID()]; !ok {
+				thresholdReached = false
+				break
+			}
+		}
+	}
+
+	if thresholdReached {
+		b.thresholdCount++
+		if b.thresholdCount == 1 {
+			r.fireTrigger(TriggerFirstThreshold, b, nil)
+		} else {
+			r.fireTrigger(TriggerSubsequentThresholds, b, nil)
+		}
+		r.fireTrigger(TriggerEveryThreshold, b, nil)
+	}
+
+	r.mu.Unlock()
+}
+
+func (r *Rule) releaseEvent(event *normalization.Event) {
 	if r.outputChannel != nil {
-		r.outputChannel <- &event
+		r.outputChannel <- *event
 	}
 }
 
@@ -96,7 +157,7 @@ func (r *Rule) timeoutRoutine() {
 
 		for key, bucket := range r.buckets {
 			if bucket.resetAt <= now {
-				r.fireTrigger(TriggerTimeout, bucket)
+				r.fireTrigger(TriggerTimeout, bucket, nil)
 				r.resetBucket(key)
 			} else if bucket.resetAt < nextResetMin {
 				nextResetMin = bucket.resetAt
@@ -108,70 +169,19 @@ func (r *Rule) timeoutRoutine() {
 	}
 }
 
-func (r *Rule) fireTrigger(kind string, bucket *bucket) {
-	fmt.Printf("trigger: %s\n", kind)
-}
-
-func (r *Rule) fireEventTrigger(kind string, subBucket *subBucket) {
-	fmt.Printf("trigger: %s\n", kind)
-}
-
-func (r *Rule) eventReady(event *normalization.Event, hash string) {
-	r.mu.Lock()
-
-	if r.unexpected[event.AggregationRuleName] {
-		r.resetBucket(hash)
-		r.mu.Unlock()
-		return
+func (r *Rule) fireTrigger(kind string, bucket *bucket, subBucket *subBucket) {
+	if r.resetWindowOn == kind {
+		bucket.resetAt = time.Now().Add(r.window).Unix()
 	}
-
-	b := r.buckets[hash]
-	firstEvent := b == nil
-
-	if firstEvent {
-		b = &bucket{
-			resetAt:    time.Now().Add(r.window).Unix(),
-			subBuckets: make(map[string]*subBucket),
-		}
-		r.buckets[hash] = b
-	}
-
-	sb := b.subBuckets[event.AggregationRuleName]
-	sb.event = *event
-	sb.eventCount++
-
-	if sb.eventCount == 1 {
-		r.fireEventTrigger(TriggerFirstEvent, sb)
+	if subBucket != nil {
+		fmt.Printf("rule: %s, trigger: %s, srcIP: %s, count: %d\n",
+			r.name, kind, subBucket.event.SourceIPAddress, subBucket.event.AggregatedEventCount)
 	} else {
-		r.fireEventTrigger(TriggerSubsequentEvents, sb)
-		r.fireEventTrigger(TriggerEveryEvent, sb)
+		fmt.Printf("rule: %s, trigger: %s\n", r.name, kind)
 	}
-
-	thresholdReached := true
-	for _, aggRule := range r.aggregationRules {
-		if !r.unexpected[aggRule.ID()] {
-			if _, ok := b.subBuckets[aggRule.ID()]; !ok {
-				thresholdReached = false
-				break
-			}
-		}
-	}
-
-	if thresholdReached {
-		b.thresholdCount++
-		if b.thresholdCount == 1 {
-			r.fireTrigger(TriggerFirstThreshold, b)
-		} else {
-			r.fireTrigger(TriggerSubsequentThresholds, b)
-			r.fireTrigger(TriggerEveryThreshold, b)
-		}
-		b.subBuckets = make(map[string]*subBucket)
-	}
-
-	r.mu.Unlock()
 }
 
-func NewRule(cfg Config, channel chan *normalization.Event) (*Rule, error) {
+func NewRule(cfg Config, channel chan normalization.Event) (*Rule, error) {
 	r := &Rule{
 		name:          cfg.Name,
 		window:        cfg.Window,

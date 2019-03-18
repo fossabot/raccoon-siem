@@ -13,5 +13,4 @@ type Config struct {
 	IdenticalFields []string       `yaml:"identical_fields,omitempty"`
 	UniqueFields    []string       `yaml:"unique_fields,omitempty"`
 	SumFields       []string       `yaml:"sum_fields,omitempty"`
-	SumDelimiter    string         `yaml:"sum_delimiter,omitempty"`
 }

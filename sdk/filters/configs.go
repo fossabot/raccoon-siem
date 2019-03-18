@@ -1,10 +1,10 @@
 package filters
 
 const (
-	RvSourceField = "field"
-	RvSourceConst = "const"
-	RvSourceAL    = "al"
-	RvSourceDict  = "dict"
+	ValueSourceField = "field"
+	ValueSourceConst = "const"
+	ValueSourceAL    = "al"
+	ValueSourceDict  = "dict"
 )
 
 type Config struct {
@@ -26,10 +26,10 @@ type SectionConfig struct {
 }
 
 type ConditionConfig struct {
-	Field    string      `yaml:"field,omitempty"`
-	Op       string      `yaml:"op,omitempty"`
-	Rv       interface{} `yaml:"rv,omitempty"`
-	RvSource string      `yaml:"rvKind,omitempty"`
+	Field       string      `yaml:"field,omitempty"`
+	Op          string      `yaml:"op,omitempty"`
+	Value       interface{} `yaml:"value,omitempty"`
+	ValueSource string      `yaml:"valueSource,omitempty"`
 }
 
 type JoinSectionConfig struct {

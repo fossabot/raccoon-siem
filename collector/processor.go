@@ -36,7 +36,7 @@ mainLoop:
 		}
 
 		for _, dropFilter := range r.DropFilters {
-			if dropFilter.Pass(*event) {
+			if dropFilter.Pass(event) {
 				continue mainLoop
 			}
 		}
@@ -51,6 +51,6 @@ mainLoop:
 			}
 		}
 
-		r.OutputChannel <- event
+		r.OutputChannel <- *event
 	}
 }

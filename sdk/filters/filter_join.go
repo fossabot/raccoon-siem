@@ -15,8 +15,8 @@ func (f *JoinFilter) ID() string {
 	return f.name
 }
 
-func (f *JoinFilter) Pass(events ...normalization.Event) bool {
-	eventTags := make(map[string]normalization.Event)
+func (f *JoinFilter) Pass(events ...*normalization.Event) bool {
+	eventTags := make(map[string]*normalization.Event)
 	for _, event := range events {
 		eventTags[event.AggregationRuleName] = event
 	}
@@ -30,7 +30,7 @@ func (f *JoinFilter) Pass(events ...normalization.Event) bool {
 	return !f.not
 }
 
-func (f *JoinFilter) checkSection(eventsByTag map[string]normalization.Event, section JoinSectionConfig) bool {
+func (f *JoinFilter) checkSection(eventsByTag map[string]*normalization.Event, section JoinSectionConfig) bool {
 	for _, cond := range section.Conditions {
 		srcEvent := eventsByTag[cond.LeftTag]
 		dstEvent := eventsByTag[cond.RightTag]
@@ -54,9 +54,9 @@ func (f *JoinFilter) checkSection(eventsByTag map[string]normalization.Event, se
 }
 
 func (f *JoinFilter) joinConditionMatch(
-	srcEvent normalization.Event,
+	srcEvent *normalization.Event,
 	srcEventField string,
-	dstEvent normalization.Event,
+	dstEvent *normalization.Event,
 	dstEventField string,
 	op string,
 ) bool {

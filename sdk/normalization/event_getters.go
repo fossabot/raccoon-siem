@@ -8,6 +8,8 @@ func (r *Event) GetAnyField(field string) interface{} {
 		return r.Incident
 	case "Correlated":
 		return r.Correlated
+	case "CorrelationRuleName":
+		return r.CorrelationRuleName
 	case "Timestamp":
 		return r.Timestamp
 	case "Message":
