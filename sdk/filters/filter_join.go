@@ -33,7 +33,14 @@ func (f *JoinFilter) Pass(events ...*normalization.Event) bool {
 func (f *JoinFilter) checkSection(eventsByTag map[string]*normalization.Event, section JoinSectionConfig) bool {
 	for _, cond := range section.Conditions {
 		srcEvent := eventsByTag[cond.LeftTag]
+		if srcEvent == nil {
+			return section.Not
+		}
+
 		dstEvent := eventsByTag[cond.RightTag]
+		if dstEvent == nil {
+			return section.Not
+		}
 
 		if !section.Or {
 			if !f.joinConditionMatch(srcEvent, cond.LeftField, dstEvent, cond.RightField, cond.Op) {

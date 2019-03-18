@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type Callback func(event *normalization.Event, hash string)
+type Callback func(caller *Rule, event *normalization.Event, hash string)
 
 type bucket struct {
 	uniqueHashes map[string]bool
@@ -26,6 +26,7 @@ type Rule struct {
 	sumFields       []string
 	threshold       int
 	window          time.Duration
+	unexpected      bool
 	mu              sync.Mutex
 	buckets         map[string]*bucket
 	ticker          *time.Ticker
@@ -35,6 +36,10 @@ type Rule struct {
 
 func (r *Rule) ID() string {
 	return r.name
+}
+
+func (r *Rule) IsUnexpected() bool {
+	return r.unexpected
 }
 
 func (r *Rule) Start() {
@@ -66,6 +71,10 @@ func (r *Rule) Reset() {
 }
 
 func (r *Rule) Feed(event *normalization.Event) bool {
+	if event.AggregationRuleName == r.name {
+		return false
+	}
+
 	if !r.filter.Pass(event) {
 		return false
 	}
@@ -120,7 +129,7 @@ func (r *Rule) releaseBucket(key string, bucket *bucket) {
 func (r *Rule) sendEvent(event *normalization.Event, key string) {
 	event.AggregationRuleName = r.name
 	if r.callback != nil {
-		r.callback(event, key)
+		r.callback(r, event, key)
 	} else if r.outputChannel != nil {
 		r.outputChannel <- *event
 	}
@@ -161,6 +170,7 @@ func NewRule(cfg Config, channel chan normalization.Event, callback Callback) (*
 		name:            cfg.Name,
 		threshold:       cfg.Threshold,
 		window:          cfg.Window,
+		unexpected:      cfg.Unexpected,
 		identicalFields: cfg.IdenticalFields,
 		uniqueFields:    cfg.UniqueFields,
 		sumFields:       cfg.SumFields,

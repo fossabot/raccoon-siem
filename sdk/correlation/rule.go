@@ -25,7 +25,6 @@ type Rule struct {
 	name             string
 	aggregationRules []*aggregation.Rule
 	filter           *filters.JoinFilter
-	unexpected       map[string]bool
 	actions          map[string][]ActionConfig
 	window           time.Duration
 	resetWindowOn    string
@@ -61,26 +60,26 @@ func (r *Rule) Stop() {
 }
 
 func (r *Rule) Feed(event *normalization.Event) {
-	for _, aggRule := range r.aggregationRules {
-		if aggRule.Feed(event) {
-			break
+	if event.CorrelationRuleName != r.name {
+		for _, aggRule := range r.aggregationRules {
+			if aggRule.Feed(event) {
+				break
+			}
 		}
 	}
 }
 
-func (r *Rule) eventReady(event *normalization.Event, hash string) {
+func (r *Rule) eventReady(caller *aggregation.Rule, event *normalization.Event, hash string) {
 	r.mu.Lock()
 
-	if r.unexpected[event.AggregationRuleName] {
+	if caller.IsUnexpected() {
 		r.resetBucket(hash)
 		r.mu.Unlock()
 		return
 	}
 
 	b := r.buckets[hash]
-	firstEvent := b == nil
-
-	if firstEvent {
+	if b == nil {
 		b = &bucket{
 			resetAt:    time.Now().Add(r.window).Unix(),
 			subBuckets: make(map[string]*subBucket),
@@ -106,22 +105,32 @@ func (r *Rule) eventReady(event *normalization.Event, hash string) {
 	r.fireTrigger(TriggerEveryEvent, b, sb)
 
 	thresholdReached := true
+	eventsForFilter := make([]*normalization.Event, 0, len(r.aggregationRules))
 	for _, aggRule := range r.aggregationRules {
-		if !r.unexpected[aggRule.ID()] {
-			if _, ok := b.subBuckets[aggRule.ID()]; !ok {
+		if !aggRule.IsUnexpected() {
+			sb, ok := b.subBuckets[aggRule.ID()]
+			if !ok {
 				thresholdReached = false
 				break
 			}
+			eventsForFilter = append(eventsForFilter, &sb.event)
 		}
 	}
 
 	if thresholdReached {
+		if r.filter != nil && !r.filter.Pass(eventsForFilter...) {
+			r.resetBucket(hash)
+			r.mu.Unlock()
+			return
+		}
+
 		b.thresholdCount++
 		if b.thresholdCount == 1 {
 			r.fireTrigger(TriggerFirstThreshold, b, nil)
 		} else {
 			r.fireTrigger(TriggerSubsequentThresholds, b, nil)
 		}
+
 		r.fireTrigger(TriggerEveryThreshold, b, nil)
 	}
 
@@ -187,7 +196,6 @@ func NewRule(cfg Config, channel chan normalization.Event) (*Rule, error) {
 		window:        cfg.Window,
 		buckets:       make(map[string]*bucket),
 		actions:       make(map[string][]ActionConfig),
-		unexpected:    make(map[string]bool),
 		outputChannel: channel,
 	}
 
@@ -209,10 +217,6 @@ func NewRule(cfg Config, channel chan normalization.Event) (*Rule, error) {
 
 	for _, trigger := range cfg.Triggers {
 		r.actions[trigger.Kind] = trigger.Actions
-	}
-
-	for _, name := range cfg.Unexpected {
-		r.unexpected[name] = true
 	}
 
 	return r, nil

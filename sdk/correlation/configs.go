@@ -33,7 +33,6 @@ type Config struct {
 	AggregationRules []aggregation.Config     `yaml:"aggregationRules,omitempty"`
 	Filter           *filters.JoinConfig      `yaml:"filter,omitempty"`
 	Triggers         map[string]TriggerConfig `yaml:"triggers,omitempty"`
-	Unexpected       []string                 `yaml:"unexpected,omitempty"`
 	Window           time.Duration            `yaml:"window,omitempty"`
 	ResetWindowOn    string                   `yaml:"resetWindowOn,omitempty"`
 }

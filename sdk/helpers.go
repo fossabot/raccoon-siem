@@ -3,14 +3,9 @@ package sdk
 import (
 	"fmt"
 	"github.com/satori/go.uuid"
-	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
-	"github.com/tephrocactus/raccoon-siem/sdk/filters"
-	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
-	"github.com/tephrocactus/raccoon-siem/sdk/normalizers"
 	"log"
 	"net"
 	"os"
-	"sort"
 )
 
 func GetHostName() string {
@@ -38,17 +33,6 @@ func GetIPAddress() string {
 	panic("can not get IP address")
 }
 
-// Sort eventSpecs by EndTime DESC
-func sortEventsByEndTime(events []*normalization.Event, asc bool) {
-	sort.SliceStable(events, func(i, j int) bool {
-		if asc {
-			return events[i].EndTime.UnixNano() < events[j].EndTime.UnixNano()
-		} else {
-			return events[i].EndTime.UnixNano() > events[j].EndTime.UnixNano()
-		}
-	})
-}
-
 func GetUUID() string {
 	return uuid.NewV4().String()
 }
@@ -57,48 +41,6 @@ func CopyBytes(data []byte) []byte {
 	dataCopy := make([]byte, len(data))
 	copy(dataCopy, data)
 	return dataCopy
-}
-
-func PrintConfiguration(resources ...interface{}) {
-	for _, r := range resources {
-		switch r.(type) {
-		case []connectors.IConnector:
-			fmt.Printf("Connectors:\n")
-			for i, v := range r.([]connectors.IConnector) {
-				fmt.Printf("\t%d.%v\n", i+1, v.ID())
-			}
-		case []normalizers.INormalizer:
-			fmt.Printf("Normalizer:\n")
-			for i, v := range r.([]normalizers.INormalizer) {
-				fmt.Printf("\t%d.%v\n", i+1, v.ID())
-			}
-		case []filters.IFilter:
-			fmt.Printf("Filters:\n")
-			for i, v := range r.([]filters.IFilter) {
-				fmt.Printf("\t%d.%v\n", i+1, v.ID())
-			}
-		case []IAggregationRule:
-			fmt.Printf("Aggregation rules:\n")
-			for i, v := range r.([]IAggregationRule) {
-				fmt.Printf("\t%d.%v\n", i+1, v.ID())
-			}
-		case []IDestination:
-			fmt.Printf("Destinations:\n")
-			for i, v := range r.([]IDestination) {
-				fmt.Printf("\t%d.%v\n", i+1, v.ID())
-			}
-		case []CorrelationRule:
-			fmt.Printf("Correlation rules:\n")
-			for i, v := range r.([]CorrelationRule) {
-				fmt.Printf("\t%d.%v\n", i+1, v.ID())
-			}
-		case []ActiveListSettings:
-			fmt.Printf("Active lists:\n")
-			for i, v := range r.([]ActiveListSettings) {
-				fmt.Printf("\t%d.%v\n", i+1, v.ID())
-			}
-		}
-	}
 }
 
 func DebugError(err error) {

@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"github.com/tephrocactus/raccoon-siem/sdk/aggregation"
 	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalizers"
@@ -21,11 +22,10 @@ func (s *CollectorConfig) ID() string {
 
 type CollectorPackage struct {
 	DefaultComponentSettings `yaml:",inline"`
-	Normalizers              []normalizers.Config      `yaml:"normalizers,omitempty"`
-	Connectors               []connectors.Config       `yaml:"connectors,omitempty"`
-	Destinations             []DestinationSettings     `yaml:"destinations,omitempty"`
-	Dictionaries             []DictionarySettings      `yaml:"dictionaries,omitempty"`
-	AggregationRules         []AggregationRuleSettings `yaml:"rules,omitempty"`
-	AggregationFilters       []filters.FilterConfig    `yaml:"aggregationFilters,omitempty"`
-	Filters                  []filters.FilterConfig    `yaml:"filters,omitempty"`
+	Connectors               []connectors.Config   `yaml:"connectors,omitempty"`
+	Normalizers              []normalizers.Config  `yaml:"normalizers,omitempty"`
+	Destinations             []DestinationSettings `yaml:"destinations,omitempty"`
+	Dictionaries             []DictionarySettings  `yaml:"dictionaries,omitempty"`
+	AggregationRules         []aggregation.Config  `yaml:"aggregation,omitempty"`
+	DropFilters              []filters.Config      `yaml:"dropFilters,omitempty"`
 }

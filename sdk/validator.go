@@ -15,16 +15,6 @@ func ValidateEventFieldAndGetType(name string) (byte, error) {
 	return fType, nil
 }
 
-func ValidateTrigger(kind string) error {
-	_, ok := knownTriggers[kind]
-
-	if !ok {
-		return fmt.Errorf("unknown trigger '%s'", kind)
-	}
-
-	return nil
-}
-
 func ValidateAndTransformActiveListAction(name string) (byte, error) {
 	transformed, ok := activeListActionsTransform[name]
 
