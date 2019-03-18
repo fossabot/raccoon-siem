@@ -25,13 +25,6 @@ func ValidateTrigger(kind string) error {
 	return nil
 }
 
-func ValidateDestination(name string) error {
-	if _, ok := knownDestinations[name]; !ok {
-		return fmt.Errorf("unknown destination '%s'", name)
-	}
-	return nil
-}
-
 func ValidateAndTransformActiveListAction(name string) (byte, error) {
 	transformed, ok := activeListActionsTransform[name]
 
@@ -40,40 +33,6 @@ func ValidateAndTransformActiveListAction(name string) (byte, error) {
 	}
 
 	return transformed, nil
-}
-
-func ValidateAndTransformFilterOperator(v string) (byte, error) {
-	switch v {
-	case opEQString:
-		return opEQ, nil
-	case opNEQString:
-		return opNEQ, nil
-	case opGTString:
-		return opGT, nil
-	case opLTString:
-		return opLT, nil
-	case opLTorEQString:
-		return opLTorEQ, nil
-	case opGTorEQString:
-		return opGTorEQ, nil
-	default:
-		return 0, fmt.Errorf("unknown children operator '%s", v)
-	}
-}
-
-func ValidateAndTransformTimeUnit(v string) (byte, error) {
-	switch v {
-	case normalization.TimeUnitSecondsString:
-		return normalization.TimeUnitSeconds, nil
-	case normalization.TimeUnitMillisecondsString:
-		return normalization.TimeUnitMilliseconds, nil
-	case normalization.TimeUnitMicrosecondsString:
-		return normalization.TimeUnitMicroseconds, nil
-	case normalization.TimeUnitNanosecondsString:
-		return normalization.TimeUnitNanoseconds, nil
-	default:
-		return normalization.TimeUnitNone, nil
-	}
 }
 
 func ValidateAndTransformVariableSource(s string) (byte, error) {

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/tephrocactus/raccoon-siem/sdk"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
-	"gopkg.in/vmihailenco/msgpack.v4"
 )
 
 type Processor struct {
@@ -35,7 +34,7 @@ func (r *Processor) Start() error {
 func (r *Processor) correlationRoutine() {
 	for input := range r.CorrelationChannel {
 		event := new(normalization.Event)
-		if err := msgpack.Unmarshal(input.Data, event); err != nil {
+		if err := event.FromMsgPack(input.Data); err != nil {
 			continue
 		}
 

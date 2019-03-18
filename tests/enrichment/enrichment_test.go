@@ -36,7 +36,7 @@ func TestDictionary(t *testing.T) {
 	cfg := enrichment.EnrichConfig{
 		From:        enrichment.FromDict,
 		FromKey:     raccoon,
-		Key:         "ERROR",
+		KeyField:    "ERROR",
 		TargetField: "Trace",
 	}
 	enrichment.Enrich(cfg, &event)
@@ -52,7 +52,7 @@ func TestDictionary(t *testing.T) {
 
 	cfg = enrichment.EnrichConfig{
 		From:        enrichment.FromField,
-		Key:         "OriginIPAddress",
+		KeyField:    "OriginIPAddress",
 		TargetField: "DestinationIPAddress",
 	}
 	event.OriginIPAddress = "127.0.0.1"

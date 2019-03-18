@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	FromField = "field"
 	FromConst = "const"
+	FromField = "field"
 	FromDict  = "dict"
 	FromAL    = "al"
 )
@@ -17,7 +17,7 @@ const (
 type EnrichConfig struct {
 	// Поле event, куда записываем результат
 	TargetField string `yaml:"targetField,omitempty"`
-	Key         string `yaml:"key,omitempty"`
+	KeyField    string `yaml:"keyField,omitempty"`
 	From        string `yaml:"from,omitempty"`
 	FromKey     string `yaml:"fromKey,omitempty"`
 	Const       string `yaml:"const,omitempty"`
@@ -26,26 +26,26 @@ type EnrichConfig struct {
 func Enrich(cfg EnrichConfig, event *normalization.Event) *normalization.Event {
 	switch cfg.From {
 	case FromField:
-		srcValue := event.Get(cfg.Key)
+		srcValue := event.GetAnyField(cfg.KeyField)
 		switch srcValue.(type) {
 		case string:
-			event.Set(cfg.TargetField, []byte(srcValue.(string)), 0)
+			event.SetAnyField(cfg.TargetField, srcValue.(string), normalization.TimeUnitNone)
 		case int64:
-			event.Set(cfg.TargetField, []byte(strconv.FormatInt(srcValue.(int64), 10)), 0)
+			event.SetAnyField(cfg.TargetField, strconv.FormatInt(srcValue.(int64), 10), normalization.TimeUnitNone)
 		case time.Duration:
 			duration := srcValue.(time.Duration)
-			event.Set(cfg.TargetField, []byte(strconv.FormatInt(duration.Nanoseconds(), 10)), 0)
+			event.SetAnyField(cfg.TargetField, strconv.FormatInt(duration.Nanoseconds(), 10), normalization.TimeUnitNone)
 		case time.Time:
 			t := srcValue.(time.Time)
-			event.Set(cfg.TargetField, []byte(strconv.FormatInt(t.UnixNano(), 10)), 0)
+			event.SetAnyField(cfg.TargetField, strconv.FormatInt(t.UnixNano(), 10), normalization.TimeUnitNone)
 		default:
 			return event
 		}
 	case FromConst:
-		event.Set(cfg.TargetField, []byte(cfg.Const), 0)
+		event.SetAnyField(cfg.TargetField, cfg.Const, normalization.TimeUnitNone)
 	case FromDict:
-		value := dictionary.MockDictionary.Get(cfg.FromKey, cfg.Key)
-		event.Set(cfg.TargetField, []byte(value), 0)
+		value := dictionary.MockDictionary.Get(cfg.FromKey, cfg.KeyField)
+		event.SetAnyField(cfg.TargetField, value, 0)
 	default:
 		return event
 	}

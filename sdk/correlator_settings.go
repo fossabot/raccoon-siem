@@ -1,6 +1,9 @@
 package sdk
 
-import "github.com/tephrocactus/raccoon-siem/sdk/connectors"
+import (
+	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
+	"github.com/tephrocactus/raccoon-siem/sdk/filters"
+)
 
 type CorrelatorSettings struct {
 	DefaultComponentSettings `yaml:",inline"`
@@ -17,7 +20,7 @@ func (s *CorrelatorSettings) ID() string {
 type CorrelatorPackage struct {
 	DefaultComponentSettings `yaml:",inline"`
 	Connectors               []connectors.Config       `yaml:"sources,omitempty"`
-	Filters                  []FilterSettings          `yaml:"filters,omitempty"`
+	Filters                  []filters.FilterConfig    `yaml:"filters,omitempty"`
 	CorrelationRules         []CorrelationRuleSettings `yaml:"rules,omitempty"`
 	Destinations             []DestinationSettings     `yaml:"destinations,omitempty"`
 	ActiveLists              []ActiveListSettings      `yaml:"activeLists,omitempty"`

@@ -128,8 +128,8 @@ func run(_ *cobra.Command, _ []string) error {
 	//	return err
 	//}
 	//
-	//// InputProcessor
-	//proc := InputProcessor{
+	//// Processor
+	//proc := Processor{
 	//	InputChannel:     parsingChannel,
 	//	OutputChannel:    aggregationChannel,
 	//	Workers:          runtime.NumCPU(),

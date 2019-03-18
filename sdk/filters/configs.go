@@ -1,17 +1,22 @@
 package filters
 
 const (
-	RVKindField = "field"
-	RVKindConst = "const"
-	RVKindDict  = "dict"
-	RVKindAL    = "al"
+	ValueSourceField = "field"
+	ValueSourceConst = "const"
+	ValueSourceAL    = "al"
+	ValueSourceDict  = "dict"
 )
 
 type Config struct {
 	Name     string          `yaml:"name,omitempty"`
 	Not      bool            `yaml:"not,omitempty"`
-	Join     bool            `yaml:"join,omitempty"`
 	Sections []SectionConfig `yaml:"sections,omitempty"`
+}
+
+type JoinConfig struct {
+	Name         string              `yaml:"name,omitempty"`
+	Not          bool                `yaml:"not,omitempty"`
+	JoinSections []JoinSectionConfig `yaml:"joinSections,omitempty"`
 }
 
 type SectionConfig struct {
@@ -21,8 +26,22 @@ type SectionConfig struct {
 }
 
 type ConditionConfig struct {
-	Lv     string `yaml:"lv,omitempty"`
-	Op     string `yaml:"operator,omitempty"`
-	Rv     string `yaml:"rv,omitempty"`
-	RvKind string `yaml:"rv_kind,omitempty"`
+	Field       string      `yaml:"field,omitempty"`
+	Op          string      `yaml:"op,omitempty"`
+	Value       interface{} `yaml:"value,omitempty"`
+	ValueSource string      `yaml:"valueSource,omitempty"`
+}
+
+type JoinSectionConfig struct {
+	Or         bool                  `yaml:"or,omitempty"`
+	Not        bool                  `yaml:"not,omitempty"`
+	Conditions []JoinConditionConfig `yaml:"conditions,omitempty"`
+}
+
+type JoinConditionConfig struct {
+	LeftTag    string `yaml:"leftTag,omitempty"`
+	LeftField  string `yaml:"leftField,omitempty"`
+	Op         string `yaml:"op,omitempty"`
+	RightTag   string `yaml:"rightTag,omitempty"`
+	RightField string `yaml:"rightField,omitempty"`
 }

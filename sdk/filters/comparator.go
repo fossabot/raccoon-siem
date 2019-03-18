@@ -5,22 +5,22 @@ import (
 )
 
 const (
-	opEQ     = "=="
-	opNEQ    = "!="
-	opGTorEQ = ">="
-	opGT     = ">"
-	opLTorEQ = "<="
-	opLT     = "<"
+	OpEQ     = "=="
+	OpNEQ    = "!="
+	OpGTorEQ = ">="
+	OpGT     = ">"
+	OpLTorEQ = "<="
+	OpLT     = "<"
 )
 
 type comparator struct{}
 
-func (r *comparator) compareValues(src interface{}, srcType byte, dst interface{}, op string) bool {
-	if op == opEQ {
+func (r *comparator) compareValues(src interface{}, dst interface{}, op string) bool {
+	if op == OpEQ {
 		return src == dst
 	}
 
-	if op == opNEQ {
+	if op == OpNEQ {
 		return src != dst
 	}
 
@@ -43,13 +43,13 @@ func (r *comparator) compareValues(src interface{}, srcType byte, dst interface{
 func (r *comparator) compareInt(src int64, dst interface{}, op string) bool {
 	dstVal := dst.(int64)
 	switch op {
-	case opGT:
+	case OpGT:
 		return src > dstVal
-	case opGTorEQ:
+	case OpGTorEQ:
 		return src >= dstVal
-	case opLT:
+	case OpLT:
 		return src < dstVal
-	case opLTorEQ:
+	case OpLTorEQ:
 		return src <= dstVal
 	}
 	return false
@@ -58,13 +58,13 @@ func (r *comparator) compareInt(src int64, dst interface{}, op string) bool {
 func (r *comparator) compareFloat(src float64, dst interface{}, op string) bool {
 	dstVal := dst.(float64)
 	switch op {
-	case opGT:
+	case OpGT:
 		return src > dstVal
-	case opGTorEQ:
+	case OpGTorEQ:
 		return src >= dstVal
-	case opLT:
+	case OpLT:
 		return src < dstVal
-	case opLTorEQ:
+	case OpLTorEQ:
 		return src <= dstVal
 	}
 	return false
@@ -73,13 +73,13 @@ func (r *comparator) compareFloat(src float64, dst interface{}, op string) bool 
 func (r *comparator) compareString(src string, dst interface{}, op string) bool {
 	dstVal := dst.(string)
 	switch op {
-	case opGT:
+	case OpGT:
 		return src > dstVal
-	case opGTorEQ:
+	case OpGTorEQ:
 		return src >= dstVal
-	case opLT:
+	case OpLT:
 		return src < dstVal
-	case opLTorEQ:
+	case OpLTorEQ:
 		return src <= dstVal
 	}
 	return false
@@ -88,13 +88,13 @@ func (r *comparator) compareString(src string, dst interface{}, op string) bool 
 func (r *comparator) compareTime(src time.Time, dst interface{}, op string) bool {
 	dstVal := dst.(time.Time)
 	switch op {
-	case opGT:
+	case OpGT:
 		return src.UnixNano() > dstVal.UnixNano()
-	case opGTorEQ:
+	case OpGTorEQ:
 		return src.UnixNano() >= dstVal.UnixNano()
-	case opLT:
+	case OpLT:
 		return src.UnixNano() < dstVal.UnixNano()
-	case opLTorEQ:
+	case OpLTorEQ:
 		return src.UnixNano() <= dstVal.UnixNano()
 	}
 	return false
@@ -103,13 +103,13 @@ func (r *comparator) compareTime(src time.Time, dst interface{}, op string) bool
 func (r *comparator) compareDuration(src time.Duration, dst interface{}, op string) bool {
 	dstVal := dst.(time.Duration)
 	switch op {
-	case opGT:
+	case OpGT:
 		return src > dstVal
-	case opGTorEQ:
+	case OpGTorEQ:
 		return src >= dstVal
-	case opLT:
+	case OpLT:
 		return src < dstVal
-	case opLTorEQ:
+	case OpLTorEQ:
 		return src <= dstVal
 	}
 	return false

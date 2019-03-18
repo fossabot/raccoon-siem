@@ -66,9 +66,9 @@ type Event struct {
 	ParentID                   string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
 	Customer                   string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
 	Code                       string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	StartTime                  time.Time     `json:",omitempty" msgpack:",omitempty" storage_type:"date"`
-	EndTime                    time.Time     `json:",omitempty" msgpack:",omitempty" storage_type:"date"`
-	Severity                   int64         `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	Timestamp                  time.Time     `json:",omitempty" msgpack:",omitempty" storage_type:"date"`
+	Severity                   int64         `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
+	Score                      int64         `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
 	BaseEventCount             int           `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
 	AggregatedEventCount       int           `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
 	AggregationRuleName        string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
@@ -118,170 +118,6 @@ type Event struct {
 	DestinationPort            string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
 }
 
-func (r *Event) SetID(id string) {
-	r.ID = id
-}
-
-func (r *Event) Set(field string, value []byte, timeUnit byte) {
-	if len(value) == 0 {
-		return
-	}
-
-	switch field {
-	case "Message":
-		r.Message = BytesToString(value)
-	case "Details":
-		r.Details = BytesToString(value)
-	case "Trace":
-		r.Trace = BytesToString(value)
-	case "OriginEventID":
-		r.OriginEventID = BytesToString(value)
-	case "OriginTimestamp":
-		r.OriginTimestamp = BytesToTime(value, timeUnit)
-	case "OriginEnvironment":
-		r.OriginEnvironment = BytesToString(value)
-	case "OriginSeverity":
-		r.OriginSeverity = BytesToString(value)
-	case "OriginServiceName":
-		r.OriginServiceName = BytesToString(value)
-	case "OriginServiceVersion":
-		r.OriginServiceVersion = BytesToString(value)
-	case "OriginProcessName":
-		r.OriginProcessName = BytesToString(value)
-	case "OriginFileName":
-		r.OriginFileName = BytesToString(value)
-	case "OriginDNSName":
-		r.OriginDNSName = BytesToString(value)
-	case "OriginIPAddress":
-		r.OriginIPAddress = BytesToString(value)
-	case "RequestID":
-		r.RequestID = BytesToString(value)
-	case "RequestApplicationProtocol":
-		r.RequestApplicationProtocol = BytesToString(value)
-	case "RequestTransportProtocol":
-		r.RequestTransportProtocol = BytesToString(value)
-	case "RequestURL":
-		r.RequestURL = BytesToString(value)
-	case "RequestReferrer":
-		r.RequestReferrer = BytesToString(value)
-	case "RequestMethod":
-		r.RequestMethod = BytesToString(value)
-	case "RequestUserAgent":
-		r.RequestUserAgent = BytesToString(value)
-	case "RequestStatus":
-		r.RequestStatus = BytesToString(value)
-	case "RequestTook":
-		r.RequestTook = BytesToDuration(value, timeUnit)
-	case "RequestBytesIn":
-		r.RequestBytesIn = BytesToInt(value)
-	case "RequestBytesOut":
-		r.RequestBytesOut = BytesToInt(value)
-	case "RequestResults":
-		r.RequestResults = BytesToInt(value)
-	case "RequestUser":
-		r.RequestUser = BytesToString(value)
-	case "RequestUnit":
-		r.RequestUnit = BytesToString(value)
-	case "RequestOrganization":
-		r.RequestOrganization = BytesToString(value)
-	case "SourceIPAddress":
-		r.SourceIPAddress = BytesToString(value)
-	case "SourceMACAddress":
-		r.SourceMACAddress = BytesToString(value)
-	case "SourceDNSName":
-		r.SourceDNSName = BytesToString(value)
-	case "SourcePort":
-		r.SourcePort = BytesToString(value)
-	case "DestinationIPAddress":
-		r.DestinationIPAddress = BytesToString(value)
-	case "DestinationMACAddress":
-		r.DestinationMACAddress = BytesToString(value)
-	case "DestinationDNSName":
-		r.DestinationDNSName = BytesToString(value)
-	case "DestinationPort":
-		r.DestinationPort = BytesToString(value)
-	}
-}
-
-func (r *Event) Get(field string) interface{} {
-	switch field {
-	case "Message":
-		return r.Message
-	case "Details":
-		return r.Details
-	case "Trace":
-		return r.Trace
-	case "OriginEventID":
-		return r.OriginEventID
-	case "OriginTimestamp":
-		return r.OriginTimestamp
-	case "OriginEnvironment":
-		return r.OriginEnvironment
-	case "OriginSeverity":
-		return r.OriginSeverity
-	case "OriginServiceName":
-		return r.OriginServiceName
-	case "OriginServiceVersion":
-		return r.OriginServiceVersion
-	case "OriginProcessName":
-		return r.OriginProcessName
-	case "OriginFileName":
-		return r.OriginFileName
-	case "OriginDNSName":
-		return r.OriginDNSName
-	case "OriginIPAddress":
-		return r.OriginIPAddress
-	case "RequestID":
-		return r.RequestID
-	case "RequestApplicationProtocol":
-		return r.RequestApplicationProtocol
-	case "RequestTransportProtocol":
-		return r.RequestTransportProtocol
-	case "RequestURL":
-		return r.RequestURL
-	case "RequestReferrer":
-		return r.RequestReferrer
-	case "RequestMethod":
-		return r.RequestMethod
-	case "RequestUserAgent":
-		return r.RequestUserAgent
-	case "RequestStatus":
-		return r.RequestStatus
-	case "RequestTook":
-		return r.RequestTook
-	case "RequestBytesIn":
-		return r.RequestBytesIn
-	case "RequestBytesOut":
-		return r.RequestBytesOut
-	case "RequestResults":
-		return r.RequestResults
-	case "RequestUser":
-		return r.RequestUser
-	case "RequestUnit":
-		return r.RequestUnit
-	case "RequestOrganization":
-		return r.RequestOrganization
-	case "SourceIPAddress":
-		return r.SourceIPAddress
-	case "SourceMACAddress":
-		return r.SourceMACAddress
-	case "SourceDNSName":
-		return r.SourceDNSName
-	case "SourcePort":
-		return r.SourcePort
-	case "DestinationIPAddress":
-		return r.DestinationIPAddress
-	case "DestinationMACAddress":
-		return r.DestinationMACAddress
-	case "DestinationDNSName":
-		return r.DestinationDNSName
-	case "DestinationPort":
-		return r.DestinationPort
-	default:
-		return nil
-	}
-}
-
 func (r *Event) SetField(name string, value interface{}, timeUnit byte) {
 	targetFieldType := EventFieldTypeByName[name]
 
@@ -316,21 +152,20 @@ func (r *Event) HashFields(fieldNames []string) string {
 	}
 
 	builder := strings.Builder{}
-
-	for i := range fieldNames {
-		val, typeName := r.GetField(fieldNames[i])
-		switch typeName {
-		case FieldTypeString:
+	for _, field := range fieldNames {
+		val := r.GetAnyField(field)
+		switch val.(type) {
+		case string:
 			builder.WriteString(val.(string))
-		case FieldTypeInt:
+		case int64:
 			builder.WriteString(strconv.FormatInt(val.(int64), 10))
-		case FieldTypeFloat:
+		case float64:
 			builder.WriteString(strconv.FormatFloat(val.(float64), 'f', -1, 64))
-		case FieldTypeTime:
+		case time.Time:
 			builder.WriteString(val.(time.Time).String())
-		case FieldTypeDuration:
+		case time.Duration:
 			builder.WriteString(val.(time.Duration).String())
-		case FieldTypeBool:
+		case bool:
 			builder.WriteString(strconv.FormatBool(val.(bool)))
 		}
 	}

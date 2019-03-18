@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
+	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalizers"
 )
 
@@ -25,6 +26,6 @@ type CollectorPackage struct {
 	Destinations             []DestinationSettings     `yaml:"destinations,omitempty"`
 	Dictionaries             []DictionarySettings      `yaml:"dictionaries,omitempty"`
 	AggregationRules         []AggregationRuleSettings `yaml:"rules,omitempty"`
-	AggregationFilters       []FilterSettings          `yaml:"aggregationFilters,omitempty"`
-	Filters                  []FilterSettings          `yaml:"filters,omitempty"`
+	AggregationFilters       []filters.FilterConfig    `yaml:"aggregationFilters,omitempty"`
+	Filters                  []filters.FilterConfig    `yaml:"filters,omitempty"`
 }

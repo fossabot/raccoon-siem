@@ -2,6 +2,7 @@ package sdk
 
 import (
 	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"time"
 )
@@ -15,7 +16,7 @@ type ICorrelationRule interface {
 type CorrelationRule struct {
 	BaseRule
 	aggregator       *aggregator
-	filter           IFilter
+	filter           filters.IFilter
 	actions          actionsByTrigger
 	correlationChain chan CorrelationChainTask
 }
@@ -31,7 +32,7 @@ func (cr *CorrelationRule) Run() {
 
 func (cr *CorrelationRule) Feed(event *normalization.Event) {
 	for _, eventSpec := range cr.eventSpecs {
-		if eventSpec.filter.Pass([]*normalization.Event{event}) {
+		if eventSpec.filter.Pass(event) {
 			cr.aggregator.feed(event, eventSpec)
 			break
 		}
@@ -73,7 +74,7 @@ func (cr *CorrelationRule) onRootTrigger(trigger string, payload *triggerPayload
 	case triggerAllThresholdsReached:
 		if len(payload.events) > 1 &&
 			cr.filter != nil &&
-			!cr.filter.Pass(payload.events) {
+			!cr.filter.Pass(payload.events...) {
 			return
 		}
 	}
