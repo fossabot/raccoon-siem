@@ -1,6 +1,7 @@
 package aggregation
 
 import (
+	"github.com/satori/go.uuid"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
@@ -9,7 +10,7 @@ import (
 	"time"
 )
 
-type Callback func(caller *Rule, event *normalization.Event, hash string)
+type Callback func(caller *Rule, event *normalization.Event, key string)
 
 type bucket struct {
 	uniqueHashes map[string]bool
@@ -26,11 +27,11 @@ type Rule struct {
 	sumFields       []string
 	threshold       int
 	window          time.Duration
-	unexpected      bool
+	recovery        bool
 	mu              sync.Mutex
 	buckets         map[string]*bucket
 	ticker          *time.Ticker
-	outputChannel   chan normalization.Event
+	outputChannel   chan *normalization.Event
 	callback        Callback
 }
 
@@ -38,8 +39,8 @@ func (r *Rule) ID() string {
 	return r.name
 }
 
-func (r *Rule) IsUnexpected() bool {
-	return r.unexpected
+func (r *Rule) IsRecovery() bool {
+	return r.recovery
 }
 
 func (r *Rule) Start() {
@@ -121,17 +122,18 @@ func (r *Rule) Feed(event *normalization.Event) bool {
 }
 
 func (r *Rule) releaseBucket(key string, bucket *bucket) {
-	delete(r.buckets, key)
 	bucket.event.AggregatedEventCount = bucket.eventCount
 	r.sendEvent(&bucket.event, key)
+	delete(r.buckets, key)
 }
 
 func (r *Rule) sendEvent(event *normalization.Event, key string) {
+	event.ID = uuid.NewV4().String()
 	event.AggregationRuleName = r.name
 	if r.callback != nil {
 		r.callback(r, event, key)
 	} else if r.outputChannel != nil {
-		r.outputChannel <- *event
+		r.outputChannel <- event
 	}
 }
 
@@ -165,17 +167,17 @@ func (r *Rule) timeoutRoutine() {
 	}
 }
 
-func NewRule(cfg Config, channel chan normalization.Event, callback Callback) (*Rule, error) {
+func NewRule(cfg Config, outChannel chan *normalization.Event, callback Callback) (*Rule, error) {
 	r := &Rule{
 		name:            cfg.Name,
 		threshold:       cfg.Threshold,
 		window:          cfg.Window,
-		unexpected:      cfg.Unexpected,
+		recovery:        cfg.Recovery,
 		identicalFields: cfg.IdenticalFields,
 		uniqueFields:    cfg.UniqueFields,
 		sumFields:       cfg.SumFields,
 		buckets:         make(map[string]*bucket),
-		outputChannel:   channel,
+		outputChannel:   outChannel,
 		callback:        callback,
 	}
 

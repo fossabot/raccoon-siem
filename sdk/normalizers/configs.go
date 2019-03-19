@@ -21,9 +21,9 @@ type ExtraConfig struct {
 }
 
 type MappingConfig struct {
-	SourceField string       `yaml:"source_field,omitempty"`
-	EventField  string       `yaml:"event_field,omitempty"`
-	TimeFormat  string       `yaml:"time_format,omitempty"`
-	Extra       *ExtraConfig `yaml:"extra,omitempty"`
+	SourceField string        `yaml:"source_field,omitempty"`
+	EventField  string        `yaml:"event_field,omitempty"`
+	TimeFormat  string        `yaml:"time_format,omitempty"`
+	Extra       []ExtraConfig `yaml:"extra,omitempty"`
 	timeFormat  byte
 }

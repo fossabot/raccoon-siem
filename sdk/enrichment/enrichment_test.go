@@ -20,7 +20,7 @@ func TestEnrichment(t *testing.T) {
 		Trace: "ERROR",
 	}
 
-	cfg := EnrichConfig{
+	cfg := Config{
 		ValueSourceKind: FromDict,
 		ValueSourceName: raccoon,
 		KeyFields:       []string{"Trace"},
@@ -29,7 +29,7 @@ func TestEnrichment(t *testing.T) {
 	Enrich(cfg, &event)
 	assert.Equal(t, event.Message, "error")
 
-	cfg = EnrichConfig{
+	cfg = Config{
 		ValueSourceKind: FromConst,
 		Constant:        "1080",
 		Field:           "RequestResults",
@@ -37,7 +37,7 @@ func TestEnrichment(t *testing.T) {
 	Enrich(cfg, &event)
 	assert.Equal(t, event.RequestResults, int64(1080))
 
-	cfg = EnrichConfig{
+	cfg = Config{
 		ValueSourceKind: FromConst,
 		Constant:        "1081",
 		Field:           "RequestResults",
@@ -47,7 +47,7 @@ func TestEnrichment(t *testing.T) {
 	Enrich(cfg, &event)
 	assert.Equal(t, event.RequestResults, int64(1081))
 
-	cfg = EnrichConfig{
+	cfg = Config{
 		ValueSourceKind: FromConst,
 		Constant:        "1082",
 		Field:           "RequestResults",
@@ -63,7 +63,7 @@ func BenchmarkEnrich(b *testing.B) {
 	b.StopTimer()
 	b.ReportAllocs()
 	fillDictionaryStorage()
-	cfg := EnrichConfig{
+	cfg := Config{
 		ValueSourceKind: FromDict,
 		ValueSourceName: raccoon,
 		KeyFields:       []string{"Trace"},

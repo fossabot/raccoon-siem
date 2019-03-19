@@ -4,6 +4,7 @@ import (
 	"github.com/tephrocactus/raccoon-siem/collector"
 	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalizers"
 	"log"
 	"testing"
@@ -16,24 +17,38 @@ var inputs = [][]byte{
 }
 
 func TestCollector(t *testing.T) {
-	channel := startCollector()
+	in, out := startCollector()
+
+	go func() {
+		for range out {
+
+		}
+	}()
+
 	for _, input := range inputs {
-		channel <- connectors.Output{
+		in <- connectors.Output{
 			Connector: "test",
 			Data:      input,
 		}
 	}
+
 	time.Sleep(time.Second)
 }
 
 func BenchmarkCollector(b *testing.B) {
-	b.StopTimer()
+	in, out := startCollector()
+
+	go func() {
+		for range out {
+
+		}
+	}()
+
 	b.ReportAllocs()
-	channel := startCollector()
-	b.StartTimer()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for _, input := range inputs {
-			channel <- connectors.Output{
+			in <- connectors.Output{
 				Connector: "test",
 				Data:      input,
 			}
@@ -41,7 +56,7 @@ func BenchmarkCollector(b *testing.B) {
 	}
 }
 
-func startCollector() connectors.OutputChannel {
+func startCollector() (connectors.OutputChannel, chan normalization.Event) {
 	extraNormalizer, _ := normalizers.New(normalizers.Config{
 		Name: "json",
 		Kind: normalizers.KindJSON,
@@ -61,11 +76,11 @@ func startCollector() connectors.OutputChannel {
 			{SourceField: "timestamp", EventField: "OriginTimestamp"},
 			{SourceField: "severity", EventField: "OriginSeverity"},
 			{SourceField: "app", EventField: "OriginProcessName"},
-			{SourceField: "msg", Extra: &normalizers.ExtraConfig{
+			{SourceField: "msg", Extra: []normalizers.ExtraConfig{{
 				Normalizer:   extraNormalizer,
 				TriggerField: "app",
 				TriggerValue: []byte("rest"),
-			}},
+			}}},
 		},
 	})
 
@@ -80,16 +95,18 @@ func startCollector() connectors.OutputChannel {
 		}},
 	})
 
-	channel := make(connectors.OutputChannel)
+	inChannel := make(connectors.OutputChannel)
+	outChannel := make(chan normalization.Event)
 	processor := collector.Processor{
-		InputChannel: channel,
-		Normalizer:   mainNormalizer,
-		DropFilters:  []*filters.Filter{dropFilter},
+		InputChannel:  inChannel,
+		OutputChannel: outChannel,
+		Normalizer:    mainNormalizer,
+		DropFilters:   []*filters.Filter{dropFilter},
 	}
 
 	if err := processor.Start(); err != nil {
 		log.Fatal(err)
 	}
 
-	return channel
+	return inChannel, outChannel
 }

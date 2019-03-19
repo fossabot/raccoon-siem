@@ -10,15 +10,16 @@ import (
 )
 
 func TestRule(t *testing.T) {
-	channel := make(chan normalization.Event)
+	outChannel := make(chan *normalization.Event)
 	threshold := 10
 
 	rule, err := NewRule(Config{
+		Name:            "netflow",
 		Filter:          getTestFilterConfig(),
 		Threshold:       threshold,
 		IdenticalFields: getTestIdenticalFields(),
 		SumFields:       getTestSumFields(),
-	}, channel, nil)
+	}, outChannel, nil)
 	assert.Assert(t, err == nil)
 
 	var aggregatedEvents []*normalization.Event
@@ -31,13 +32,13 @@ func TestRule(t *testing.T) {
 			select {
 			case <-timeout:
 				wg.Done()
-			case event := <-channel:
-				aggregatedEvents = append(aggregatedEvents, &event)
+			case event := <-outChannel:
+				aggregatedEvents = append(aggregatedEvents, event)
 			}
 		}
 	}()
 
-	for i := 0; i < threshold+3; i++ {
+	for i := 0; i < threshold; i++ {
 		for _, e := range getTestEvents() {
 			rule.Feed(e)
 		}
@@ -61,15 +62,16 @@ func TestRule(t *testing.T) {
 }
 
 func TestRuleWindow(t *testing.T) {
-	channel := make(chan normalization.Event)
+	outChannel := make(chan *normalization.Event)
 	window := time.Second
 
 	rule, err := NewRule(Config{
+		Name:            "netflow",
 		Filter:          getTestFilterConfig(),
 		Window:          window,
 		IdenticalFields: getTestIdenticalFields(),
 		SumFields:       getTestSumFields(),
-	}, channel, nil)
+	}, outChannel, nil)
 	assert.Assert(t, err == nil)
 
 	var aggregatedEvents []*normalization.Event
@@ -82,8 +84,8 @@ func TestRuleWindow(t *testing.T) {
 			select {
 			case <-timeout:
 				wg.Done()
-			case event := <-channel:
-				aggregatedEvents = append(aggregatedEvents, &event)
+			case event := <-outChannel:
+				aggregatedEvents = append(aggregatedEvents, event)
 			}
 		}
 	}()
@@ -101,17 +103,18 @@ func TestRuleWindow(t *testing.T) {
 }
 
 func BenchmarkRule(b *testing.B) {
-	channel := make(chan normalization.Event)
+	outChannel := make(chan *normalization.Event)
 	rule, _ := NewRule(Config{
+		Name:            "netflow",
 		Filter:          getTestFilterConfig(),
 		Threshold:       100,
 		Window:          time.Second,
 		IdenticalFields: getTestIdenticalFields(),
-	}, channel, nil)
+	}, outChannel, nil)
 
 	go func() {
 		for {
-			<-channel
+			<-outChannel
 		}
 	}()
 

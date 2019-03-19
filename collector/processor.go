@@ -13,13 +13,12 @@ import (
 )
 
 type Processor struct {
-	InputChannel       connectors.OutputChannel
-	AggregationChannel chan normalization.Event
-	OutputChannel      chan normalization.Event
-	Normalizer         normalizers.INormalizer
-	DropFilters        []*filters.Filter
-	AggregationRules   []aggregation.Rule
-	EnrichConfigs      []enrichment.EnrichConfig
+	InputChannel     connectors.OutputChannel
+	OutputChannel    chan *normalization.Event
+	Normalizer       normalizers.INormalizer
+	DropFilters      []*filters.Filter
+	AggregationRules []aggregation.Rule
+	EnrichConfigs    []enrichment.Config
 }
 
 func (r *Processor) Start() error {
@@ -46,7 +45,7 @@ mainLoop:
 		for _, config := range r.EnrichConfigs {
 			enrichment.Enrich(config, event)
 		}
-		
+
 		event.Timestamp = time.Now()
 		event.ID = sdk.GetUUID()
 		event.SourceID = input.Connector
@@ -57,6 +56,6 @@ mainLoop:
 			}
 		}
 
-		r.OutputChannel <- *event
+		r.OutputChannel <- event
 	}
 }

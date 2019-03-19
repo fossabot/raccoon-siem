@@ -13,7 +13,7 @@ const (
 	FromAL    = "al"
 )
 
-type EnrichConfig struct {
+type Config struct {
 	Field            string   `yaml:"field,omitempty"`
 	Constant         string   `yaml:"constant,omitempty"`
 	KeyFields        []string `yaml:"keyFields,omitempty"`
@@ -24,7 +24,7 @@ type EnrichConfig struct {
 	TriggerValue     string   `yaml:"trigger_value,omitempty"`
 }
 
-func Enrich(cfg EnrichConfig, event *normalization.Event) *normalization.Event {
+func Enrich(cfg Config, event *normalization.Event) *normalization.Event {
 	if cfg.TriggerField != "" {
 		triggerValue, success := getStringValue(event.GetAnyField(cfg.TriggerField))
 		if !success || cfg.TriggerValue != triggerValue {

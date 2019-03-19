@@ -1,6 +1,7 @@
 package correlation
 
 import (
+	"github.com/tephrocactus/raccoon-siem/sdk/actions"
 	"github.com/tephrocactus/raccoon-siem/sdk/aggregation"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"time"
@@ -16,45 +17,23 @@ const (
 	TriggerTimeout              = "to"
 )
 
-const (
-	ActionRelease = "release"
-	ActionMutate  = "mutate"
-	ActionAL      = "al"
-)
-
-const (
-	ValueSourceKindConst = "const"
-	ValueSourceKindEvent = "event"
-	ValueSourceKindAL    = "al"
-)
-
 type Config struct {
+	Kind             string                   `yaml:"kind,omitempty"`
 	Name             string                   `yaml:"name,omitempty"`
 	AggregationRules []aggregation.Config     `yaml:"aggregationRules,omitempty"`
 	Filter           *filters.JoinConfig      `yaml:"filter,omitempty"`
 	Triggers         map[string]TriggerConfig `yaml:"triggers,omitempty"`
 	Window           time.Duration            `yaml:"window,omitempty"`
-	ResetWindowOn    string                   `yaml:"resetWindowOn,omitempty"`
 }
 
 type TriggerConfig struct {
-	Kind    string         `yaml:"kind,omitempty"`
 	Actions []ActionConfig `yaml:"actions,omitempty"`
 }
 
 type ActionConfig struct {
-	Kind   string         `yaml:"kind,omitempty"`
-	Mutate []MutateConfig `yaml:"mutate,omitempty"`
+	Kind    string                `yaml:"kind,omitempty"`
+	Release actions.ReleaseConfig `yaml:"release,omitempty"`
 	//ActiveList []ActiveListActionConfig `yaml:"activeList,omitempty"`
-}
-
-type MutateConfig struct {
-	Field            string      `yaml:"field,omitempty"`
-	Constant         interface{} `yaml:"constant,omitempty"`
-	KeyFields        []string    `yaml:"keyFields,omitempty"`
-	ValueSourceKind  string      `yaml:"valueSourceKind,omitempty"`
-	ValueSourceName  string      `yaml:"valueSourceName,omitempty"`
-	ValueSourceField string      `yaml:"valueSourceField,omitempty"`
 }
 
 //type ActiveListActionConfig struct {

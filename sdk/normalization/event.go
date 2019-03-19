@@ -79,6 +79,7 @@ type Event struct {
 	CorrelatorDNSName          string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
 	CorrelatorEventSpecID      string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
 	SourceID                   string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	BaseEventIDs               []string      `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
 	BaseEvents                 []*Event      `json:"-" msgpack:"-"`
 	Message                    string        `json:",omitempty" msgpack:",omitempty" storage_type:"text"`
 	Details                    string        `json:",omitempty" msgpack:",omitempty" storage_type:"text"`

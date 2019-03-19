@@ -11,6 +11,8 @@ func (r *Event) SetAnyField(field string, value string, timeUnit byte) {
 		return
 	}
 	switch field {
+	case "Incident":
+		r.Incident = StringToBool(value)
 	case "Message":
 		r.Message = value
 	case "Details":
