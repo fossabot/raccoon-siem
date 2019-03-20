@@ -16,7 +16,7 @@ func Release(cfg ReleaseConfig, correlationEvent *normalization.Event, baseEvent
 func mutateFromEvent(cfg MutateConfig, correlationEvent *normalization.Event, baseEvents []*normalization.Event) {
 	var sourceEvent *normalization.Event
 	for _, base := range baseEvents {
-		if base.AggregationRuleName == cfg.ValueSourceName || base.CorrelationRuleName == cfg.ValueSourceName {
+		if base.Tag == cfg.ValueSourceName {
 			sourceEvent = base
 			break
 		}

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/gin-gonic/gin"
-	"github.com/tephrocactus/raccoon-siem/sdk"
+	"github.com/tephrocactus/raccoon-siem/sdk/aggregation"
 )
 
 func AggregationRules(ctx *gin.Context) {
@@ -39,7 +39,7 @@ func AggregationRulePUT(ctx *gin.Context) {
 		return
 	}
 
-	s := new(sdk.AggregationRuleSettings)
+	s := new(aggregation.Config)
 	id, err := unmarshalAndGetID(s, body)
 
 	if err != nil {

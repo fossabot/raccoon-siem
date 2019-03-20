@@ -1,7 +1,6 @@
 package correlation
 
 import (
-	"github.com/tephrocactus/raccoon-siem/sdk/aggregation"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
@@ -9,9 +8,7 @@ type commonRule struct {
 	baseRule
 }
 
-func (r *commonRule) onEvent(ar *aggregation.Rule, event *normalization.Event, key string) {
-	b := r.addEventToBucket(event, key)
-
+func (r *commonRule) onEvent(selector eventSelector, event *normalization.Event, b *bucket, _ string) {
 	r.fireTrigger(TriggerEveryEvent, b)
 	if b.eventCount == 1 {
 		r.fireTrigger(TriggerFirstEvent, b)
@@ -30,14 +27,14 @@ func (r *commonRule) onEvent(ar *aggregation.Rule, event *normalization.Event, k
 	}
 }
 
-func (r *commonRule) onTimeout(key string, b *bucket) {
+func (r *commonRule) onTimeout(b *bucket, key string) {
 	r.fireTrigger(TriggerTimeout, b)
 	r.deleteBucket(key)
 }
 
-func newCommonRule(cfg Config, outChannel, correlationChannel chan *normalization.Event) (*commonRule, error) {
+func newCommonRule(cfg Config, outputFn OutputFn) (*commonRule, error) {
 	r := &commonRule{}
-	base, err := newBaseRule(cfg, r.onEvent, r.onTimeout, outChannel, correlationChannel)
+	base, err := newBaseRule(cfg, r.onEvent, r.onTimeout, outputFn)
 	if err != nil {
 		return nil, err
 	}

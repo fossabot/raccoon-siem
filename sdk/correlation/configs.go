@@ -2,8 +2,8 @@ package correlation
 
 import (
 	"github.com/tephrocactus/raccoon-siem/sdk/actions"
-	"github.com/tephrocactus/raccoon-siem/sdk/aggregation"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"time"
 )
 
@@ -17,13 +17,37 @@ const (
 	TriggerTimeout              = "to"
 )
 
+const (
+	RuleKindCommon   = "common"
+	RuleKindRecovery = "recover"
+)
+
+const (
+	BusSubject = "raccoon_correlation"
+)
+
+type OutputFn func(event *normalization.Event)
+
 type Config struct {
-	Kind             string                   `yaml:"kind,omitempty"`
-	Name             string                   `yaml:"name,omitempty"`
-	AggregationRules []aggregation.Config     `yaml:"aggregationRules,omitempty"`
-	Filter           *filters.JoinConfig      `yaml:"filter,omitempty"`
-	Triggers         map[string]TriggerConfig `yaml:"triggers,omitempty"`
-	Window           time.Duration            `yaml:"window,omitempty"`
+	Kind            string                   `yaml:"kind,omitempty"`
+	Name            string                   `yaml:"name,omitempty"`
+	Selectors       []EventSelector          `yaml:"selectors,omitempty"`
+	IdenticalFields []string                 `yaml:"identicalFields,omitempty"`
+	UniqueFields    []string                 `yaml:"uniqueFields,omitempty"`
+	Filter          *filters.JoinConfig      `yaml:"filter,omitempty"`
+	Triggers        map[string]TriggerConfig `yaml:"triggers,omitempty"`
+	Window          time.Duration            `yaml:"window,omitempty"`
+}
+
+func (r *Config) ID() string {
+	return r.Name
+}
+
+type EventSelector struct {
+	Tag       string         `yaml:"tag,omitempty"`
+	Filter    filters.Config `yaml:"filter,omitempty"`
+	Threshold int            `yaml:"threshold,omitempty"`
+	Recovery  bool           `yaml:"recovery,omitempty"`
 }
 
 type TriggerConfig struct {

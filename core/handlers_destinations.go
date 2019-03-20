@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/gin-gonic/gin"
-	"github.com/tephrocactus/raccoon-siem/sdk"
+	"github.com/tephrocactus/raccoon-siem/sdk/destinations"
 )
 
 func Destinations(ctx *gin.Context) {
@@ -39,7 +39,7 @@ func DestinationPUT(ctx *gin.Context) {
 		return
 	}
 
-	s := new(sdk.DestinationSettings)
+	s := new(destinations.Config)
 	id, err := unmarshalAndGetID(s, body)
 
 	if err != nil {

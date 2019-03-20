@@ -4,6 +4,7 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk"
 	"github.com/tephrocactus/raccoon-siem/sdk/aggregation"
 	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
+	"github.com/tephrocactus/raccoon-siem/sdk/destinations"
 	"github.com/tephrocactus/raccoon-siem/sdk/enrichment"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
@@ -14,18 +15,17 @@ import (
 
 type Processor struct {
 	InputChannel     connectors.OutputChannel
-	OutputChannel    chan *normalization.Event
 	Normalizer       normalizers.INormalizer
 	DropFilters      []*filters.Filter
-	AggregationRules []aggregation.Rule
 	EnrichConfigs    []enrichment.Config
+	AggregationRules []aggregation.Rule
+	Destinations     []destinations.IDestination
 }
 
-func (r *Processor) Start() error {
+func (r *Processor) Start() {
 	for i := 0; i < runtime.NumCPU(); i++ {
 		go r.worker()
 	}
-	return nil
 }
 
 func (r *Processor) worker() {
@@ -56,6 +56,12 @@ mainLoop:
 			}
 		}
 
-		r.OutputChannel <- event
+		r.output(event)
+	}
+}
+
+func (r *Processor) output(event *normalization.Event) {
+	for _, dst := range r.Destinations {
+		dst.Send(event)
 	}
 }

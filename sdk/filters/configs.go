@@ -13,6 +13,10 @@ type Config struct {
 	Sections []SectionConfig `yaml:"sections,omitempty"`
 }
 
+func (r *Config) ID() string {
+	return r.Name
+}
+
 type JoinConfig struct {
 	Name         string              `yaml:"name,omitempty"`
 	Not          bool                `yaml:"not,omitempty"`

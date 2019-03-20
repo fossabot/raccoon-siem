@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/satori/go.uuid"
 	"github.com/tephrocactus/raccoon-siem/sdk/actions"
-	"github.com/tephrocactus/raccoon-siem/sdk/aggregation"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"gotest.tools/assert"
@@ -12,44 +11,22 @@ import (
 	"time"
 )
 
+var correlatedEvents []*normalization.Event
+var rules []IRule
+
 func TestCommonRule(t *testing.T) {
-	correlationChannel := make(chan *normalization.Event, 64)
-	outChannel := make(chan *normalization.Event)
-
-	dosRule, err := NewRule(buildTestCorrelationConfigDOS(), outChannel, correlationChannel)
+	dosRule, err := NewRule(buildTestCorrelationConfigDOS(), outputFnCommonTest)
 	assert.Assert(t, err == nil)
 
-	ddosRule, err := NewRule(buildTestCorrelationConfigDDOS(), outChannel, correlationChannel)
+	ddosRule, err := NewRule(buildTestCorrelationConfigDDOS(), outputFnCommonTest)
 	assert.Assert(t, err == nil)
 
-	rules := []IRule{dosRule, ddosRule}
-	var correlatedEvents []*normalization.Event
-
-	go func() {
-		for event := range correlationChannel {
-			dosRule.Feed(event)
-			ddosRule.Feed(event)
-		}
-	}()
-
-	// Output routine
-	go func() {
-		for event := range outChannel {
-			fmt.Println(event)
-			correlatedEvents = append(correlatedEvents, event)
-		}
-	}()
-
-	dosRule.Start()
-	ddosRule.Start()
+	rules = append(rules, dosRule, ddosRule)
 
 	for _, event := range generateTestEvents() {
-		for _, r := range rules {
-			r.Feed(event)
-		}
+		inputFnCommonTest(event)
 	}
 
-	<-time.After(5 * time.Second)
 	assert.Equal(t, len(correlatedEvents), 3)
 
 	assert.Equal(t, correlatedEvents[0].CorrelationRuleName, "DoS")
@@ -73,33 +50,36 @@ func TestCommonRule(t *testing.T) {
 	assert.Equal(t, correlatedEvents[2].Message, "DDoS attack detected")
 	assert.Equal(t, correlatedEvents[2].SourceIPAddress, "")
 	assert.Equal(t, correlatedEvents[2].DestinationIPAddress, "192.168.1.254")
-	assert.Equal(t, correlatedEvents[2].BaseEventCount, 1)
+	assert.Equal(t, correlatedEvents[2].BaseEventCount, 2)
 	assert.Equal(t, correlatedEvents[2].AggregatedEventCount, 0)
+
+	for _, event := range correlatedEvents {
+		fmt.Println(event)
+	}
 }
 
-//func BenchmarkRule(b *testing.B) {
-//	channel := make(chan normalization.Event)
-//	rule, _ := NewRule(Config{
-//		Filter:          getTestFilterConfig(),
-//		Threshold:       100,
-//		Window:          time.Second,
-//		IdenticalFields: getTestIdenticalFields(),
-//	}, channel, nil)
-//
-//	go func() {
-//		for {
-//			<-channel
-//		}
-//	}()
-//
-//	events := generateTestEvents()
-//
-//	b.ReportAllocs()
-//	b.ResetTimer()
-//	for i := 0; i < b.N; i++ {
-//		rule.Feed(events[0])
-//	}
-//}
+func inputFnCommonTest(event *normalization.Event) {
+	for _, rule := range rules {
+		rule.Feed(event)
+	}
+}
+
+func outputFnCommonTest(event *normalization.Event) {
+	correlatedEvents = append(correlatedEvents, event)
+	inputFnCommonTest(event)
+}
+
+func BenchmarkCommonRule(b *testing.B) {
+	dosRule, _ := NewRule(buildTestCorrelationConfigDOS(), nil)
+	events := generateTestEvents()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for _, event := range events {
+			dosRule.Feed(event)
+		}
+	}
+}
 
 func generateTestEvents() (events []*normalization.Event) {
 	for i := 2; i < 4; i++ {
@@ -118,6 +98,10 @@ func buildTestCorrelationConfigDOS() Config {
 	return Config{
 		Name:   "DoS",
 		Window: time.Second,
+		IdenticalFields: []string{
+			"SourceIPAddress",
+			"DestinationIPAddress",
+		},
 		Triggers: map[string]TriggerConfig{
 			TriggerFirstThreshold: {
 				Actions: []ActionConfig{{
@@ -125,20 +109,14 @@ func buildTestCorrelationConfigDOS() Config {
 					Release: actions.ReleaseConfig{
 						MutateConfigs: []actions.MutateConfig{
 							{Field: "Message", Constant: "DoS attack detected"},
-							{Field: "SourceIPAddress", ValueSourceKind: actions.ValueSourceKindEvent, ValueSourceName: "DoS"},
-							{Field: "DestinationIPAddress", ValueSourceKind: actions.ValueSourceKindEvent, ValueSourceName: "DoS"},
 						},
 					},
 				}},
 			},
 		},
-		AggregationRules: []aggregation.Config{{
-			Name:      "DoS",
+		Selectors: []EventSelector{{
+			Tag:       "DoS",
 			Threshold: 1,
-			IdenticalFields: []string{
-				"SourceIPAddress",
-				"DestinationIPAddress",
-			},
 			Filter: filters.Config{
 				Sections: []filters.SectionConfig{{
 					Conditions: []filters.ConditionConfig{
@@ -154,8 +132,10 @@ func buildTestCorrelationConfigDOS() Config {
 
 func buildTestCorrelationConfigDDOS() Config {
 	return Config{
-		Name:   "DDoS",
-		Window: time.Second,
+		Name:            "DDoS",
+		Window:          time.Second,
+		IdenticalFields: []string{"DestinationIPAddress"},
+		UniqueFields:    []string{"SourceIPAddress"},
 		Triggers: map[string]TriggerConfig{
 			TriggerFirstThreshold: {
 				Actions: []ActionConfig{{
@@ -169,11 +149,9 @@ func buildTestCorrelationConfigDDOS() Config {
 				}},
 			},
 		},
-		AggregationRules: []aggregation.Config{{
-			Name:            "DDoS",
-			Threshold:       2,
-			IdenticalFields: []string{"DestinationIPAddress"},
-			UniqueFields:    []string{"SourceIPAddress"},
+		Selectors: []EventSelector{{
+			Tag:       "DDoS",
+			Threshold: 2,
 			Filter: filters.Config{
 				Sections: []filters.SectionConfig{{
 					Conditions: []filters.ConditionConfig{
@@ -183,5 +161,4 @@ func buildTestCorrelationConfigDDOS() Config {
 			},
 		}},
 	}
-
 }

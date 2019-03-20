@@ -63,6 +63,7 @@ type Event struct {
 	ID                         string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
 	Incident                   bool          `storage_type:"boolean"`
 	Correlated                 bool          `storage_type:"boolean"`
+	Tag                        string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
 	ParentID                   string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
 	Customer                   string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
 	Code                       string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
@@ -172,6 +173,10 @@ func (r *Event) HashFields(fieldNames []string) string {
 	}
 
 	return builder.String()
+}
+
+func (r *Event) Clone() Event {
+	return *r
 }
 
 func (r *Event) ToJSON() ([]byte, error) {

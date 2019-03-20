@@ -24,53 +24,53 @@ func reply(ctx *gin.Context, err error, results ...[]byte) {
 }
 
 func readNormalizersByIDs(ids []string, root bool, uniqueIDs map[string]bool, tx *bolt.Tx) ([]normalizers.Config, error) {
-	if uniqueIDs == nil {
-		uniqueIDs = make(map[string]bool)
-	}
-
-	result := make([]normalizers.Config, 0)
-	b := tx.Bucket(dbBucketNormalizer)
-
-	for _, id := range ids {
-		if _, ok := uniqueIDs[id]; ok {
-			continue
-		}
-
-		uniqueIDs[id] = true
-
-		rawSettings := b.Get([]byte(id))
-
-		if rawSettings == nil {
-			return nil, fmt.Errorf("parser '%s' does not exist", id)
-		}
-
-		settings := normalizers.Config{}
-
-		if err := yaml.Unmarshal(rawSettings, &settings); err != nil {
-			return nil, err
-		}
-
-		settings.Root = root
-
-		result = append(result, settings)
-
-		var extraNormalizersIDs []string
-		for _, m := range settings.Mapping {
-			if m.Extra != nil {
-				extraNormalizersIDs = append(extraNormalizersIDs, m.Extra.NormalizerName)
-			}
-		}
-
-		if len(extraNormalizersIDs) > 0 {
-			subSettings, err := readNormalizersByIDs(extraNormalizersIDs, false, uniqueIDs, tx)
-			if err != nil {
-				return nil, err
-			}
-			result = append(result, subSettings...)
-		}
-	}
-
-	return result, nil
+	//if uniqueIDs == nil {
+	//	uniqueIDs = make(map[string]bool)
+	//}
+	//
+	//result := make([]normalizers.Config, 0)
+	//b := tx.Bucket(dbBucketNormalizer)
+	//
+	//for _, id := range ids {
+	//	if _, ok := uniqueIDs[id]; ok {
+	//		continue
+	//	}
+	//
+	//	uniqueIDs[id] = true
+	//
+	//	rawSettings := b.Get([]byte(id))
+	//
+	//	if rawSettings == nil {
+	//		return nil, fmt.Errorf("parser '%s' does not exist", id)
+	//	}
+	//
+	//	settings := normalizers.Config{}
+	//
+	//	if err := yaml.Unmarshal(rawSettings, &settings); err != nil {
+	//		return nil, err
+	//	}
+	//
+	//	settings.Root = root
+	//
+	//	result = append(result, settings)
+	//
+	//	var extraNormalizersIDs []string
+	//	for _, m := range settings.Mapping {
+	//		if m.Extra != nil {
+	//			extraNormalizersIDs = append(extraNormalizersIDs, m.Extra.NormalizerName)
+	//		}
+	//	}
+	//
+	//	if len(extraNormalizersIDs) > 0 {
+	//		subSettings, err := readNormalizersByIDs(extraNormalizersIDs, false, uniqueIDs, tx)
+	//		if err != nil {
+	//			return nil, err
+	//		}
+	//		result = append(result, subSettings...)
+	//	}
+	//}
+	//
+	//return result, nil
 }
 
 func readConnectorsByIDs(ids []string, tx *bolt.Tx) ([]connectors.Config, error) {

@@ -4,37 +4,47 @@ import (
 	"fmt"
 	"github.com/satori/go.uuid"
 	"github.com/tephrocactus/raccoon-siem/sdk/actions"
-	"github.com/tephrocactus/raccoon-siem/sdk/aggregation"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
+	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"math"
 	"sync"
 	"time"
 )
 
-type timeoutCallback func(key string, bucket *bucket)
+type timeoutCallback func(bucket *bucket, key string)
+type eventCallback func(selector eventSelector, event *normalization.Event, bucket *bucket, key string)
 
 type bucket struct {
 	thresholdCount  int
 	eventCount      int
 	eventCountByTag map[string]int
+	uniqueHashes    map[string]bool
 	timeoutAt       int64
 	events          []*normalization.Event
 }
 
+type eventSelector struct {
+	tag       string
+	filter    *filters.Filter
+	threshold int
+	recovery  bool
+}
+
 type baseRule struct {
-	name               string
-	aggregationRules   []*aggregation.Rule
-	filter             *filters.JoinFilter
-	actions            map[string][]ActionConfig
-	window             time.Duration
-	mu                 sync.Mutex
-	buckets            map[string]*bucket
-	ticker             *time.Ticker
-	outputChannel      chan *normalization.Event
-	correlationChannel chan *normalization.Event
-	onEvent            aggregation.Callback
-	onTimeout          timeoutCallback
+	name            string
+	selectors       []eventSelector
+	filter          *filters.JoinFilter
+	identicalFields []string
+	uniqueFields    []string
+	actions         map[string][]ActionConfig
+	window          time.Duration
+	mu              sync.Mutex
+	buckets         map[string]*bucket
+	ticker          *time.Ticker
+	onEvent         eventCallback
+	onTimeout       timeoutCallback
+	outputFn        OutputFn
 }
 
 func (r *baseRule) ID() string {
@@ -46,62 +56,69 @@ func (r *baseRule) Start() {
 		r.ticker = time.NewTicker(time.Second)
 		go r.timeoutRoutine()
 	}
-
-	for _, aggRule := range r.aggregationRules {
-		aggRule.Start()
-	}
 }
 
 func (r *baseRule) Stop() {
 	r.mu.Lock()
-
 	if r.ticker != nil {
 		r.ticker.Stop()
 	}
-
-	for _, aggRule := range r.aggregationRules {
-		aggRule.Stop()
-	}
-
 	r.mu.Unlock()
 }
 
 func (r *baseRule) Feed(event *normalization.Event) bool {
 	if event.CorrelationRuleName != r.name {
-		for _, aggRule := range r.aggregationRules {
-			if aggRule.Feed(event) {
-				return true
+		for _, selector := range r.selectors {
+			if selector.filter.Pass(event) {
+				eventClone := event.Clone()
+				eventClone.Tag = selector.tag
+				return r.aggregate(selector, &eventClone)
 			}
 		}
 	}
 	return false
 }
 
-func (r *baseRule) onEventWrapper(ar *aggregation.Rule, event *normalization.Event, key string) {
+func (r baseRule) aggregate(selector eventSelector, event *normalization.Event) bool {
+	key := event.HashFields(r.identicalFields)
 	r.mu.Lock()
-	r.onEvent(ar, event, key)
-	r.mu.Unlock()
-}
 
-func (r *baseRule) addEventToBucket(event *normalization.Event, key string) *bucket {
 	b := r.buckets[key]
 	if b == nil {
-		b = &bucket{timeoutAt: time.Now().Add(r.window).Unix(), eventCountByTag: make(map[string]int)}
+		b = &bucket{
+			timeoutAt:       time.Now().Add(r.window).Unix(),
+			eventCountByTag: make(map[string]int),
+			uniqueHashes:    make(map[string]bool),
+		}
 		r.buckets[key] = b
 	}
+
+	if len(r.uniqueFields) > 0 {
+		uHash := event.HashFields(r.uniqueFields)
+		if b.uniqueHashes[uHash] {
+			r.mu.Unlock()
+			return false
+		}
+		b.uniqueHashes[uHash] = true
+	}
+
 	b.events = append(b.events, event)
 	b.eventCount++
-	b.eventCountByTag[event.AggregationRuleName]++
-	return b
+	b.eventCountByTag[event.Tag]++
+
+	r.onEvent(selector, event, b, key)
+
+	r.mu.Unlock()
+	return true
 }
 
 func (r *baseRule) isThresholdReached(b *bucket, callerKind string) bool {
-	for _, aggRule := range r.aggregationRules {
-		if callerKind == RuleKindRecovery && aggRule.IsRecovery() {
+	for _, selector := range r.selectors {
+		if callerKind == RuleKindRecovery && selector.recovery {
 			continue
 		}
 
-		if b.eventCountByTag[aggRule.ID()] == 0 {
+		if b.eventCountByTag[selector.tag] < selector.threshold {
 			return false
 		}
 	}
@@ -114,15 +131,14 @@ func (r *baseRule) isThresholdReached(b *bucket, callerKind string) bool {
 }
 
 func (r *baseRule) fireTrigger(kind string, b *bucket) {
-	fmt.Printf("rule: %s, trigger: %s\n", r.name, kind)
-
 	for _, action := range r.actions[kind] {
 		switch action.Kind {
 		case actions.KindRelease:
 			correlationEvent := r.createCorrelationEvent(b)
 			actions.Release(action.Release, correlationEvent, b.events)
-			r.toOutputChannel(correlationEvent)
-			r.toCorrelationChannel(correlationEvent)
+			if r.outputFn != nil {
+				r.outputFn(correlationEvent)
+			}
 		}
 	}
 }
@@ -136,27 +152,14 @@ func (r *baseRule) createCorrelationEvent(b *bucket) *normalization.Event {
 		BaseEventCount:      len(b.events),
 	}
 
-	for _, base := range b.events {
-		newEvent.BaseEventIDs = append(newEvent.BaseEventIDs, base.ID)
+	if len(b.events) > 0 {
+		helpers.CopyFields(newEvent, b.events[0], r.identicalFields)
+		for _, base := range b.events {
+			newEvent.BaseEventIDs = append(newEvent.BaseEventIDs, base.ID)
+		}
 	}
 
 	return newEvent
-}
-
-func (r *baseRule) toOutputChannel(events ...*normalization.Event) {
-	if r.outputChannel != nil {
-		for _, event := range events {
-			r.outputChannel <- event
-		}
-	}
-}
-
-func (r *baseRule) toCorrelationChannel(events ...*normalization.Event) {
-	if r.correlationChannel != nil {
-		for _, event := range events {
-			r.correlationChannel <- event
-		}
-	}
 }
 
 func (r *baseRule) deleteBucket(key string) {
@@ -186,7 +189,7 @@ func (r *baseRule) timeoutRoutine() {
 
 		for key, bucket := range r.buckets {
 			if bucket.timeoutAt <= now {
-				r.onTimeout(key, bucket)
+				r.onTimeout(bucket, key)
 			} else if bucket.timeoutAt < closestTimeout {
 				closestTimeout = bucket.timeoutAt
 			}
@@ -199,20 +202,20 @@ func (r *baseRule) timeoutRoutine() {
 
 func newBaseRule(
 	cfg Config,
-	onEvent aggregation.Callback,
+	onEvent eventCallback,
 	onTimeout timeoutCallback,
-	outChannel chan *normalization.Event,
-	correlationChannel chan *normalization.Event,
+	outputFn OutputFn,
 ) (baseRule, error) {
 	r := baseRule{
-		name:               cfg.Name,
-		window:             cfg.Window,
-		buckets:            make(map[string]*bucket),
-		actions:            make(map[string][]ActionConfig),
-		outputChannel:      outChannel,
-		correlationChannel: correlationChannel,
-		onEvent:            onEvent,
-		onTimeout:          onTimeout,
+		name:            cfg.Name,
+		window:          cfg.Window,
+		identicalFields: cfg.IdenticalFields,
+		uniqueFields:    cfg.UniqueFields,
+		buckets:         make(map[string]*bucket),
+		actions:         make(map[string][]ActionConfig),
+		onEvent:         onEvent,
+		onTimeout:       onTimeout,
+		outputFn:        outputFn,
 	}
 
 	if cfg.Filter != nil {
@@ -223,12 +226,23 @@ func newBaseRule(
 		r.filter = filter
 	}
 
-	for _, aggRuleCfg := range cfg.AggregationRules {
-		aggRule, err := aggregation.NewRule(aggRuleCfg, nil, r.onEventWrapper)
+	for _, selectorCfg := range cfg.Selectors {
+		selector := eventSelector{
+			tag:       selectorCfg.Tag,
+			threshold: selectorCfg.Threshold,
+		}
+
+		filter, err := filters.NewFilter(selectorCfg.Filter)
 		if err != nil {
 			return r, err
 		}
-		r.aggregationRules = append(r.aggregationRules, aggRule)
+
+		selector.filter = filter
+		r.selectors = append(r.selectors, selector)
+	}
+
+	if len(r.selectors) == 0 {
+		return r, fmt.Errorf("%s: at least one event selector required", r.name)
 	}
 
 	for kind, trigger := range cfg.Triggers {

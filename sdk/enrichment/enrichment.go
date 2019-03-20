@@ -7,23 +7,6 @@ import (
 	"time"
 )
 
-const (
-	FromConst = "const"
-	FromDict  = "dict"
-	FromAL    = "al"
-)
-
-type Config struct {
-	Field            string   `yaml:"field,omitempty"`
-	Constant         string   `yaml:"constant,omitempty"`
-	KeyFields        []string `yaml:"keyFields,omitempty"`
-	ValueSourceKind  string   `yaml:"valueSourceKind,omitempty"`
-	ValueSourceName  string   `yaml:"valueSourceName,omitempty"`
-	ValueSourceField string   `yaml:"valueSourceField,omitempty"`
-	TriggerField     string   `yaml:"trigger_field,omitempty"`
-	TriggerValue     string   `yaml:"trigger_value,omitempty"`
-}
-
 func Enrich(cfg Config, event *normalization.Event) *normalization.Event {
 	if cfg.TriggerField != "" {
 		triggerValue, success := getStringValue(event.GetAnyField(cfg.TriggerField))

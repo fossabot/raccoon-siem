@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	OpEQ     = "=="
+	OpEQ     = "="
 	OpNEQ    = "!="
 	OpGTorEQ = ">="
 	OpGT     = ">"

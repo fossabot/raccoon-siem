@@ -1,57 +1,33 @@
 package correlator
 
 import (
-	"fmt"
-	"github.com/tephrocactus/raccoon-siem/sdk"
+	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
+	"github.com/tephrocactus/raccoon-siem/sdk/correlation"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
+	"runtime"
 )
 
 type Processor struct {
-	CorrelationChannel      chan *sdk.ProcessorTask
-	CorrelationChainChannel chan sdk.CorrelationChainTask
-	CorrelationRules        []sdk.ICorrelationRule
-	Workers                 int
-	Debug                   bool
-	hostname                string
-	ip                      string
+	InputChannel     connectors.OutputChannel
+	CorrelationRules []correlation.IRule
+	OutputChannel    chan *normalization.Event
 }
 
-func (r *Processor) Start() error {
-	r.hostname = sdk.GetHostName()
-	r.ip = sdk.GetIPAddress()
-
-	for i := 0; i < r.Workers; i++ {
-		go r.correlationRoutine()
-		go r.correlationChainRoutine()
+func (r *Processor) Start() {
+	for i := 0; i < runtime.NumCPU(); i++ {
+		go r.worker()
 	}
-
-	sdk.RunCorrelationRules(r.CorrelationRules)
-
-	return nil
 }
 
-// Processes incoming events
-func (r *Processor) correlationRoutine() {
-	for input := range r.CorrelationChannel {
+func (r *Processor) worker() {
+	for input := range r.InputChannel {
 		event := new(normalization.Event)
 		if err := event.FromMsgPack(input.Data); err != nil {
 			continue
 		}
 
-		event.CorrelatorDNSName = r.hostname
-		event.CorrelatorIPAddress = r.ip
-
 		for _, rule := range r.CorrelationRules {
 			rule.Feed(event)
 		}
-	}
-}
-
-// Processes correlated events
-func (r *Processor) correlationChainRoutine() {
-	for event := range r.CorrelationChainChannel {
-		event.CorrelatorDNSName = r.hostname
-		event.CorrelatorIPAddress = r.ip
-		fmt.Println(event)
 	}
 }

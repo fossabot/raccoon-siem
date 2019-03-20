@@ -4,39 +4,25 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"gotest.tools/assert"
-	"sync"
 	"testing"
 	"time"
 )
 
 func TestRule(t *testing.T) {
-	outChannel := make(chan *normalization.Event)
-	threshold := 10
+	var aggregatedEvents []*normalization.Event
+	outputFn := func(event *normalization.Event) {
+		aggregatedEvents = append(aggregatedEvents, event)
+	}
 
+	threshold := 10
 	rule, err := NewRule(Config{
 		Name:            "netflow",
 		Filter:          getTestFilterConfig(),
 		Threshold:       threshold,
 		IdenticalFields: getTestIdenticalFields(),
 		SumFields:       getTestSumFields(),
-	}, outChannel, nil)
+	}, outputFn)
 	assert.Assert(t, err == nil)
-
-	var aggregatedEvents []*normalization.Event
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-
-	go func() {
-		timeout := time.After(time.Second)
-		for {
-			select {
-			case <-timeout:
-				wg.Done()
-			case event := <-outChannel:
-				aggregatedEvents = append(aggregatedEvents, event)
-			}
-		}
-	}()
 
 	for i := 0; i < threshold; i++ {
 		for _, e := range getTestEvents() {
@@ -44,7 +30,6 @@ func TestRule(t *testing.T) {
 		}
 	}
 
-	wg.Wait()
 	assert.Equal(t, len(aggregatedEvents), 2)
 
 	uPorts := make(map[string]bool)
@@ -62,33 +47,19 @@ func TestRule(t *testing.T) {
 }
 
 func TestRuleWindow(t *testing.T) {
-	outChannel := make(chan *normalization.Event)
-	window := time.Second
+	var aggregatedEvents []*normalization.Event
+	outputFn := func(event *normalization.Event) {
+		aggregatedEvents = append(aggregatedEvents, event)
+	}
 
 	rule, err := NewRule(Config{
 		Name:            "netflow",
 		Filter:          getTestFilterConfig(),
-		Window:          window,
+		Window:          time.Second,
 		IdenticalFields: getTestIdenticalFields(),
 		SumFields:       getTestSumFields(),
-	}, outChannel, nil)
+	}, outputFn)
 	assert.Assert(t, err == nil)
-
-	var aggregatedEvents []*normalization.Event
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-
-	go func() {
-		timeout := time.After(window * 2)
-		for {
-			select {
-			case <-timeout:
-				wg.Done()
-			case event := <-outChannel:
-				aggregatedEvents = append(aggregatedEvents, event)
-			}
-		}
-	}()
 
 	rule.Start()
 
@@ -98,25 +69,20 @@ func TestRuleWindow(t *testing.T) {
 		}
 	}
 
-	wg.Wait()
+	time.Sleep(2 * time.Second)
 	assert.Equal(t, len(aggregatedEvents), 2)
 }
 
 func BenchmarkRule(b *testing.B) {
-	outChannel := make(chan *normalization.Event)
+	outputFn := func(event *normalization.Event) {}
+
 	rule, _ := NewRule(Config{
 		Name:            "netflow",
 		Filter:          getTestFilterConfig(),
 		Threshold:       100,
 		Window:          time.Second,
 		IdenticalFields: getTestIdenticalFields(),
-	}, outChannel, nil)
-
-	go func() {
-		for {
-			<-outChannel
-		}
-	}()
+	}, outputFn)
 
 	events := getTestEvents()
 
@@ -169,15 +135,6 @@ func getTestEvents() (events []*normalization.Event) {
 }
 
 func getTestIdenticalFields() []string {
-	return []string{
-		"SourceIPAddress",
-		"DestinationIPAddress",
-		"DestinationPort",
-		"RequestTransportProtocol",
-	}
-}
-
-func getTestUniqueFields() []string {
 	return []string{
 		"SourceIPAddress",
 		"DestinationIPAddress",

@@ -31,8 +31,7 @@ type Rule struct {
 	mu              sync.Mutex
 	buckets         map[string]*bucket
 	ticker          *time.Ticker
-	outputChannel   chan *normalization.Event
-	callback        Callback
+	outputFn        OutputFn
 }
 
 func (r *Rule) ID() string {
@@ -81,22 +80,18 @@ func (r *Rule) Feed(event *normalization.Event) bool {
 	}
 
 	key := event.HashFields(r.identicalFields)
-	if r.threshold == 1 {
-		event.AggregatedEventCount = 1
-		r.sendEvent(event, key)
-		return true
-	}
 
 	r.mu.Lock()
 	b := r.buckets[key]
 	isFirstEvent := b == nil
 
 	if isFirstEvent {
-		b = &bucket{event: *event, releaseAt: time.Now().Add(r.window).Unix()}
-		r.buckets[key] = b
-		if len(r.uniqueFields) > 0 {
-			b.uniqueHashes = make(map[string]bool)
+		b = &bucket{
+			event:        *event,
+			releaseAt:    time.Now().Add(r.window).Unix(),
+			uniqueHashes: make(map[string]bool),
 		}
+		r.buckets[key] = b
 	}
 
 	if len(r.uniqueFields) > 0 {
@@ -130,10 +125,8 @@ func (r *Rule) releaseBucket(key string, bucket *bucket) {
 func (r *Rule) sendEvent(event *normalization.Event, key string) {
 	event.ID = uuid.NewV4().String()
 	event.AggregationRuleName = r.name
-	if r.callback != nil {
-		r.callback(r, event, key)
-	} else if r.outputChannel != nil {
-		r.outputChannel <- event
+	if r.outputFn != nil {
+		r.outputFn(event)
 	}
 }
 
@@ -167,7 +160,7 @@ func (r *Rule) timeoutRoutine() {
 	}
 }
 
-func NewRule(cfg Config, outChannel chan *normalization.Event, callback Callback) (*Rule, error) {
+func NewRule(cfg Config, outputFn OutputFn) (*Rule, error) {
 	r := &Rule{
 		name:            cfg.Name,
 		threshold:       cfg.Threshold,
@@ -177,8 +170,7 @@ func NewRule(cfg Config, outChannel chan *normalization.Event, callback Callback
 		uniqueFields:    cfg.UniqueFields,
 		sumFields:       cfg.SumFields,
 		buckets:         make(map[string]*bucket),
-		outputChannel:   outChannel,
-		callback:        callback,
+		outputFn:        outputFn,
 	}
 
 	filter, err := filters.NewFilter(cfg.Filter)

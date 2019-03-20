@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/gin-gonic/gin"
-	"github.com/tephrocactus/raccoon-siem/sdk"
+	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 )
 
 func Filters(ctx *gin.Context) {
@@ -39,7 +39,7 @@ func FilterPUT(ctx *gin.Context) {
 		return
 	}
 
-	s := new(sdk.FilterSettings)
+	s := new(filters.Config)
 	id, err := unmarshalAndGetID(s, body)
 
 	if err != nil {

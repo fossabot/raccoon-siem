@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/gin-gonic/gin"
-	"github.com/tephrocactus/raccoon-siem/sdk"
+	"github.com/tephrocactus/raccoon-siem/sdk/correlation"
 )
 
 func CorrelationRules(ctx *gin.Context) {
@@ -39,7 +39,7 @@ func CorrelationRulePUT(ctx *gin.Context) {
 		return
 	}
 
-	s := new(sdk.CorrelationRuleSettings)
+	s := new(correlation.Config)
 	id, err := unmarshalAndGetID(s, body)
 
 	if err != nil {

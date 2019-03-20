@@ -12,7 +12,7 @@ const (
 )
 
 type ReleaseConfig struct {
-	MutateConfigs []MutateConfig
+	MutateConfigs []MutateConfig `yaml:"mutate,omitempty"`
 }
 
 type MutateConfig struct {
