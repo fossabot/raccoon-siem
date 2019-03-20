@@ -80,14 +80,14 @@ func BenchmarkEnrich(b *testing.B) {
 }
 
 func fillDictionaryStorage() {
-	dictionariesData := make(map[string]map[string]string)
+	dictionariesData := make(map[string]map[interface{}]interface{})
 
-	raccoonDict := make(map[string]string)
+	raccoonDict := make(map[interface{}]interface{})
 	raccoonDict["ERROR"] = "error"
 	raccoonDict["DEBUG"] = "debug"
 	raccoonDict["INFO"] = "info"
 
-	weirdDict := make(map[string]string)
+	weirdDict := make(map[interface{}]interface{})
 	weirdDict["1"] = "error"
 	weirdDict["2"] = "debug"
 	weirdDict["3"] = "info"

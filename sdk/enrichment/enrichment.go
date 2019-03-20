@@ -3,7 +3,6 @@ package enrichment
 import (
 	"github.com/tephrocactus/raccoon-siem/sdk/globals"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
-	"strconv"
 	"time"
 )
 
@@ -14,36 +13,28 @@ const (
 )
 
 type EnrichConfig struct {
-	Field            string   `yaml:"field,omitempty"`
-	Constant         string   `yaml:"constant,omitempty"`
-	KeyFields        []string `yaml:"keyFields,omitempty"`
-	ValueSourceKind  string   `yaml:"valueSourceKind,omitempty"`
-	ValueSourceName  string   `yaml:"valueSourceName,omitempty"`
-	ValueSourceField string   `yaml:"valueSourceField,omitempty"`
-	TriggerField     string   `yaml:"trigger_field,omitempty"`
-	TriggerValue     string   `yaml:"trigger_value,omitempty"`
+	Field            string      `yaml:"field,omitempty"`
+	Constant         interface{} `yaml:"constant,omitempty"`
+	KeyFields        []string    `yaml:"keyFields,omitempty"`
+	ValueSourceKind  string      `yaml:"valueSourceKind,omitempty"`
+	ValueSourceName  string      `yaml:"valueSourceName,omitempty"`
+	ValueSourceField string      `yaml:"valueSourceField,omitempty"`
+	TriggerField     string      `yaml:"trigger_field,omitempty"`
+	TriggerValue     interface{} `yaml:"trigger_value,omitempty"`
 }
 
 func Enrich(cfg EnrichConfig, event *normalization.Event) *normalization.Event {
-	if cfg.TriggerField != "" {
-		triggerValue, success := getStringValue(event.GetAnyField(cfg.TriggerField))
-		if !success || cfg.TriggerValue != triggerValue {
-			return event
-		}
+	if cfg.TriggerField != "" && cfg.TriggerValue != event.GetAnyField(cfg.TriggerField) {
+		return event
 	}
 
 	switch cfg.ValueSourceKind {
 	case FromDict:
 		srcValue := event.GetAnyField(cfg.KeyFields[0])
-		key, success := getStringValue(srcValue)
-		if !success {
-			return event
-		}
-
-		value := globals.DictionaryStorage.Get(cfg.ValueSourceName, key)
-		event.SetAnyField(cfg.Field, value, 0)
+		value := globals.DictionaryStorage.Get(cfg.ValueSourceName, srcValue)
+		setValue(cfg.Field, value, event)
 	case FromConst:
-		event.SetAnyField(cfg.Field, cfg.Constant, normalization.TimeUnitNone)
+		setValue(cfg.Field, cfg.Constant, event)
 	case FromAL:
 	default:
 		return event
@@ -51,19 +42,13 @@ func Enrich(cfg EnrichConfig, event *normalization.Event) *normalization.Event {
 	return event
 }
 
-func getStringValue(src interface{}) (string, bool) {
-	var key string
-	switch src.(type) {
+func setValue(field string, value interface{}, event *normalization.Event) {
+	switch value.(type) {
 	case string:
-		key = src.(string)
+		event.SetAnyField(field, value.(string), 0)
 	case int64:
-		key = strconv.FormatInt(src.(int64), 10)
+		event.SetIntField(field, value.(int64))
 	case time.Duration:
-		key = strconv.FormatInt(src.(time.Duration).Nanoseconds(), 10)
-	case time.Time:
-		key = strconv.FormatInt(src.(time.Time).UnixNano(), 10)
-	default:
-		return "", false
+		event.SetDurationField(field, value.(time.Duration))
 	}
-	return key, true
 }
