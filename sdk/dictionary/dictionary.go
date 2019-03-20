@@ -1,6 +1,6 @@
 package dictionary
 
-type dictionaries map[string]map[string]string
+type dictionaries map[string]map[interface{}]interface{}
 
 type Config struct {
 	Data dictionaries
@@ -14,7 +14,7 @@ func NewDictionaryStorage(cfg Config) *Storage {
 	return &Storage{cfg}
 }
 
-func (r *Storage) Get(dictionaryName string, field string) string {
+func (r *Storage) Get(dictionaryName string, field interface{}) interface{} {
 	dictionary, found := r.cfg.Data[dictionaryName]
 	if !found {
 		return ""
