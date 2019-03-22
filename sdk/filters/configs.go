@@ -1,10 +1,10 @@
 package filters
 
 const (
-	ValueSourceField = "field"
-	ValueSourceConst = "const"
-	ValueSourceAL    = "al"
-	ValueSourceDict  = "dict"
+	ValueSourceKindEvent = "event"
+	ValueSourceKindConst = "const"
+	ValueSourceKindAL    = "al"
+	ValueSourceKindDict  = "dict"
 )
 
 type Config struct {
@@ -30,10 +30,13 @@ type SectionConfig struct {
 }
 
 type ConditionConfig struct {
-	Field       string      `yaml:"field,omitempty"`
-	Op          string      `yaml:"op,omitempty"`
-	Value       interface{} `yaml:"value,omitempty"`
-	ValueSource string      `yaml:"valueSource,omitempty"`
+	Field          string      `yaml:"field,omitempty"`
+	KeyFields      []string    `yaml:"keyFields,omitempty"`
+	Op             string      `yaml:"op,omitempty"`
+	Constant       interface{} `yaml:"constant,omitempty"`
+	CMPSourceKind  string      `yaml:"cmpSourceKind,omitempty"`
+	CMPSourceName  string      `yaml:"cmpSourceName,omitempty"`
+	CMPSourceField string      `yaml:"cmpSourceField,omitempty"`
 }
 
 type JoinSectionConfig struct {

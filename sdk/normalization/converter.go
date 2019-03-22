@@ -26,20 +26,20 @@ func BytesToString(input []byte) string {
 	return *(*string)(unsafe.Pointer(&input))
 }
 
-func BytesToFloat(input string) float64 {
-	float, err := strconv.ParseFloat(input, 64)
-	if err != nil {
-		return 0
-	}
-	return float
-}
-
 func StringToInt(input string) int64 {
 	num, err := strconv.ParseInt(input, 10, 64)
 	if err != nil {
 		return 0
 	}
 	return num
+}
+
+func StringToTime(input string) int64 {
+	t, err := dateparse.ParseAny(input)
+	if err != nil {
+		return 0
+	}
+	return t.UnixNano() / 1000
 }
 
 func StringToBool(input string) bool {
@@ -58,14 +58,6 @@ func StringToDuration(input string, unit byte) time.Duration {
 	}
 
 	return DurationFromInt(num, unit)
-}
-
-func StringToTime(input string, unit byte) time.Time {
-	num, err := strconv.ParseInt(input, 10, 64)
-	if err != nil {
-		return time.Unix(0, 0)
-	}
-	return TimeFromInt(num, unit)
 }
 
 func ConvertValue(src interface{}, dstType byte, timeUnit byte) interface{} {

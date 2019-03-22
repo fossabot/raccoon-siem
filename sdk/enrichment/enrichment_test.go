@@ -21,7 +21,7 @@ func TestEnrichment(t *testing.T) {
 	}
 
 	cfg := Config{
-		ValueSourceKind: FromDict,
+		ValueSourceKind: ValueSourceKindDict,
 		ValueSourceName: raccoon,
 		KeyFields:       []string{"Trace"},
 		Field:           "Message",
@@ -30,7 +30,7 @@ func TestEnrichment(t *testing.T) {
 	assert.Equal(t, event.Message, "error")
 
 	cfg = Config{
-		ValueSourceKind: FromConst,
+		ValueSourceKind: ValueSourceKindConst,
 		Constant:        "1080",
 		Field:           "RequestResults",
 	}
@@ -38,7 +38,7 @@ func TestEnrichment(t *testing.T) {
 	assert.Equal(t, event.RequestResults, int64(1080))
 
 	cfg = Config{
-		ValueSourceKind: FromConst,
+		ValueSourceKind: ValueSourceKindConst,
 		Constant:        "1081",
 		Field:           "RequestResults",
 		TriggerField:    "Message",
@@ -48,15 +48,15 @@ func TestEnrichment(t *testing.T) {
 	assert.Equal(t, event.RequestResults, int64(1081))
 
 	cfg = Config{
-		ValueSourceKind: FromConst,
+		ValueSourceKind: ValueSourceKindConst,
 		Constant:        "1082",
 		Field:           "RequestResults",
 		TriggerField:    "Severity",
 		TriggerValue:    "error",
 	}
+
 	Enrich(cfg, &event)
 	assert.Equal(t, event.RequestResults, int64(1081))
-
 }
 
 func BenchmarkEnrich(b *testing.B) {
@@ -64,7 +64,7 @@ func BenchmarkEnrich(b *testing.B) {
 	b.ReportAllocs()
 	fillDictionaryStorage()
 	cfg := Config{
-		ValueSourceKind: FromDict,
+		ValueSourceKind: ValueSourceKindDict,
 		ValueSourceName: raccoon,
 		KeyFields:       []string{"Trace"},
 		Field:           "Message",
@@ -95,5 +95,5 @@ func fillDictionaryStorage() {
 	dictionariesData[raccoon] = raccoonDict
 	dictionariesData[weird] = weirdDict
 
-	globals.DictionaryStorage = dictionary.NewDictionaryStorage(dictionary.Config{Data: dictionariesData})
+	globals.Dictionaries = dictionary.NewDictionaryStorage(dictionary.Config{Data: dictionariesData})
 }

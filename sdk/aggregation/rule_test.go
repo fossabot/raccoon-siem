@@ -97,9 +97,9 @@ func getTestFilterConfig() filters.Config {
 	return filters.Config{
 		Sections: []filters.SectionConfig{{
 			Conditions: []filters.ConditionConfig{{
-				Field: "OriginServiceName",
-				Op:    filters.OpEQ,
-				Value: "netflow",
+				Field:    "OriginServiceName",
+				Op:       filters.OpEQ,
+				Constant: "netflow",
 			}},
 		}},
 	}

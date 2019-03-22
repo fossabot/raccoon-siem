@@ -59,65 +59,65 @@ func init() {
 }
 
 type Event struct {
-	_msgpack                   struct{}      `msgpack:",asArray"`
-	ID                         string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	Incident                   bool          `storage_type:"boolean"`
-	Correlated                 bool          `storage_type:"boolean"`
-	Tag                        string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	ParentID                   string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	Customer                   string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	Code                       string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	Timestamp                  time.Time     `json:",omitempty" msgpack:",omitempty" storage_type:"date"`
-	Severity                   int64         `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
-	Score                      int64         `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
-	BaseEventCount             int           `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
-	AggregatedEventCount       int           `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
-	AggregationRuleName        string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	CollectorIPAddress         string        `json:",omitempty" msgpack:",omitempty" storage_type:"ip"`
-	CollectorDNSName           string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	CorrelationRuleName        string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	CorrelatorIPAddress        string        `json:",omitempty" msgpack:",omitempty" storage_type:"ip"`
-	CorrelatorDNSName          string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	CorrelatorEventSpecID      string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	SourceID                   string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	BaseEventIDs               []string      `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	BaseEvents                 []*Event      `json:"-" msgpack:"-"`
-	Message                    string        `json:",omitempty" msgpack:",omitempty" storage_type:"text"`
-	Details                    string        `json:",omitempty" msgpack:",omitempty" storage_type:"text"`
-	Trace                      string        `json:",omitempty" msgpack:",omitempty" storage_type:"text"`
-	OriginEventID              string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginTimestamp            time.Time     `json:",omitempty" msgpack:",omitempty" storage_type:"date"`
-	OriginEnvironment          string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginSeverity             string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginServiceName          string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginServiceVersion       string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginProcessName          string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginFileName             string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginDNSName              string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginIPAddress            string        `json:",omitempty" msgpack:",omitempty" storage_type:"ip"`
-	RequestID                  string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestApplicationProtocol string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestTransportProtocol   string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestURL                 string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestReferrer            string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestMethod              string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestUserAgent           string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestStatus              string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestTook                time.Duration `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
-	RequestBytesIn             int64         `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
-	RequestBytesOut            int64         `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
-	RequestResults             int64         `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
-	RequestUser                string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestUnit                string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestOrganization        string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	SourceIPAddress            string        `json:",omitempty" msgpack:",omitempty" storage_type:"ip"`
-	SourceMACAddress           string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	SourceDNSName              string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	SourcePort                 string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	DestinationIPAddress       string        `json:",omitempty" msgpack:",omitempty" storage_type:"ip"`
-	DestinationMACAddress      string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	DestinationDNSName         string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	DestinationPort            string        `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	_msgpack                   struct{} `msgpack:",asArray"`
+	ID                         string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	Incident                   bool     `storage_type:"boolean"`
+	Correlated                 bool     `storage_type:"boolean"`
+	Tag                        string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	ParentID                   string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	Customer                   string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	Code                       string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	Timestamp                  int64    `json:",omitempty" msgpack:",omitempty" storage_type:"date"`
+	Severity                   int64    `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
+	Score                      int64    `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
+	BaseEventCount             int      `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
+	AggregatedEventCount       int      `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
+	AggregationRuleName        string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	CollectorIPAddress         string   `json:",omitempty" msgpack:",omitempty" storage_type:"ip"`
+	CollectorDNSName           string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	CorrelationRuleName        string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	CorrelatorIPAddress        string   `json:",omitempty" msgpack:",omitempty" storage_type:"ip"`
+	CorrelatorDNSName          string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	CorrelatorEventSpecID      string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	SourceID                   string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	BaseEventIDs               []string `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	BaseEvents                 []*Event `json:"-" msgpack:"-"`
+	Message                    string   `json:",omitempty" msgpack:",omitempty" storage_type:"text"`
+	Details                    string   `json:",omitempty" msgpack:",omitempty" storage_type:"text"`
+	Trace                      string   `json:",omitempty" msgpack:",omitempty" storage_type:"text"`
+	OriginEventID              string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	OriginTimestamp            int64    `json:",omitempty" msgpack:",omitempty" storage_type:"date"`
+	OriginEnvironment          string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	OriginSeverity             string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	OriginServiceName          string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	OriginServiceVersion       string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	OriginProcessName          string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	OriginFileName             string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	OriginDNSName              string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	OriginIPAddress            string   `json:",omitempty" msgpack:",omitempty" storage_type:"ip"`
+	RequestID                  string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	RequestApplicationProtocol string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	RequestTransportProtocol   string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	RequestURL                 string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	RequestReferrer            string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	RequestMethod              string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	RequestUserAgent           string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	RequestStatus              string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	RequestTook                int64    `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
+	RequestBytesIn             int64    `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
+	RequestBytesOut            int64    `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
+	RequestResults             int64    `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
+	RequestUser                string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	RequestUnit                string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	RequestOrganization        string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	SourceIPAddress            string   `json:",omitempty" msgpack:",omitempty" storage_type:"ip"`
+	SourceMACAddress           string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	SourceDNSName              string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	SourcePort                 string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	DestinationIPAddress       string   `json:",omitempty" msgpack:",omitempty" storage_type:"ip"`
+	DestinationMACAddress      string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	DestinationDNSName         string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	DestinationPort            string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
 }
 
 func (r *Event) SetField(name string, value interface{}, timeUnit byte) {

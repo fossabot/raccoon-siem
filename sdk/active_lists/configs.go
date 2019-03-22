@@ -1,13 +1,20 @@
 package activeLists
 
+import "time"
+
+const (
+	OpGet        = "get"
+	OpSet        = "set"
+	OpDel        = "del"
+	alNamePrefix = "al-"
+)
+
 type Config struct {
-	Name   string `yaml:"name"`
-	Fields []FieldConfig
+	Name string        `yaml:"name"`
+	TTL  time.Duration `yaml:"ttl"`
 }
 
-type FieldConfig struct {
-	Name   string `yaml:"name"`
-	Kind   string `yaml:"kind"`
-	Unique bool   `yaml:"unique"`
-	PK     bool   `yaml:"pk"`
+type Mapping struct {
+	EventField string
+	ALField    string
 }

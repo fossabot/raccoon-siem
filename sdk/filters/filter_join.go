@@ -11,26 +11,26 @@ type JoinFilter struct {
 	sections []JoinSectionConfig
 }
 
-func (f *JoinFilter) ID() string {
-	return f.name
+func (r *JoinFilter) ID() string {
+	return r.name
 }
 
-func (f *JoinFilter) Pass(events ...*normalization.Event) bool {
+func (r *JoinFilter) Pass(events ...*normalization.Event) bool {
 	eventTags := make(map[string]*normalization.Event)
 	for _, event := range events {
 		eventTags[event.AggregationRuleName] = event
 	}
 
-	for _, section := range f.sections {
-		if !f.checkSection(eventTags, section) {
-			return f.not
+	for _, section := range r.sections {
+		if !r.checkSection(eventTags, section) {
+			return r.not
 		}
 	}
 
-	return !f.not
+	return !r.not
 }
 
-func (f *JoinFilter) checkSection(eventsByTag map[string]*normalization.Event, section JoinSectionConfig) bool {
+func (r *JoinFilter) checkSection(eventsByTag map[string]*normalization.Event, section JoinSectionConfig) bool {
 	for _, cond := range section.Conditions {
 		srcEvent := eventsByTag[cond.LeftTag]
 		if srcEvent == nil {
@@ -43,11 +43,11 @@ func (f *JoinFilter) checkSection(eventsByTag map[string]*normalization.Event, s
 		}
 
 		if !section.Or {
-			if !f.joinConditionMatch(srcEvent, cond.LeftField, dstEvent, cond.RightField, cond.Op) {
+			if !r.joinConditionMatch(srcEvent, cond.LeftField, dstEvent, cond.RightField, cond.Op) {
 				return section.Not
 			}
 		} else {
-			if f.joinConditionMatch(srcEvent, cond.LeftField, dstEvent, cond.RightField, cond.Op) {
+			if r.joinConditionMatch(srcEvent, cond.LeftField, dstEvent, cond.RightField, cond.Op) {
 				return !section.Not
 			}
 		}
@@ -60,14 +60,14 @@ func (f *JoinFilter) checkSection(eventsByTag map[string]*normalization.Event, s
 	}
 }
 
-func (f *JoinFilter) joinConditionMatch(
+func (r *JoinFilter) joinConditionMatch(
 	srcEvent *normalization.Event,
 	srcEventField string,
 	dstEvent *normalization.Event,
 	dstEventField string,
 	op string,
 ) bool {
-	return f.compareValues(
+	return r.compareValues(
 		srcEvent.GetAnyField(srcEventField),
 		dstEvent.GetAnyField(dstEventField),
 		op,

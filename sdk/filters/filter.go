@@ -1,6 +1,7 @@
 package filters
 
 import (
+	"github.com/tephrocactus/raccoon-siem/sdk/globals"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
@@ -11,27 +12,27 @@ type Filter struct {
 	sections []SectionConfig
 }
 
-func (f *Filter) ID() string {
-	return f.name
+func (r *Filter) ID() string {
+	return r.name
 }
 
-func (f *Filter) Pass(event *normalization.Event) bool {
-	for _, section := range f.sections {
-		if !f.checkSection(event, section) {
-			return f.not
+func (r *Filter) Pass(event *normalization.Event) bool {
+	for _, section := range r.sections {
+		if !r.checkSection(event, section) {
+			return r.not
 		}
 	}
-	return !f.not
+	return !r.not
 }
 
-func (f *Filter) checkSection(event *normalization.Event, section SectionConfig) bool {
+func (r *Filter) checkSection(event *normalization.Event, section SectionConfig) bool {
 	for _, cond := range section.Conditions {
 		if !section.Or {
-			if !f.conditionMatch(event, cond) {
+			if !r.conditionMatch(event, cond) {
 				return section.Not
 			}
 		} else {
-			if f.conditionMatch(event, cond) {
+			if r.conditionMatch(event, cond) {
 				return !section.Not
 			}
 		}
@@ -44,19 +45,20 @@ func (f *Filter) checkSection(event *normalization.Event, section SectionConfig)
 	}
 }
 
-func (f *Filter) conditionMatch(event *normalization.Event, cond ConditionConfig) bool {
+func (r *Filter) conditionMatch(event *normalization.Event, cond ConditionConfig) bool {
 	lv := event.GetAnyField(cond.Field)
-	switch cond.ValueSource {
-	case ValueSourceField:
-		return f.compareValues(lv, event.GetAnyField(cond.Value.(string)), cond.Op)
-	case ValueSourceDict:
-		// TODO: ask dictionary for value
-		return false
-	case ValueSourceAL:
-		// TODO: ask active list for value
-		return false
+	switch cond.CMPSourceKind {
+	case ValueSourceKindEvent:
+		return r.compareValues(lv, event.GetAnyField(cond.CMPSourceField), cond.Op)
+	case ValueSourceKindDict:
+		key := event.GetAnyField(cond.KeyFields[0])
+		rv := globals.Dictionaries.Get(cond.CMPSourceName, key)
+		return r.compareValues(lv, rv, cond.Op)
+	case ValueSourceKindAL:
+		alValue := globals.ActiveLists.Get(cond.CMPSourceName, cond.CMPSourceField, cond.KeyFields, event)
+		return r.compareValues(lv, alValue, cond.Op)
 	default:
-		return f.compareValues(lv, cond.Value, cond.Op)
+		return r.compareValues(lv, cond.Constant, cond.Op)
 	}
 }
 

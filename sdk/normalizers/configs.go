@@ -25,5 +25,4 @@ type MappingConfig struct {
 	EventField  string        `yaml:"event_field,omitempty"`
 	TimeFormat  string        `yaml:"time_format,omitempty"`
 	Extra       []ExtraConfig `yaml:"extra,omitempty"`
-	timeFormat  byte
 }

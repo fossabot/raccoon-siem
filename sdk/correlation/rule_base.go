@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/satori/go.uuid"
 	"github.com/tephrocactus/raccoon-siem/sdk/actions"
+	"github.com/tephrocactus/raccoon-siem/sdk/enrichment"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
@@ -135,7 +136,9 @@ func (r *baseRule) fireTrigger(kind string, b *bucket) {
 		switch action.Kind {
 		case actions.KindRelease:
 			correlationEvent := r.createCorrelationEvent(b)
-			actions.Release(action.Release, correlationEvent, b.events)
+			for _, cfg := range action.Release.EnrichmentConfigs {
+				enrichment.Enrich(cfg, correlationEvent, b.events...)
+			}
 			if r.outputFn != nil {
 				r.outputFn(correlationEvent)
 			}
@@ -147,7 +150,7 @@ func (r *baseRule) createCorrelationEvent(b *bucket) *normalization.Event {
 	newEvent := &normalization.Event{
 		ID:                  uuid.NewV4().String(),
 		Correlated:          true,
-		Timestamp:           time.Now(),
+		Timestamp:           helpers.NowUnixMillis(),
 		CorrelationRuleName: r.name,
 		BaseEventCount:      len(b.events),
 	}

@@ -1,16 +1,15 @@
 package collector
 
 import (
-	"github.com/tephrocactus/raccoon-siem/sdk"
 	"github.com/tephrocactus/raccoon-siem/sdk/aggregation"
 	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
 	"github.com/tephrocactus/raccoon-siem/sdk/destinations"
 	"github.com/tephrocactus/raccoon-siem/sdk/enrichment"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
+	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalizers"
 	"runtime"
-	"time"
 )
 
 type Processor struct {
@@ -46,8 +45,8 @@ mainLoop:
 			enrichment.Enrich(config, event)
 		}
 
-		event.Timestamp = time.Now()
-		event.ID = sdk.GetUUID()
+		event.Timestamp = helpers.NowUnixMillis()
+		event.ID = helpers.GetUUID()
 		event.SourceID = input.Connector
 
 		for _, rule := range r.AggregationRules {

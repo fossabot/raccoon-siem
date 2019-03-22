@@ -92,7 +92,7 @@ func run(_ *cobra.Command, _ []string) error {
 	//}
 	//
 	//// Register parsers
-	//registeredParsers, err := sdk.RegisterParsers(pack.Parsers)
+	//registeredParsers, err := sdk.RegisterParsers(pack.Normalizers)
 	//if err != nil {
 	//	return err
 	//}

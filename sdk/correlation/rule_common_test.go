@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/satori/go.uuid"
 	"github.com/tephrocactus/raccoon-siem/sdk/actions"
+	"github.com/tephrocactus/raccoon-siem/sdk/enrichment"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"gotest.tools/assert"
@@ -107,7 +108,7 @@ func buildTestCorrelationConfigDOS() Config {
 				Actions: []ActionConfig{{
 					Kind: actions.KindRelease,
 					Release: actions.ReleaseConfig{
-						MutateConfigs: []actions.MutateConfig{
+						EnrichmentConfigs: []enrichment.Config{
 							{Field: "Message", Constant: "DoS attack detected"},
 						},
 					},
@@ -120,9 +121,9 @@ func buildTestCorrelationConfigDOS() Config {
 			Filter: filters.Config{
 				Sections: []filters.SectionConfig{{
 					Conditions: []filters.ConditionConfig{
-						{Field: "Correlated", Op: filters.OpEQ, Value: false},
-						{Field: "OriginServiceName", Op: filters.OpEQ, Value: "PeakFlow"},
-						{Field: "Message", Op: filters.OpEQ, Value: "DoS"},
+						{Field: "Correlated", Op: filters.OpEQ, Constant: false},
+						{Field: "OriginServiceName", Op: filters.OpEQ, Constant: "PeakFlow"},
+						{Field: "Message", Op: filters.OpEQ, Constant: "DoS"},
 					},
 				}},
 			},
@@ -141,7 +142,7 @@ func buildTestCorrelationConfigDDOS() Config {
 				Actions: []ActionConfig{{
 					Kind: actions.KindRelease,
 					Release: actions.ReleaseConfig{
-						MutateConfigs: []actions.MutateConfig{
+						EnrichmentConfigs: []enrichment.Config{
 							{Field: "Incident", Constant: "true"},
 							{Field: "Message", Constant: "DDoS attack detected"},
 						},
@@ -155,7 +156,7 @@ func buildTestCorrelationConfigDDOS() Config {
 			Filter: filters.Config{
 				Sections: []filters.SectionConfig{{
 					Conditions: []filters.ConditionConfig{
-						{Field: "CorrelationRuleName", Op: filters.OpEQ, Value: "DoS"},
+						{Field: "CorrelationRuleName", Op: filters.OpEQ, Constant: "DoS"},
 					},
 				}},
 			},

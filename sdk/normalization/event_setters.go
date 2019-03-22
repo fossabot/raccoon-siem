@@ -1,12 +1,10 @@
 package normalization
 
-import "time"
-
 func (r *Event) SetID(id string) {
 	r.ID = id
 }
 
-func (r *Event) SetAnyField(field string, value string, timeUnit byte) {
+func (r *Event) SetAnyField(field string, value string) {
 	if len(value) == 0 {
 		return
 	}
@@ -22,7 +20,7 @@ func (r *Event) SetAnyField(field string, value string, timeUnit byte) {
 	case "OriginEventID":
 		r.OriginEventID = value
 	case "OriginTimestamp":
-		r.OriginTimestamp = StringToTime(value, timeUnit)
+		r.OriginTimestamp = StringToTime(value)
 	case "OriginEnvironment":
 		r.OriginEnvironment = value
 	case "OriginSeverity":
@@ -56,7 +54,7 @@ func (r *Event) SetAnyField(field string, value string, timeUnit byte) {
 	case "RequestStatus":
 		r.RequestStatus = value
 	case "RequestTook":
-		r.RequestTook = StringToDuration(value, timeUnit)
+		r.RequestTook = StringToInt(value)
 	case "RequestBytesIn":
 		r.RequestBytesIn = StringToInt(value)
 	case "RequestBytesOut":
@@ -88,6 +86,10 @@ func (r *Event) SetAnyField(field string, value string, timeUnit byte) {
 	}
 }
 
+func (r *Event) SetAnyFieldBytes(field string, value []byte) {
+	r.SetAnyField(field, BytesToString(value))
+}
+
 func (r *Event) SetIntField(field string, value int64) {
 	switch field {
 	case "RequestBytesIn":
@@ -101,13 +103,4 @@ func (r *Event) SetIntField(field string, value int64) {
 
 func (r *Event) SetFloatField(field string, value float64) {}
 
-func (r *Event) SetDurationField(field string, value time.Duration) {
-	switch field {
-	case "RequestTook":
-		r.RequestTook = value
-	}
-}
-
-func (r *Event) SetAnyFieldBytes(field string, value []byte, timeUnit byte) {
-	r.SetAnyField(field, BytesToString(value), timeUnit)
-}
+func (r *Event) SetBoolField(field string, value bool) {}

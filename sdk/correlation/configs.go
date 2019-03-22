@@ -64,5 +64,5 @@ type ActionConfig struct {
 //	Name      string            `yaml:"name,omitempty"`
 //	KeyFields []string          `yaml:"keyFields,omitempty"`
 //	Op        string            `yaml:"op,omitempty"`
-//	Values    map[string]string `yaml:"values,omitempty"`
+//	Record    map[string]string `yaml:"values,omitempty"`
 //}

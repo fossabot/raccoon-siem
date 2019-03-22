@@ -1,7 +1,5 @@
 package normalization
 
-import "time"
-
 func (r *Event) GetAnyField(field string) interface{} {
 	switch field {
 	case "Incident":
@@ -97,6 +95,12 @@ func (r *Event) GetIntField(field string) int64 {
 		return r.RequestBytesOut
 	case "RequestResults":
 		return r.RequestResults
+	case "Timestamp":
+		return r.Timestamp
+	case "OriginTimestamp":
+		return r.OriginTimestamp
+	case "RequestTook":
+		return r.RequestTook
 	default:
 		return 0
 	}
@@ -114,25 +118,5 @@ func (r *Event) GetBoolField(field string) bool {
 		return r.Correlated
 	default:
 		return false
-	}
-}
-
-func (r *Event) GetDurationField(field string) time.Duration {
-	switch field {
-	case "RequestTook":
-		return r.RequestTook
-	default:
-		return 0
-	}
-}
-
-func (r *Event) GetTimeField(field string) time.Time {
-	switch field {
-	case "Timestamp":
-		return r.Timestamp
-	case "OriginTimestamp":
-		return r.OriginTimestamp
-	default:
-		return time.Unix(0, 0)
 	}
 }

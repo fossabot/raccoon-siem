@@ -148,7 +148,7 @@ func run(_ *cobra.Command, _ []string) error {
 	//	CorrelationChannel:      correlationChannel,
 	//	CorrelationChainChannel: correlationChainChannel,
 	//	Workers:                 runtime.NumCPU(),
-	//	Parsers:                 registeredParsers,
+	//	Normalizers:                 registeredParsers,
 	//	CorrelationRules:        registeredCorrelationRules,
 	//	Connectors:              registeredConnectors,
 	//	Destinations:            registeredDestinations,

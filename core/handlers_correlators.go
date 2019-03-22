@@ -39,7 +39,7 @@ func CorrelatorPUT(ctx *gin.Context) {
 		return
 	}
 
-	s := new(sdk.CorrelatorSettings)
+	s := new(sdk.CorrelatorConfig)
 	id, err := unmarshalAndGetID(s, body)
 
 	if err != nil {
