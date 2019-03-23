@@ -8,7 +8,7 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk/dictionaries"
 	"github.com/tephrocactus/raccoon-siem/sdk/enrichment"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
-	"github.com/tephrocactus/raccoon-siem/sdk/normalizers"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers"
 )
 
 type Config struct {

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
-	"github.com/tephrocactus/raccoon-siem/sdk/normalizers/parsers/kv"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers/parsers/kv"
 )
 
 type kvNormalizer struct {

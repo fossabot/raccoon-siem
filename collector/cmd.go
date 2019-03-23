@@ -11,7 +11,7 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/globals"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
-	"github.com/tephrocactus/raccoon-siem/sdk/normalizers"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers"
 	"runtime"
 )
 

@@ -3,7 +3,7 @@ package normalizers
 import (
 	"fmt"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
-	parser "github.com/tephrocactus/raccoon-siem/sdk/normalizers/parsers/regexp"
+	parser "github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers/parsers/regexp"
 	"regexp"
 )
 

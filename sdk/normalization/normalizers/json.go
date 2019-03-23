@@ -2,7 +2,7 @@ package normalizers
 
 import (
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
-	"github.com/tephrocactus/raccoon-siem/sdk/normalizers/parsers/json"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers/parsers/json"
 )
 
 type jsonNormalizer struct {

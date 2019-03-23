@@ -2,7 +2,7 @@ package normalizers
 
 import (
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
-	"github.com/tephrocactus/raccoon-siem/sdk/normalizers/parsers/cef"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers/parsers/cef"
 )
 
 type cefNormalizer struct {

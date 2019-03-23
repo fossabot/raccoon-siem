@@ -8,7 +8,7 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
-	"github.com/tephrocactus/raccoon-siem/sdk/normalizers"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers"
 	"time"
 )
 

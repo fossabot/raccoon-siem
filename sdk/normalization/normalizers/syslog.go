@@ -2,8 +2,8 @@ package normalizers
 
 import (
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
-	"github.com/tephrocactus/raccoon-siem/sdk/normalizers/parsers/syslog/rfc3164"
-	"github.com/tephrocactus/raccoon-siem/sdk/normalizers/parsers/syslog/rfc5424"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers/parsers/syslog/rfc3164"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers/parsers/syslog/rfc5424"
 )
 
 type syslogNormalizer struct {
