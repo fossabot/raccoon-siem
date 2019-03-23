@@ -127,3 +127,11 @@ func StringToSingleByte(s string) (byte, error) {
 	}
 	return bs[0], nil
 }
+
+func MakeKey(keyFields []string, event *normalization.Event) string {
+	key := strings.Builder{}
+	for _, field := range keyFields {
+		key.WriteString(normalization.ToString(event.GetAnyField(field)))
+	}
+	return key.String()
+}

@@ -39,7 +39,6 @@ mainLoop:
 
 		event := r.normalizer.Normalize(input.Data, nil)
 		if event == nil {
-			r.metrics.normalizationFailed()
 			r.metrics.eventProcessed()
 			continue
 		}

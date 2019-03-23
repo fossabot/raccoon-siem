@@ -2,6 +2,7 @@ package filters
 
 import (
 	"github.com/tephrocactus/raccoon-siem/sdk/globals"
+	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
@@ -51,7 +52,7 @@ func (r *Filter) conditionMatch(event *normalization.Event, cond ConditionConfig
 	case ValueSourceKindEvent:
 		return r.compareValues(lv, event.GetAnyField(cond.CMPSourceField), cond.Op)
 	case ValueSourceKindDict:
-		key := event.GetAnyField(cond.KeyFields[0])
+		key := helpers.MakeKey(cond.KeyFields, event)
 		rv := globals.Dictionaries.Get(cond.CMPSourceName, key)
 		return r.compareValues(lv, rv, cond.Op)
 	case ValueSourceKindAL:

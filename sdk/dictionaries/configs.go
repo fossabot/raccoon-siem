@@ -1,6 +1,6 @@
 package dictionaries
 
-type Dict map[interface{}]interface{}
+type Dict map[string]interface{}
 
 type Config struct {
 	Name string `yaml:"name"`

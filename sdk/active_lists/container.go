@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/nats-io/go-nats"
 	"github.com/olivere/elastic"
+	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"gopkg.in/vmihailenco/msgpack.v4"
 	"runtime"
@@ -21,7 +22,7 @@ type Container struct {
 }
 
 func (r *Container) Get(listName, field string, keyFields []string, event *normalization.Event) interface{} {
-	key := makeKey(keyFields, event)
+	key := helpers.MakeKey(keyFields, event)
 	list := r.lists[listName]
 	if list != nil {
 		return list.get(key, field)
@@ -30,7 +31,7 @@ func (r *Container) Get(listName, field string, keyFields []string, event *norma
 }
 
 func (r *Container) Set(listName string, keyFields []string, mapping []Mapping, event *normalization.Event) {
-	key := makeKey(keyFields, event)
+	key := helpers.MakeKey(keyFields, event)
 	list := r.lists[listName]
 	if list != nil {
 		list.set(key, mapping, event)
@@ -38,7 +39,7 @@ func (r *Container) Set(listName string, keyFields []string, mapping []Mapping, 
 }
 
 func (r *Container) Del(listName string, keyFields []string, event *normalization.Event) {
-	key := makeKey(keyFields, event)
+	key := helpers.MakeKey(keyFields, event)
 	list := r.lists[listName]
 	if list != nil {
 		list.del(key)

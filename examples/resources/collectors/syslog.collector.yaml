@@ -77,10 +77,10 @@ rules:
 destinations:
   #- name: console
   #  kind: console
-  #- name: correlators
-  #  kind: nats
-  #  url: nats://localhost:4222
-  #  subject: raccoon-correlation
+  - name: correlators
+    kind: nats
+    url: nats://localhost:4222
+    subject: raccoon-correlation
   #- name: storage
   #  kind: elastic
   #  url: http://localhost:9200

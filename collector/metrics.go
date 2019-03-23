@@ -10,14 +10,13 @@ import (
 )
 
 type metrics struct {
-	eventsReceived     prometheus.Counter
-	eventsFiltered     *prometheus.CounterVec
-	eventsAggregated   *prometheus.CounterVec
-	eventsSent         *prometheus.CounterVec
-	eventsProcessed    prometheus.Counter
-	normalizationFails prometheus.Counter
-	processingLatency  prometheus.Histogram
-	port               string
+	eventsReceived    prometheus.Counter
+	eventsFiltered    *prometheus.CounterVec
+	eventsAggregated  *prometheus.CounterVec
+	eventsSent        *prometheus.CounterVec
+	eventsProcessed   prometheus.Counter
+	processingLatency prometheus.Histogram
+	port              string
 }
 
 func (r *metrics) eventReceived() {
@@ -38,10 +37,6 @@ func (r *metrics) eventAggregated(rule string) {
 
 func (r *metrics) eventProcessed() {
 	r.eventsProcessed.Inc()
-}
-
-func (r *metrics) normalizationFailed() {
-	r.normalizationFails.Inc()
 }
 
 func (r *metrics) processingTook(took time.Duration) {
@@ -81,12 +76,6 @@ func newMetrics(port string) *metrics {
 				Subsystem: sdk.MetricsSubsystemCollector,
 				Name:      "eventsSent",
 			}, []string{"destination"}),
-		normalizationFails: prometheus.NewCounter(
-			prometheus.CounterOpts{
-				Namespace: sdk.MetricsNamespace,
-				Subsystem: sdk.MetricsSubsystemCollector,
-				Name:      "normalizationFails",
-			}),
 		processingLatency: prometheus.NewHistogram(
 			prometheus.HistogramOpts{
 				Namespace: sdk.MetricsNamespace,
@@ -102,7 +91,6 @@ func newMetrics(port string) *metrics {
 		m.eventsFiltered,
 		m.eventsAggregated,
 		m.eventsSent,
-		m.normalizationFails,
 		m.processingLatency)
 
 	go func() {

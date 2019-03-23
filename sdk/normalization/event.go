@@ -21,6 +21,13 @@ const (
 )
 
 const (
+	SeverityInfo = iota
+	SeverityWarn
+	SeverityError
+	SeverityCritical
+)
+
+const (
 	DefaultEventFieldsHash = "_"
 )
 

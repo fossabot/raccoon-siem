@@ -2,6 +2,7 @@ package enrichment
 
 import (
 	"github.com/tephrocactus/raccoon-siem/sdk/globals"
+	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
@@ -23,9 +24,9 @@ func Enrich(cfg Config, targetEvent *normalization.Event, sourceEvents ...*norma
 }
 
 func fromDict(cfg Config, targetEvent *normalization.Event) {
-	srcValue := targetEvent.GetAnyField(cfg.KeyFields[0])
-	value := globals.Dictionaries.Get(cfg.ValueSourceName, srcValue)
-	setValue(cfg.Field, value, targetEvent)
+	key := helpers.MakeKey(cfg.KeyFields, targetEvent)
+	dictValue := globals.Dictionaries.Get(cfg.ValueSourceName, key)
+	setValue(cfg.Field, dictValue, targetEvent)
 }
 
 func fromEvent(cfg Config, targetEvent *normalization.Event, sourceEvents []*normalization.Event) {
@@ -54,6 +55,8 @@ func setValue(field string, value interface{}, targetEvent *normalization.Event)
 	switch value.(type) {
 	case string:
 		targetEvent.SetAnyField(field, value.(string))
+	case int:
+		targetEvent.SetIntField(field, int64(value.(int)))
 	case int64:
 		targetEvent.SetIntField(field, value.(int64))
 	case float64:
