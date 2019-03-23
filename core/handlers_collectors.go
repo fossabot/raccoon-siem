@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/gin-gonic/gin"
-	"github.com/tephrocactus/raccoon-siem/sdk"
 )
 
 func Collectors(ctx *gin.Context) {
@@ -32,24 +31,24 @@ func CollectorGET(ctx *gin.Context) {
 }
 
 func CollectorPUT(ctx *gin.Context) {
-	body, err := ctx.GetRawData()
-
-	if err != nil {
-		reply(ctx, err)
-		return
-	}
-
-	s := new(sdk.CollectorConfig)
-	id, err := unmarshalAndGetID(s, body)
-
-	if err != nil {
-		reply(ctx, err)
-		return
-	}
-
-	reply(ctx, DBConn.h.Update(func(tx *bolt.Tx) error {
-		return tx.Bucket(dbBucketCollector).Put([]byte(id), body)
-	}))
+	//body, err := ctx.GetRawData()
+	//
+	//if err != nil {
+	//	reply(ctx, err)
+	//	return
+	//}
+	//
+	//s := new(sdk.CollectorConfig)
+	//id, err := unmarshalAndGetID(s, body)
+	//
+	//if err != nil {
+	//	reply(ctx, err)
+	//	return
+	//}
+	//
+	//reply(ctx, DBConn.h.Update(func(tx *bolt.Tx) error {
+	//	return tx.Bucket(dbBucketCollector).Put([]byte(id), body)
+	//}))
 }
 
 func CollectorDELETE(ctx *gin.Context) {

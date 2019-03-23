@@ -9,58 +9,77 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalizers"
-	"runtime"
+	"time"
 )
 
 type Processor struct {
-	InputChannel     connectors.OutputChannel
-	Normalizer       normalizers.INormalizer
-	DropFilters      []*filters.Filter
-	EnrichConfigs    []enrichment.Config
-	AggregationRules []aggregation.Rule
-	Destinations     []destinations.IDestination
+	hostname         string
+	ipAddress        string
+	metrics          *metrics
+	inputChannel     connectors.OutputChannel
+	normalizer       normalizers.INormalizer
+	dropFilters      []*filters.Filter
+	enrichment       []enrichment.Config
+	aggregationRules []*aggregation.Rule
+	destinations     []destinations.IDestination
+	workers          int
 }
 
 func (r *Processor) Start() {
-	for i := 0; i < runtime.NumCPU(); i++ {
+	for i := 0; i < r.workers; i++ {
 		go r.worker()
 	}
 }
 
 func (r *Processor) worker() {
 mainLoop:
-	for input := range r.InputChannel {
-		event := r.Normalizer.Normalize(input.Data, nil)
+	for input := range r.inputChannel {
+		processingBegan := time.Now()
+		r.metrics.eventReceived()
+
+		event := r.normalizer.Normalize(input.Data, nil)
 		if event == nil {
+			r.metrics.normalizationFailed()
+			r.metrics.eventProcessed()
 			continue
 		}
 
-		for _, dropFilter := range r.DropFilters {
+		for _, dropFilter := range r.dropFilters {
 			if dropFilter.Pass(event) {
+				r.metrics.eventFiltered(dropFilter.ID())
+				r.metrics.eventProcessed()
 				continue mainLoop
 			}
 		}
 
-		for _, config := range r.EnrichConfigs {
+		for _, config := range r.enrichment {
 			enrichment.Enrich(config, event)
 		}
 
 		event.Timestamp = helpers.NowUnixMillis()
 		event.ID = helpers.GetUUID()
 		event.SourceID = input.Connector
+		event.CollectorDNSName = r.hostname
+		event.CollectorIPAddress = r.ipAddress
 
-		for _, rule := range r.AggregationRules {
+		for _, rule := range r.aggregationRules {
 			if rule.Feed(event) {
+				r.metrics.eventAggregated(rule.ID())
+				r.metrics.eventProcessed()
+				r.metrics.processingTook(time.Since(processingBegan))
 				continue mainLoop
 			}
 		}
 
 		r.output(event)
+		r.metrics.eventProcessed()
+		r.metrics.processingTook(time.Since(processingBegan))
 	}
 }
 
 func (r *Processor) output(event *normalization.Event) {
-	for _, dst := range r.Destinations {
+	for _, dst := range r.destinations {
 		dst.Send(event)
+		r.metrics.eventSent(dst.ID())
 	}
 }

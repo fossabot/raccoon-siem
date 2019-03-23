@@ -16,7 +16,7 @@ func (r *jsonNormalizer) ID() string {
 
 func (r *jsonNormalizer) Normalize(data []byte, event *normalization.Event) *normalization.Event {
 	parsingResult, ok := json.Parse(data)
-	if !ok {
+	if !ok || len(parsingResult) == 0 {
 		return event
 	}
 	return normalize(parsingResult, r.mapping, event)

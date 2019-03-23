@@ -11,6 +11,8 @@ func (r *Event) SetAnyField(field string, value string) {
 	switch field {
 	case "Incident":
 		r.Incident = StringToBool(value)
+	case "Severity":
+		r.Severity = StringToInt(value)
 	case "Message":
 		r.Message = value
 	case "Details":
@@ -92,6 +94,8 @@ func (r *Event) SetAnyFieldBytes(field string, value []byte) {
 
 func (r *Event) SetIntField(field string, value int64) {
 	switch field {
+	case "Severity":
+		r.Severity = value
 	case "RequestBytesIn":
 		r.RequestBytesIn = value
 	case "RequestBytesOut":

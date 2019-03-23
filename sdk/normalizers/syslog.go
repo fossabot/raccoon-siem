@@ -17,9 +17,9 @@ func (r *syslogNormalizer) ID() string {
 
 func (r *syslogNormalizer) Normalize(data []byte, event *normalization.Event) *normalization.Event {
 	parsingResult, ok := rfc5424.Parse(data)
-	if !ok {
+	if !ok || len(parsingResult) == 0 {
 		parsingResult, ok = rfc3164.Parse(data)
-		if !ok {
+		if !ok || len(parsingResult) == 0 {
 			return event
 		}
 	}

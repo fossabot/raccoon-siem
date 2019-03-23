@@ -21,8 +21,8 @@ func normalize(
 	for _, m := range mapping {
 		for _, ext := range m.Extra {
 			if ext.TriggerField == "" || (ext.TriggerField != "" &&
-				bytes.Equal(parsingResult[ext.TriggerField], ext.TriggerValue)) {
-				ext.Normalizer.Normalize(parsingResult[m.SourceField], event)
+				bytes.Equal(parsingResult[ext.TriggerField], ext.triggerValue)) {
+				ext.normalizer.Normalize(parsingResult[m.SourceField], event)
 				break
 			}
 		}

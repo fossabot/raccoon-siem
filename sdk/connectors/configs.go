@@ -7,7 +7,7 @@ type Config struct {
 	Protocol   string `yaml:"protocol"`
 	Subject    string `yaml:"subject"`
 	Queue      string `yaml:"queue"`
-	Delimiter  byte   `yaml:"delimiter"`
+	Delimiter  string `yaml:"delimiter"`
 	BufferSize int    `yaml:"buffer_size"`
 	MaxLen     int    `yaml:"max_len"`
 }

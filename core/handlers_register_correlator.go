@@ -28,7 +28,7 @@ func CorrelatorRegister(ctx *gin.Context) {
 	//		return err
 	//	}
 	//
-	//	pack.Destinations, err = readDestinationsByIDs(correlatorSettings.Destinations, tx)
+	//	pack.destinations, err = readDestinationsByIDs(correlatorSettings.destinations, tx)
 	//
 	//	if err != nil {
 	//		return err

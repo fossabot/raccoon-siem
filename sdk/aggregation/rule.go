@@ -64,12 +64,6 @@ func (r *Rule) Stop() {
 	r.mu.Unlock()
 }
 
-func (r *Rule) Reset() {
-	r.mu.Lock()
-	r.buckets = make(map[string]*bucket)
-	r.mu.Unlock()
-}
-
 func (r *Rule) Feed(event *normalization.Event) bool {
 	if event.AggregationRuleName == r.name {
 		return false

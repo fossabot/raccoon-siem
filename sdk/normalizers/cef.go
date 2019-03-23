@@ -16,7 +16,7 @@ func (r *cefNormalizer) ID() string {
 
 func (r *cefNormalizer) Normalize(data []byte, event *normalization.Event) *normalization.Event {
 	parsingResult, ok := cef.Parse(data)
-	if !ok {
+	if !ok || len(parsingResult) == 0 {
 		return event
 	}
 	return normalize(parsingResult, r.mapping, event)

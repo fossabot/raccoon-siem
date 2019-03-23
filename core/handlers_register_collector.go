@@ -34,13 +34,13 @@ func CollectorRegister(ctx *gin.Context) {
 	//		return err
 	//	}
 	//
-	//	pack.Destinations, err = readDestinationsByIDs(collectorSettings.Destinations, tx)
+	//	pack.destinations, err = readDestinationsByIDs(collectorSettings.destinations, tx)
 	//
 	//	if err != nil {
 	//		return err
 	//	}
 	//
-	//	pack.AggregationRules, err = readAggregationRulesByIDs(collectorSettings.AggregationRules, tx)
+	//	pack.aggregationRukes, err = readAggregationRulesByIDs(collectorSettings.aggregationRukes, tx)
 	//
 	//	if err != nil {
 	//		return err
@@ -48,7 +48,7 @@ func CollectorRegister(ctx *gin.Context) {
 	//
 	//	aggregationFiltersIDs := make([]string, 0)
 	//
-	//	for _, rule := range pack.AggregationRules {
+	//	for _, rule := range pack.aggregationRukes {
 	//		for _, evt := range rule.Events {
 	//			aggregationFiltersIDs = append(aggregationFiltersIDs, evt.Filter)
 	//		}

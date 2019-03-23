@@ -116,7 +116,7 @@ func run(_ *cobra.Command, _ []string) error {
 	//
 	//// Register destinations
 	//allDestinationSettings := sdk.GetDefaultDestinationSettings(storageURL, busURL, debugMode)
-	//allDestinationSettings = append(allDestinationSettings, pack.Destinations...)
+	//allDestinationSettings = append(allDestinationSettings, pack.destinations...)
 	//registeredDestinations, err := sdk.RegisterDestinations(allDestinationSettings)
 	//sdk.PanicOnError(err)
 	//
@@ -151,7 +151,7 @@ func run(_ *cobra.Command, _ []string) error {
 	//	Normalizers:                 registeredParsers,
 	//	CorrelationRules:        registeredCorrelationRules,
 	//	Connectors:              registeredConnectors,
-	//	Destinations:            registeredDestinations,
+	//	destinations:            registeredDestinations,
 	//	Debug:                   debugMode,
 	//}
 	//

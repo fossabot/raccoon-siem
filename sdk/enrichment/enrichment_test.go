@@ -1,7 +1,7 @@
 package enrichment
 
 import (
-	"github.com/tephrocactus/raccoon-siem/sdk/dictionary"
+	"github.com/tephrocactus/raccoon-siem/sdk/dictionaries"
 	"github.com/tephrocactus/raccoon-siem/sdk/globals"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"gotest.tools/assert"
@@ -80,20 +80,23 @@ func BenchmarkEnrich(b *testing.B) {
 }
 
 func fillDictionaryStorage() {
-	dictionariesData := make(map[string]map[interface{}]interface{})
+	raccoonDict := dictionaries.Config{
+		Name: raccoon,
+		Data: map[interface{}]interface{}{
+			"ERROR": "error",
+			"DEBUG": "debug",
+			"INFO":  "info",
+		},
+	}
 
-	raccoonDict := make(map[interface{}]interface{})
-	raccoonDict["ERROR"] = "error"
-	raccoonDict["DEBUG"] = "debug"
-	raccoonDict["INFO"] = "info"
+	weirdDict := dictionaries.Config{
+		Name: weird,
+		Data: map[interface{}]interface{}{
+			"1": "error",
+			"2": "debug",
+			"3": "info",
+		},
+	}
 
-	weirdDict := make(map[interface{}]interface{})
-	weirdDict["1"] = "error"
-	weirdDict["2"] = "debug"
-	weirdDict["3"] = "info"
-
-	dictionariesData[raccoon] = raccoonDict
-	dictionariesData[weird] = weirdDict
-
-	globals.Dictionaries = dictionary.NewDictionaryStorage(dictionary.Config{Data: dictionariesData})
+	globals.Dictionaries = dictionaries.NewStorage([]dictionaries.Config{raccoonDict, weirdDict})
 }

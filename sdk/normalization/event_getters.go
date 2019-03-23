@@ -10,6 +10,8 @@ func (r *Event) GetAnyField(field string) interface{} {
 		return r.CorrelationRuleName
 	case "Timestamp":
 		return r.Timestamp
+	case "Severity":
+		return r.Severity
 	case "Message":
 		return r.Message
 	case "Details":
@@ -89,6 +91,8 @@ func (r *Event) GetAnyField(field string) interface{} {
 
 func (r *Event) GetIntField(field string) int64 {
 	switch field {
+	case "Severity":
+		return r.Severity
 	case "RequestBytesIn":
 		return r.RequestBytesIn
 	case "RequestBytesOut":

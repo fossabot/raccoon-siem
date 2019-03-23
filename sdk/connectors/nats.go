@@ -17,7 +17,7 @@ func (r *natsConnector) ID() string {
 	return r.name
 }
 
-func (r *natsConnector) Run() error {
+func (r *natsConnector) Start() error {
 	conn, err := nats.Connect(r.url)
 	if err != nil {
 		return err

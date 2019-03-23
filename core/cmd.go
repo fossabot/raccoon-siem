@@ -42,7 +42,7 @@ func run(_ *cobra.Command, _ []string) error {
 	// Register http endpoints
 	router := gin.Default()
 
-	// Normalizer
+	// normalizer
 	router.GET("/parser", Normalizers)
 	router.GET("/parser/:id", NormalizerGET)
 	router.PUT("/parser", NormalizerPUT)
@@ -90,7 +90,7 @@ func run(_ *cobra.Command, _ []string) error {
 	router.PUT("/connector", ConnectorPUT)
 	router.DELETE("/connector/:id", ConnectorDELETE)
 
-	// Destinations
+	// destinations
 	router.GET("/destination", Destinations)
 	router.GET("/destination/:id", DestinationGET)
 	router.PUT("/destination", DestinationPUT)

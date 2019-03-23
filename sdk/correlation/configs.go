@@ -23,7 +23,7 @@ const (
 )
 
 const (
-	BusSubject = "raccoon_correlation"
+	BusSubject = "raccoon-correlation"
 )
 
 type OutputFn func(event *normalization.Event)

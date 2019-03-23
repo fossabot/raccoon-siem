@@ -59,31 +59,36 @@ func CopyFields(dst *normalization.Event, src *normalization.Event, fields []str
 	}
 }
 
-func CoreQuery(url string, dst interface{}) error {
-	resp, err := http.Get(url)
+func ReadConfigFromCore(baseURL string, component string, id string, dst interface{}) error {
+	resp, err := http.Get(fmt.Sprintf("%s/%s/%s", baseURL, component, id))
 	if err != nil {
 		return err
 	}
 
 	defer resp.Body.Close()
 
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("core replied with %s", resp.Status)
+	}
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
 
-	if err := yaml.Unmarshal(body, dst); err != nil {
-		if len(body) > 0 {
-			return fmt.Errorf("%s", string(body))
-		}
+	return yaml.Unmarshal(body, dst)
+}
+
+func ReadConfigFromFile(path string, dstPointer interface{}) error {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
 		return err
 	}
-
-	return nil
+	return yaml.Unmarshal(data, dstPointer)
 }
 
 func NowUnixMillis() int64 {
-	return time.Now().UnixNano() / 1000
+	return time.Now().UnixNano() / 1000 / 1000
 }
 
 func GetHostName() string {
@@ -113,4 +118,12 @@ func GetIPAddress() string {
 
 func GetUUID() string {
 	return uuid.NewV4().String()
+}
+
+func StringToSingleByte(s string) (byte, error) {
+	bs := []byte(s)
+	if len(bs) != 1 {
+		return 0, fmt.Errorf("expected single byte ASCII character, got: %s", s)
+	}
+	return bs[0], nil
 }

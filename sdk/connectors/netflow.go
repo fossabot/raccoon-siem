@@ -20,7 +20,7 @@ func (r *netflowConnector) ID() string {
 	return r.name
 }
 
-func (r *netflowConnector) Run() (err error) {
+func (r *netflowConnector) Start() (err error) {
 	addr, err := net.ResolveUDPAddr("udp", r.url)
 	if err != nil {
 		return
@@ -44,7 +44,6 @@ func (r *netflowConnector) handleData(conn *net.UDPConn) {
 	buf := make([]byte, bufSize)
 	for {
 		length, remote, err := conn.ReadFrom(buf)
-
 		if err != nil {
 			continue
 		}
@@ -59,7 +58,6 @@ func (r *netflowConnector) handleData(conn *net.UDPConn) {
 
 func (r *netflowConnector) process(input []byte, remote string) error {
 	pkt, err := nf9packet.Decode(input)
-
 	if err != nil {
 		return err
 	}
@@ -72,7 +70,6 @@ func (r *netflowConnector) process(input []byte, remote string) error {
 	for _, set := range pkt.DataFlowSets() {
 		templateKey := fmt.Sprintf("%s|%b|%v", remote, pkt.SourceId, set.Id)
 		template, ok := r.templateCache[templateKey]
-
 		if !ok {
 			continue
 		}

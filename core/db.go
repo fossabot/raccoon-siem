@@ -2,9 +2,7 @@ package core
 
 import (
 	"github.com/boltdb/bolt"
-	"github.com/tephrocactus/raccoon-siem/sdk"
 	"gopkg.in/yaml.v2"
-	"time"
 )
 
 var (
@@ -30,13 +28,13 @@ var bucketNames = [][]byte{
 func NewDB(path string) *DB {
 	db := new(DB)
 
-	descriptor, err := bolt.Open(path, 0600, &bolt.Options{Timeout: 5 * time.Second})
-	sdk.PanicOnError(err)
-
-	db.h = descriptor
-
-	err = db.createBuckets()
-	sdk.PanicOnError(err)
+	//descriptor, err := bolt.Open(path, 0600, &bolt.Options{Timeout: 5 * time.Second})
+	//sdk.PanicOnError(err)
+	//
+	//db.h = descriptor
+	//
+	//err = db.createBuckets()
+	//sdk.PanicOnError(err)
 
 	return db
 }

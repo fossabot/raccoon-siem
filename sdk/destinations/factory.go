@@ -7,7 +7,7 @@ import (
 
 type IDestination interface {
 	ID() string
-	Run() error
+	Start() error
 	Send(event *normalization.Event)
 }
 
@@ -16,9 +16,9 @@ func New(cfg Config) (IDestination, error) {
 	case DestinationConsole:
 		return newConsoleDestination(cfg)
 	case DestinationNATS:
-		return newNATSDestination(cfg)
+		return newNATS(cfg)
 	case DestinationElastic:
-		return newElasticDestination(cfg)
+		return newElastic(cfg)
 	default:
 		return nil, fmt.Errorf("unknown destination kind: %s", cfg.Kind)
 	}

@@ -21,7 +21,7 @@ func (r *listenerConnector) ID() string {
 	return r.name
 }
 
-func (r *listenerConnector) Run() error {
+func (r *listenerConnector) Start() error {
 	listener, err := net.Listen(r.protocol, r.url)
 	if err != nil {
 		return err
@@ -63,14 +63,27 @@ func (r *listenerConnector) framer(data []byte, atEOF bool) (advance int, token 
 	}
 	if i := bytes.IndexByte(data, r.delimiter); i >= 0 {
 		// We have a full newline-terminated line.
+		if r.delimiter == '\n' {
+			return i + 1, dropCR(data[0:i]), nil
+		}
 		return i + 1, data[0:i], nil
 	}
 	// If we're at EOF, we have a final, non-terminated line. Return it.
 	if atEOF {
+		if r.delimiter == '\n' {
+			return len(data), dropCR(data), nil
+		}
 		return len(data), data, nil
 	}
 	// Request more data.
 	return 0, nil, nil
+}
+
+func dropCR(data []byte) []byte {
+	if len(data) > 0 && data[len(data)-1] == '\r' {
+		return data[0 : len(data)-1]
+	}
+	return data
 }
 
 func newListenerConnector(cfg Config, channel OutputChannel) (*listenerConnector, error) {
@@ -80,11 +93,20 @@ func newListenerConnector(cfg Config, channel OutputChannel) (*listenerConnector
 		return nil, fmt.Errorf("unknown protocol: %s", cfg.Protocol)
 	}
 
+	delimiter := byte('\n')
+	if cfg.Delimiter != "" {
+		d, err := helpers.StringToSingleByte(cfg.Delimiter)
+		if err != nil {
+			return nil, err
+		}
+		delimiter = d
+	}
+
 	return &listenerConnector{
 		name:       cfg.Name,
 		url:        cfg.URL,
 		protocol:   cfg.Protocol,
-		delimiter:  cfg.Delimiter,
+		delimiter:  delimiter,
 		bufferSize: cfg.BufferSize,
 		channel:    channel,
 	}, nil

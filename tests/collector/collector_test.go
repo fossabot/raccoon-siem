@@ -98,10 +98,10 @@ func startCollector() (connectors.OutputChannel, chan normalization.Event) {
 	inChannel := make(connectors.OutputChannel)
 	outChannel := make(chan normalization.Event)
 	processor := collector.Processor{
-		InputChannel:  inChannel,
+		inputChannel:  inChannel,
 		OutputChannel: outChannel,
-		Normalizer:    mainNormalizer,
-		DropFilters:   []*filters.Filter{dropFilter},
+		normalizer:    mainNormalizer,
+		dropFilters:   []*filters.Filter{dropFilter},
 	}
 
 	if err := processor.Start(); err != nil {

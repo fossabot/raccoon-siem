@@ -1,10 +1,10 @@
 package enrichment
 
 const (
-	ValueSourceKindConst = "const"
-	ValueSourceKindDict  = "dict"
+	ValueSourceKindConst = "constant"
+	ValueSourceKindDict  = "dictionary"
 	ValueSourceKindEvent = "event"
-	ValueSourceKindAL    = "al"
+	ValueSourceKindAL    = "activeList"
 )
 
 type Config struct {

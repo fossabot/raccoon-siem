@@ -13,9 +13,9 @@ type Config struct {
 	Filter          filters.Config `yaml:"filter,omitempty"`
 	Threshold       int            `yaml:"threshold,omitempty"`
 	Window          time.Duration  `yaml:"window,omitempty"`
-	IdenticalFields []string       `yaml:"identical_fields,omitempty"`
-	UniqueFields    []string       `yaml:"unique_fields,omitempty"`
-	SumFields       []string       `yaml:"sum_fields,omitempty"`
+	IdenticalFields []string       `yaml:"identicalFields,omitempty"`
+	UniqueFields    []string       `yaml:"uniqueFields,omitempty"`
+	SumFields       []string       `yaml:"sumFields,omitempty"`
 	Recovery        bool           `yaml:"recovery,omitempty"`
 }
 

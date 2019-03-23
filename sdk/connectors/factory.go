@@ -12,7 +12,7 @@ const (
 
 type IConnector interface {
 	ID() string
-	Run() error
+	Start() error
 }
 
 type Output struct {

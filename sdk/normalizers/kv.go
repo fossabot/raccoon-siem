@@ -2,6 +2,7 @@ package normalizers
 
 import (
 	"errors"
+	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalizers/parsers/kv"
 )
@@ -19,19 +20,21 @@ func (r *kvNormalizer) ID() string {
 
 func (r *kvNormalizer) Normalize(data []byte, event *normalization.Event) *normalization.Event {
 	parsingResult, ok := kv.Parse(data, r.pairDelimiter, r.kvDelimiter)
-	if !ok {
+	if !ok || len(parsingResult) == 0 {
 		return event
 	}
 	return normalize(parsingResult, r.mapping, event)
 }
 
 func newKVNormalizer(cfg Config) (*kvNormalizer, error) {
-	if cfg.PairDelimiter == 0 {
-		return nil, errors.New("pair separators cannot be empty")
+	pairDelimiter, err := helpers.StringToSingleByte(cfg.PairDelimiter)
+	if err != nil {
+		return nil, err
 	}
 
-	if cfg.KVDelimiter == 0 {
-		return nil, errors.New("kv separators cannot be empty")
+	kvDelimiter, err := helpers.StringToSingleByte(cfg.KVDelimiter)
+	if err != nil {
+		return nil, err
 	}
 
 	if cfg.PairDelimiter == cfg.KVDelimiter {
@@ -40,7 +43,7 @@ func newKVNormalizer(cfg Config) (*kvNormalizer, error) {
 
 	return &kvNormalizer{
 		name:          cfg.Name,
-		pairDelimiter: cfg.PairDelimiter,
-		kvDelimiter:   cfg.KVDelimiter,
+		pairDelimiter: pairDelimiter,
+		kvDelimiter:   kvDelimiter,
 	}, nil
 }

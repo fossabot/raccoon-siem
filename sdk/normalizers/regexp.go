@@ -19,7 +19,7 @@ func (r *regexpNormalizer) ID() string {
 
 func (r *regexpNormalizer) Normalize(data []byte, event *normalization.Event) *normalization.Event {
 	parsingResult, ok := parser.Parse(data, r.expressions)
-	if !ok {
+	if !ok || len(parsingResult) == 0 {
 		return event
 	}
 	return normalize(parsingResult, r.mapping, event)

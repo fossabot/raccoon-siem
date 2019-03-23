@@ -1,7 +1,7 @@
 package dictionary
 
 import (
-	"github.com/tephrocactus/raccoon-siem/sdk/dictionary"
+	"github.com/tephrocactus/raccoon-siem/sdk/dictionaries"
 	"gotest.tools/assert"
 	"testing"
 )
@@ -27,7 +27,7 @@ func TestDictionary(t *testing.T) {
 	dictionariesData[raccoon] = raccoonDict
 	dictionariesData[weird] = weirdDict
 
-	dictionaries := dictionary.NewDictionaryStorage(dictionary.Config{Data: dictionariesData})
+	dictionaries := dictionaries.NewStorage(dictionaries.Config{Data: dictionariesData})
 
 	assert.Equal(t, dictionaries.Get(raccoon, "ERROR"), "error")
 	assert.Equal(t, dictionaries.Get(weird, "2"), "debug")

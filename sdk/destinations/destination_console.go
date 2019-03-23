@@ -19,7 +19,7 @@ func (r *consoleDestination) ID() string {
 	return r.name
 }
 
-func (r *consoleDestination) Run() error {
+func (r *consoleDestination) Start() error {
 	return nil
 }
 
