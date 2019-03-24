@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/satori/go.uuid"
 	"github.com/tephrocactus/raccoon-siem/sdk/actions"
-	"github.com/tephrocactus/raccoon-siem/sdk/enrichment"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
@@ -136,12 +135,12 @@ func (r *baseRule) fireTrigger(kind string, b *bucket) {
 		switch action.Kind {
 		case actions.KindRelease:
 			correlationEvent := r.createCorrelationEvent(b)
-			for _, cfg := range action.Release.EnrichmentConfigs {
-				enrichment.Enrich(cfg, correlationEvent, b.events...)
-			}
+			actions.Release(action.Release, correlationEvent, b.events...)
 			if r.outputFn != nil {
 				r.outputFn(correlationEvent)
 			}
+		case actions.KindActiveList:
+			actions.ActiveList(action.ActiveList, b.events...)
 		}
 	}
 }

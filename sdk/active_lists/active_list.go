@@ -39,6 +39,10 @@ func (r *activeList) set(key string, mapping []Mapping, event *normalization.Eve
 	}
 
 	for _, m := range mapping {
+		if m.Constant != nil {
+			rec.Fields[m.ALField] = m.Constant
+			continue
+		}
 		rec.Fields[m.ALField] = event.GetAnyField(m.EventField)
 	}
 

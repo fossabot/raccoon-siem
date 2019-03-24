@@ -15,6 +15,7 @@ type Config struct {
 }
 
 type Mapping struct {
-	EventField string
-	ALField    string
+	EventField string      `yaml:"eventField"`
+	ALField    string      `yaml:"activeListField"`
+	Constant   interface{} `yaml:"constant"`
 }

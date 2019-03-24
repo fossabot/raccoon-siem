@@ -49,13 +49,13 @@ func (r *Filter) checkSection(event *normalization.Event, section SectionConfig)
 func (r *Filter) conditionMatch(event *normalization.Event, cond ConditionConfig) bool {
 	lv := event.GetAnyField(cond.Field)
 	switch cond.CMPSourceKind {
-	case ValueSourceKindEvent:
+	case CMPSourceKindEvent:
 		return r.compareValues(lv, event.GetAnyField(cond.CMPSourceField), cond.Op)
-	case ValueSourceKindDict:
+	case CMPSourceKindDict:
 		key := helpers.MakeKey(cond.KeyFields, event)
 		rv := globals.Dictionaries.Get(cond.CMPSourceName, key)
 		return r.compareValues(lv, rv, cond.Op)
-	case ValueSourceKindAL:
+	case CMPSourceKindAL:
 		alValue := globals.ActiveLists.Get(cond.CMPSourceName, cond.CMPSourceField, cond.KeyFields, event)
 		return r.compareValues(lv, alValue, cond.Op)
 	default:

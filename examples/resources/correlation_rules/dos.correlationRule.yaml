@@ -22,7 +22,7 @@ identicalFields:
   - DestinationIPAddress
 
 triggers:
-  ft:
+  firstTrigger:
     actions:
       - kind: release
         release:

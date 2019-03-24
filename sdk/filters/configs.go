@@ -1,10 +1,10 @@
 package filters
 
 const (
-	ValueSourceKindEvent = "event"
-	ValueSourceKindConst = "const"
-	ValueSourceKindAL    = "al"
-	ValueSourceKindDict  = "dict"
+	CMPSourceKindEvent   = "event"
+	CMPSourceKindContant = "constant"
+	CMPSourceKindAL      = "activeList"
+	CMPSourceKindDict    = "dictionary"
 )
 
 type Config struct {

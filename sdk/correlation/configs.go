@@ -8,13 +8,13 @@ import (
 )
 
 const (
-	TriggerFirstEvent           = "fe"
-	TriggerSubsequentEvents     = "se"
-	TriggerEveryEvent           = "ee"
-	TriggerFirstThreshold       = "ft"
-	TriggerSubsequentThresholds = "st"
-	TriggerEveryThreshold       = "et"
-	TriggerTimeout              = "to"
+	TriggerFirstEvent           = "firstEvent"
+	TriggerSubsequentEvents     = "subsequentEvents"
+	TriggerEveryEvent           = "everyEvent"
+	TriggerFirstThreshold       = "firstTrigger"
+	TriggerSubsequentThresholds = "subsequentTriggers"
+	TriggerEveryThreshold       = "everyTrigger"
+	TriggerTimeout              = "timeout"
 )
 
 const (
@@ -55,14 +55,7 @@ type TriggerConfig struct {
 }
 
 type ActionConfig struct {
-	Kind    string                `yaml:"kind,omitempty"`
-	Release actions.ReleaseConfig `yaml:"release,omitempty"`
-	//ActiveList []ActiveListActionConfig `yaml:"activeList,omitempty"`
+	Kind       string                   `yaml:"kind,omitempty"`
+	Release    actions.ReleaseConfig    `yaml:"release,omitempty"`
+	ActiveList actions.ActiveListConfig `yaml:"activeList,omitempty"`
 }
-
-//type ActiveListActionConfig struct {
-//	Name      string            `yaml:"name,omitempty"`
-//	KeyFields []string          `yaml:"keyFields,omitempty"`
-//	Op        string            `yaml:"op,omitempty"`
-//	Record    map[string]string `yaml:"values,omitempty"`
-//}

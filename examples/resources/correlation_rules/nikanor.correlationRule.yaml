@@ -32,11 +32,11 @@ identicalFields:
 
 triggers:
   # timeout trigger
-  to:
+  timeout:
     actions:
       - kind: release
         release:
-          mutate:
+          enrichment:
             - targetField: Incident
               constant: "true"
             - targetField: Message

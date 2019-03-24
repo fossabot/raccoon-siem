@@ -1,0 +1,44 @@
+name: example
+rules:
+### Successful brute force ###
+  - name: successful-bruteforce
+    window: 1m
+    selectors:
+      - tag: failed-attempt
+        threshold: 3
+        filter:
+          sections:
+            - conditions:
+                - field: OriginProcessName
+                  op: =
+                  constant: rest
+                - field: RequestMethod
+                  op: =
+                  constant: POST
+                - field: RequestURL
+                  op: =
+                  cmpSourceKind: dictionary
+                  cmpSourceName: sensitiveURLs
+    identicalFields:
+      - SourceIPAddress
+      - DestinationIPAddress
+    triggers:
+      firstTrigger:
+        actions:
+          - kind: release
+            release:
+              mutate:
+                - targetField: Message
+                  constant: DoS attack detected
+
+destinations:
+  #- name: console
+  #  kind: console
+  - name: correlators
+    kind: nats
+    url: nats://localhost:4222
+    subject: raccoon-correlation
+  #- name: storage
+  #  kind: elastic
+  #  url: http://localhost:9200
+  #  index: raccoon-events
