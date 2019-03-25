@@ -1,8 +1,15 @@
 package correlator
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/tephrocactus/raccoon-siem/sdk"
+	"github.com/tephrocactus/raccoon-siem/sdk/active_lists"
+	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
+	"github.com/tephrocactus/raccoon-siem/sdk/correlation"
+	"github.com/tephrocactus/raccoon-siem/sdk/destinations"
+	"github.com/tephrocactus/raccoon-siem/sdk/dictionaries"
+	"github.com/tephrocactus/raccoon-siem/sdk/globals"
+	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"runtime"
 )
 
@@ -13,161 +20,123 @@ var (
 		Args:  cobra.ExactArgs(0),
 		RunE:  run,
 	}
-
-	// String flags variables
-	coreURL, busURL, storageURL, activeListSvcURL, correlatorID, metricsPort string
-
-	// Int flags variables
-	activeListSvcPoolSize int
-
-	// Bool flags variables
-	debugMode bool
+	flags cmdFlags
+	cfg   Config
 )
 
 func init() {
+	// Config file path
+	Cmd.Flags().StringVar(&flags.ConfigPath, "config", "", "configuration file")
+	// Raccoon Correlator ID
+	Cmd.Flags().StringVar(&flags.ID, "id", "", "collector ID")
 	// Raccoon core URL
-	Cmd.Flags().StringVarP(
-		&coreURL,
-		"core",
-		"c",
-		"http://localhost:7220",
-		"raccoon core URL")
-
+	Cmd.Flags().StringVar(&flags.CoreURL, "core", "http://localhost:7220", "core URL")
 	// Raccoon bus URL
-	Cmd.Flags().StringVarP(
-		&busURL,
-		"bus",
-		"b",
-		"nats://localhost:4222",
-		"raccoon bus URL")
-
+	Cmd.Flags().StringVar(&flags.BusURL, "bus", "nats://localhost:4222", "bus URL")
 	// Raccoon storage URL
-	Cmd.Flags().StringVarP(
-		&storageURL,
-		"storage",
-		"s",
-		"http://localhost:9200",
-		"raccoon storage URL")
-
-	// Raccoon correlator ID
-	Cmd.Flags().StringVarP(
-		&correlatorID,
-		"id",
-		"i",
-		"",
-		"raccoon correlator ID")
-
-	// Raccoon active list service URL
-	Cmd.Flags().StringVarP(
-		&activeListSvcURL,
-		"al.url",
-		"a",
-		"localhost:6379",
-		"raccoon active list service URL")
-
-	// Raccoon active list service connection pool size
-	Cmd.Flags().StringVarP(
-		&activeListSvcURL,
-		"al.pool",
-		"",
-		"32",
-		"raccoon active list service connection pool size")
-
+	Cmd.Flags().StringVar(&flags.StorageURL, "storage", "http://localhost:9200", "storage URL")
 	// Prometheus metrics port
-	Cmd.Flags().StringVarP(
-		&metricsPort,
-		"metrics",
-		"m",
-		"7221",
-		"prometheus metrics port")
-
-	// Debug mode
-	Cmd.Flags().BoolVarP(
-		&debugMode,
-		"debug",
-		"d",
-		false,
-		"debug mode")
-
-	Cmd.MarkFlagRequired("id")
+	Cmd.Flags().StringVar(&flags.MetricsPort, "metrics", "7222", "metrics port")
+	// Worker count
+	Cmd.Flags().IntVar(&flags.Workers, "workers", runtime.NumCPU(), "worker count")
 }
 
-func run(_ *cobra.Command, _ []string) error {
-	// Get settings package
-	pack := new(sdk.CorrelatorPackage)
-	err := sdk.CoreQuery(coreURL+"/register/correlator/"+correlatorID, pack)
-	sdk.PanicOnError(err)
+func run(_ *cobra.Command, _ []string) (err error) {
+	//
+	// Check command line flags
+	//
 
-	// Register default event parser
-	registeredParsers, err := sdk.RegisterParsers([]sdk.ParserSettings{{Name: "event", Kind: "event", Root: true}})
-	sdk.PanicOnError(err)
-
-	// Register active lists and run service client
-	alServiceSettings := sdk.ActiveListServiceSettings{
-		Name:     sdk.RaccoonActiveListsServiceName,
-		PoolSize: activeListSvcPoolSize,
-		URL:      activeListSvcURL,
+	if flags.ID == "" && flags.CoreURL == "" && flags.ConfigPath == "" {
+		return fmt.Errorf("either config file or core URL and collector ID must be specified")
 	}
 
-	err = sdk.RegisterActiveLists(alServiceSettings, pack.ActiveLists)
-	sdk.PanicOnError(err)
+	//
+	// Load configuration
+	//
 
-	// Register filters
-	registeredFilters, err := sdk.RegisterFilters(pack.Filters)
-	sdk.PanicOnError(err)
+	if flags.ConfigPath != "" {
+		if err := helpers.ReadConfigFromFile(flags.ConfigPath, &cfg); err != nil {
+			return err
+		}
+	} else {
+		if err := helpers.ReadConfigFromCore(flags.CoreURL, "collector", flags.ID, &cfg); err != nil {
+			return err
+		}
+	}
 
-	// Register destinations
-	allDestinationSettings := sdk.GetDefaultDestinationSettings(storageURL, busURL, debugMode)
-	allDestinationSettings = append(allDestinationSettings, pack.Destinations...)
-	registeredDestinations, err := sdk.RegisterDestinations(allDestinationSettings)
-	sdk.PanicOnError(err)
+	//
+	// Prepare processor for initialization
+	//
 
-	// Register correlation rules
-	correlationChainChannel := make(chan sdk.CorrelationChainTask)
-	registeredCorrelationRules, err := sdk.RegisterCorrelationRules(
-		pack.CorrelationRules,
-		registeredFilters,
-		correlationChainChannel)
-	sdk.PanicOnError(err)
-
-	// Run correlation rules
-	sdk.RunCorrelationRules(registeredCorrelationRules)
-
-	// Register default sources
-	allSourceSettings := []sdk.SourceSettings{{
-		Name:    sdk.RaccoonCorrelationBusName,
-		Kind:    sdk.RaccoonCorrelationBusKind,
-		Channel: sdk.RaccoonCorrelationBusChannel,
-		URL:     busURL,
-	}}
-
-	correlationChannel := make(chan *sdk.ProcessorTask)
-	registeredSources, err := sdk.RegisterSources(allSourceSettings, correlationChannel)
-	sdk.PanicOnError(err)
-
-	// Processor
 	proc := Processor{
-		CorrelationChannel:      correlationChannel,
-		CorrelationChainChannel: correlationChainChannel,
-		Workers:                 runtime.NumCPU(),
-		Parsers:                 registeredParsers,
-		CorrelationRules:        registeredCorrelationRules,
-		Sources:                 registeredSources,
-		Destinations:            registeredDestinations,
-		Debug:                   debugMode,
+		hostname:     helpers.GetHostName(),
+		ipAddress:    helpers.GetIPAddress(),
+		metrics:      newMetrics(flags.MetricsPort),
+		inputChannel: make(connectors.OutputChannel),
+		workers:      flags.Workers,
 	}
 
-	sdk.PrintConfiguration(
-		registeredSources,
-		registeredParsers,
-		registeredCorrelationRules,
-		pack.ActiveLists,
-		registeredDestinations)
+	//
+	// Initialize active lists
+	//
 
-	if err := proc.Start(); err != nil {
+	globals.ActiveLists, err = activeLists.NewContainer(cfg.ActiveLists, cfg.Name, flags.BusURL, flags.StorageURL)
+	if err != nil {
 		return err
 	}
 
+	//
+	// Initialize dictionaries
+	//
+
+	globals.Dictionaries = dictionaries.NewStorage(cfg.Dictionaries)
+
+	//
+	// Initialize correlation rules
+	//
+
+	for _, cfg := range cfg.Rules {
+		rule, err := correlation.NewRule(cfg, proc.output)
+		if err != nil {
+			return err
+		}
+		rule.Start()
+		proc.correlationRules = append(proc.correlationRules, rule)
+	}
+
+	//
+	// Initialize destinations
+	//
+
+	for _, cfg := range cfg.Destinations {
+		dst, err := destinations.New(cfg)
+		if err != nil {
+			return err
+		}
+		if err := dst.Start(); err != nil {
+			return err
+		}
+		proc.destinations = append(proc.destinations, dst)
+	}
+
+	//
+	// Initialize connector
+	//
+
+	connector, err := connectors.New(cfg.Connector, proc.inputChannel)
+	if err != nil {
+		return err
+	}
+
+	if err := connector.Start(); err != nil {
+		return err
+	}
+
+	//
+	// Begin processing
+	//
+
+	proc.Start()
 	runtime.Goexit()
 	return nil
 }

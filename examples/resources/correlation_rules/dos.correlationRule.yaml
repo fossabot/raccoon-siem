@@ -1,0 +1,31 @@
+name: DoS
+window: 1s
+
+selectors:
+  - tag: DoS
+    threshold: 1
+    filter:
+      sections:
+        - conditions:
+          - field: Correlated
+            op: =
+            value: false
+          - field: OriginServiceName
+            op: =
+            value: PeakFlow
+          - field: Message
+            op: =
+            value: DoS
+
+identicalFields:
+  - SourceIPAddress
+  - DestinationIPAddress
+
+triggers:
+  firstTrigger:
+    actions:
+      - kind: release
+        release:
+          mutate:
+            - targetField: Message
+              constant: DoS attack detected

@@ -1,8 +1,17 @@
 package collector
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/tephrocactus/raccoon-siem/sdk"
+	"github.com/tephrocactus/raccoon-siem/sdk/active_lists"
+	"github.com/tephrocactus/raccoon-siem/sdk/aggregation"
+	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
+	"github.com/tephrocactus/raccoon-siem/sdk/destinations"
+	"github.com/tephrocactus/raccoon-siem/sdk/dictionaries"
+	"github.com/tephrocactus/raccoon-siem/sdk/filters"
+	"github.com/tephrocactus/raccoon-siem/sdk/globals"
+	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers"
 	"runtime"
 )
 
@@ -13,150 +22,145 @@ var (
 		Args:  cobra.ExactArgs(0),
 		RunE:  run,
 	}
-
-	// String flags variables
-	coreURL, busURL, storageURL, collectorID, metricsPort string
-
-	// Bool flags variables
-	printRaw, debugMode bool
+	flags cmdFlags
+	cfg   Config
 )
 
 func init() {
+	// Config file path
+	Cmd.Flags().StringVar(&flags.ConfigPath, "config", "", "configuration file")
+	// Raccoon Collector ID
+	Cmd.Flags().StringVar(&flags.ID, "id", "", "collector ID")
 	// Raccoon core URL
-	Cmd.Flags().StringVarP(
-		&coreURL,
-		"core",
-		"c",
-		"http://localhost:7220",
-		"raccoon core URL")
-
+	Cmd.Flags().StringVar(&flags.CoreURL, "core", "http://localhost:7220", "core URL")
 	// Raccoon bus URL
-	Cmd.Flags().StringVarP(
-		&busURL,
-		"bus",
-		"b",
-		"",
-		"raccoon bus URL")
-
+	Cmd.Flags().StringVar(&flags.BusURL, "bus", "nats://localhost:4222", "bus URL")
 	// Raccoon storage URL
-	Cmd.Flags().StringVarP(
-		&storageURL,
-		"storage",
-		"s",
-		"",
-		"raccoon storage URL")
-
-	// Raccoon collector ID
-	Cmd.Flags().StringVarP(
-		&collectorID,
-		"id",
-		"i",
-		"",
-		"raccoon collector ID")
-
+	Cmd.Flags().StringVar(&flags.StorageURL, "storage", "http://localhost:9200", "storage URL")
 	// Prometheus metrics port
-	Cmd.Flags().StringVarP(
-		&metricsPort,
-		"metrics",
-		"m",
-		"7221",
-		"prometheus metrics port")
-
-	// Print raw messages
-	Cmd.Flags().BoolVarP(
-		&printRaw,
-		"raw",
-		"r",
-		false,
-		"print raw input messages")
-
-	// Debug mode
-	Cmd.Flags().BoolVarP(
-		&debugMode,
-		"debug",
-		"d",
-		false,
-		"debug mode")
-
-	Cmd.MarkFlagRequired("id")
+	Cmd.Flags().StringVar(&flags.MetricsPort, "metrics", "7221", "metrics port")
+	// Worker count
+	Cmd.Flags().IntVar(&flags.Workers, "workers", runtime.NumCPU(), "worker count")
 }
 
-func run(_ *cobra.Command, _ []string) error {
-	// Get settings package
-	pack := new(sdk.CollectorPackage)
-	if err := sdk.CoreQuery(coreURL+"/register/collector/"+collectorID, pack); err != nil {
-		return err
+func run(_ *cobra.Command, _ []string) (err error) {
+	//
+	// Check command line flags
+	//
+
+	if flags.ID == "" && flags.CoreURL == "" && flags.ConfigPath == "" {
+		return fmt.Errorf("either config file or core URL and collector ID must be specified")
 	}
 
-	// Register dictionaries
-	if err := sdk.RegisterDictionaries(pack.Dictionaries); err != nil {
-		return err
+	//
+	// Load configuration
+	//
+
+	if flags.ConfigPath != "" {
+		if err := helpers.ReadConfigFromFile(flags.ConfigPath, &cfg); err != nil {
+			return err
+		}
+	} else {
+		if err := helpers.ReadConfigFromCore(flags.CoreURL, "collector", flags.ID, &cfg); err != nil {
+			return err
+		}
 	}
 
-	// Register parsers
-	registeredParsers, err := sdk.RegisterParsers(pack.Parsers)
-	if err != nil {
-		return err
-	}
+	//
+	// Prepare processor for initialization
+	//
 
-	// Registered filters
-	registeredFilters, err := sdk.RegisterFilters(pack.Filters)
-	if err != nil {
-		return err
-	}
-
-	// Register destinations
-	allDestinationSettings := sdk.GetDefaultDestinationSettings(storageURL, busURL, debugMode)
-	allDestinationSettings = append(allDestinationSettings, pack.Destinations...)
-	registeredDestinations, err := sdk.RegisterDestinations(allDestinationSettings)
-	if err != nil {
-		return err
-	}
-
-	// Register aggregation rules
-	aggregationChannel := make(chan sdk.AggregationChainTask)
-	registeredAggregationRules, err := sdk.RegisterAggregationRules(
-		pack.AggregationRules,
-		pack.AggregationFilters,
-		aggregationChannel)
-	if err != nil {
-		return err
-	}
-
-	// Register sources
-	parsingChannel := make(chan *sdk.ProcessorTask)
-	registeredSources, err := sdk.RegisterSources(pack.Sources, parsingChannel)
-	if err != nil {
-		return err
-	}
-
-	// Processor
 	proc := Processor{
-		ParsingChannel:     parsingChannel,
-		AggregationChannel: aggregationChannel,
-		Workers:            runtime.NumCPU(),
-		Parsers:            registeredParsers,
-		Filters:            registeredFilters,
-		AggregationRules:   registeredAggregationRules,
-		Sources:            registeredSources,
-		Destinations:       registeredDestinations,
-		ID:                 collectorID,
-		Debug:              debugMode,
-		PrintRaw:           printRaw,
-		MetricsPort:        metricsPort,
+		hostname:     helpers.GetHostName(),
+		ipAddress:    helpers.GetIPAddress(),
+		metrics:      newMetrics(flags.MetricsPort),
+		inputChannel: make(connectors.OutputChannel),
+		enrichment:   cfg.Enrichment,
+		workers:      flags.Workers,
 	}
 
-	sdk.PrintConfiguration(
-		registeredSources,
-		registeredParsers,
-		registeredFilters,
-		registeredAggregationRules,
-		registeredDestinations)
+	//
+	// Initialize active lists
+	//
 
-	if err := proc.Start(); err != nil {
+	globals.ActiveLists, err = activeLists.NewContainer(cfg.ActiveLists, cfg.Name, flags.BusURL, flags.StorageURL)
+	if err != nil {
 		return err
 	}
 
+	//
+	// Initialize dictionaries
+	//
+
+	globals.Dictionaries = dictionaries.NewStorage(cfg.Dictionaries)
+
+	//
+	// Initialize normalizer
+	//
+
+	proc.normalizer, err = normalizers.New(cfg.Normalizer)
+	if err != nil {
+		return err
+	}
+
+	//
+	// Initialize drop filters
+	//
+
+	for _, cfg := range cfg.Filters {
+		f, err := filters.NewFilter(cfg)
+		if err != nil {
+			return err
+		}
+		proc.filters = append(proc.filters, f)
+	}
+
+	//
+	// Initialize aggregation rules
+	//
+
+	for _, cfg := range cfg.Rules {
+		rule, err := aggregation.NewRule(cfg, proc.output)
+		if err != nil {
+			return err
+		}
+		rule.Start()
+		proc.aggregationRules = append(proc.aggregationRules, rule)
+	}
+
+	//
+	// Initialize destinations
+	//
+
+	for _, cfg := range cfg.Destinations {
+		dst, err := destinations.New(cfg)
+		if err != nil {
+			return err
+		}
+		if err := dst.Start(); err != nil {
+			return err
+		}
+		proc.destinations = append(proc.destinations, dst)
+	}
+
+	//
+	// Initialize connector
+	//
+
+	connector, err := connectors.New(cfg.Connector, proc.inputChannel)
+	if err != nil {
+		return err
+	}
+
+	if err := connector.Start(); err != nil {
+		return err
+	}
+
+	//
+	// Begin processing
+	//
+
+	proc.Start()
 	runtime.Goexit()
 	return nil
 }

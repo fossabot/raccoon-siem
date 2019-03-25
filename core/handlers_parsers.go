@@ -4,21 +4,20 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/gin-gonic/gin"
-	"github.com/tephrocactus/raccoon-siem/sdk"
 )
 
-func Parsers(ctx *gin.Context) {
-	records, err := DBConn.ListKeys(dbBucketParser)
+func Normalizers(ctx *gin.Context) {
+	records, err := DBConn.ListKeys(dbBucketNormalizer)
 	reply(ctx, err, records)
 }
 
-func ParserGET(ctx *gin.Context) {
+func NormalizerGET(ctx *gin.Context) {
 	var replyData []byte
 
 	err := DBConn.h.View(func(tx *bolt.Tx) error {
 		id := ctx.Param("id")
 
-		value := tx.Bucket(dbBucketParser).Get([]byte(id))
+		value := tx.Bucket(dbBucketNormalizer).Get([]byte(id))
 
 		if value == nil {
 			return fmt.Errorf("parser '%s' does not exist", id)
@@ -31,30 +30,30 @@ func ParserGET(ctx *gin.Context) {
 	reply(ctx, err, replyData)
 }
 
-func ParserPUT(ctx *gin.Context) {
-	body, err := ctx.GetRawData()
-
-	if err != nil {
-		reply(ctx, err)
-		return
-	}
-
-	s := new(sdk.ParserSettings)
-	id, err := unmarshalAndGetID(s, body)
-
-	if err != nil {
-		reply(ctx, err)
-		return
-	}
-
-	reply(ctx, DBConn.h.Update(func(tx *bolt.Tx) error {
-		return tx.Bucket(dbBucketParser).Put([]byte(id), body)
-	}))
+func NormalizerPUT(ctx *gin.Context) {
+	//body, err := ctx.GetRawData()
+	//
+	//if err != nil {
+	//	reply(ctx, err)
+	//	return
+	//}
+	//
+	//s := new(normalizers.Config)
+	//id, err := unmarshalAndGetID(s, body)
+	//
+	//if err != nil {
+	//	reply(ctx, err)
+	//	return
+	//}
+	//
+	//reply(ctx, DBConn.h.Update(func(tx *bolt.Tx) error {
+	//	return tx.Bucket(dbBucketNormalizer).Put([]byte(id), body)
+	//}))
 }
 
-func ParserDELETE(ctx *gin.Context) {
+func NormalizerDELETE(ctx *gin.Context) {
 	reply(ctx, DBConn.h.Update(func(tx *bolt.Tx) error {
 		id := ctx.Param("id")
-		return tx.Bucket(dbBucketParser).Delete([]byte(id))
+		return tx.Bucket(dbBucketNormalizer).Delete([]byte(id))
 	}))
 }

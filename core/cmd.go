@@ -40,75 +40,72 @@ func run(_ *cobra.Command, _ []string) error {
 	DBConn = NewDB(dbFile)
 
 	// Register http endpoints
-	httpServer := gin.Default()
+	router := gin.Default()
 
-	// Parsers
-	httpServer.GET("/parser", Parsers)
-	httpServer.GET("/parser/:id", ParserGET)
-	httpServer.PUT("/parser", ParserPUT)
-	httpServer.DELETE("/parser/:id", ParserDELETE)
+	// normalizer
+	router.GET("/parser", Normalizers)
+	router.GET("/parser/:id", NormalizerGET)
+	router.PUT("/parser", NormalizerPUT)
+	router.DELETE("/parser/:id", NormalizerDELETE)
 
 	// Collectors
-	httpServer.GET("/collector", Collectors)
-	httpServer.GET("/collector/:id", CollectorGET)
-	httpServer.PUT("/collector", CollectorPUT)
-	httpServer.DELETE("/collector/:id", CollectorDELETE)
+	router.GET("/collector", Collectors)
+	router.GET("/collector/:id", CollectorGET)
+	router.PUT("/collector", CollectorPUT)
+	router.DELETE("/collector/:id", CollectorDELETE)
 
 	// Correlators
-	httpServer.GET("/correlator", Correlators)
-	httpServer.GET("/correlator/:id", CorrelatorGET)
-	httpServer.PUT("/correlator", CorrelatorPUT)
-	httpServer.DELETE("/correlator/:id", CorrelatorDELETE)
+	router.GET("/correlator", Correlators)
+	router.GET("/correlator/:id", CorrelatorGET)
+	router.PUT("/correlator", CorrelatorPUT)
+	router.DELETE("/correlator/:id", CorrelatorDELETE)
 
 	// Correlation Rules
-	httpServer.GET("/correlationRule", CorrelationRules)
-	httpServer.GET("/correlationRule/:id", CorrelationRuleGET)
-	httpServer.PUT("/correlationRule", CorrelationRulePUT)
-	httpServer.DELETE("/correlationRule/:id", CorrelationRuleDELETE)
+	router.GET("/correlationRule", CorrelationRules)
+	router.GET("/correlationRule/:id", CorrelationRuleGET)
+	router.PUT("/correlationRule", CorrelationRulePUT)
+	router.DELETE("/correlationRule/:id", CorrelationRuleDELETE)
 
 	// Aggregation Rules
-	httpServer.GET("/aggregationRule", AggregationRules)
-	httpServer.GET("/aggregationRule/:id", AggregationRuleGET)
-	httpServer.PUT("/aggregationRule", AggregationRulePUT)
-	httpServer.DELETE("/aggregationRule/:id", AggregationRuleDELETE)
+	router.GET("/aggregationRule", AggregationRules)
+	router.GET("/aggregationRule/:id", AggregationRuleGET)
+	router.PUT("/aggregationRule", AggregationRulePUT)
+	router.DELETE("/aggregationRule/:id", AggregationRuleDELETE)
 
 	// Filters
-	httpServer.GET("/filter", Filters)
-	httpServer.GET("/filter/:id", FilterGET)
-	httpServer.PUT("/filter", FilterPUT)
-	httpServer.DELETE("/filter/:id", FilterDELETE)
+	router.GET("/filter", Filters)
+	router.GET("/filter/:id", FilterGET)
+	router.PUT("/filter", FilterPUT)
+	router.DELETE("/filter/:id", FilterDELETE)
 
 	// Active lists
-	httpServer.GET("/activeList", ActiveLists)
-	httpServer.GET("/activeList/:id", ActiveListGET)
-	httpServer.PUT("/activeList", ActiveListPUT)
-	httpServer.DELETE("/activeList/:id", ActiveListDELETE)
+	router.GET("/activeList", ActiveLists)
+	router.GET("/activeList/:id", ActiveListGET)
+	router.PUT("/activeList", ActiveListPUT)
+	router.DELETE("/activeList/:id", ActiveListDELETE)
 
-	// Sources
-	httpServer.GET("/source", Sources)
-	httpServer.GET("/source/:id", SourceGET)
-	httpServer.PUT("/source", SourcePUT)
-	httpServer.DELETE("/source/:id", SourceDELETE)
+	// Connectors
+	router.GET("/connector", ConnectorsList)
+	router.GET("/connector/:id", ConnectorGET)
+	router.PUT("/connector", ConnectorPUT)
+	router.DELETE("/connector/:id", ConnectorDELETE)
 
-	// Destinations
-	httpServer.GET("/destination", Destinations)
-	httpServer.GET("/destination/:id", DestinationGET)
-	httpServer.PUT("/destination", DestinationPUT)
-	httpServer.DELETE("/destination/:id", DestinationDELETE)
+	// destinations
+	router.GET("/destination", Destinations)
+	router.GET("/destination/:id", DestinationGET)
+	router.PUT("/destination", DestinationPUT)
+	router.DELETE("/destination/:id", DestinationDELETE)
 
 	// Dictionaries
-	httpServer.GET("/dictionary", Dictionaries)
-	httpServer.GET("/dictionary/:id", DictionaryGET)
-	httpServer.PUT("/dictionary", DictionaryPUT)
-	httpServer.DELETE("/dictionary/:id", DictionaryDELETE)
+	router.GET("/dictionary", Dictionaries)
+	router.GET("/dictionary/:id", DictionaryGET)
+	router.PUT("/dictionary", DictionaryPUT)
+	router.DELETE("/dictionary/:id", DictionaryDELETE)
 
 	// Component registration
-	httpServer.GET("/register/collector/:id", CollectorRegister)
-	httpServer.GET("/register/correlator/:id", CorrelatorRegister)
-
-	// Storage mapping generator
-	httpServer.GET("/storage/template", GenerateStorageMapping)
+	router.GET("/register/collector/:id", CollectorRegister)
+	router.GET("/register/correlator/:id", CorrelatorRegister)
 
 	// Run http server
-	return httpServer.Run(listen)
+	return router.Run(listen)
 }

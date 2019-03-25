@@ -1,153 +1,84 @@
 package collector
 
 import (
-	"fmt"
-	"github.com/tephrocactus/raccoon-siem/logger"
-	"github.com/tephrocactus/raccoon-siem/sdk"
+	"github.com/tephrocactus/raccoon-siem/sdk/aggregation"
+	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
+	"github.com/tephrocactus/raccoon-siem/sdk/destinations"
+	"github.com/tephrocactus/raccoon-siem/sdk/enrichment"
+	"github.com/tephrocactus/raccoon-siem/sdk/filters"
+	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers"
 	"time"
 )
 
 type Processor struct {
-	ParsingChannel     chan *sdk.ProcessorTask
-	AggregationChannel chan sdk.AggregationChainTask
-	Workers            int
-	Parsers            []sdk.IParser
-	Filters            []sdk.IFilter
-	AggregationRules   []sdk.IAggregationRule
-	Sources            []sdk.ISource
-	Destinations       []sdk.IDestination
-	ID                 string
-	MetricsPort        string
-	Debug              bool
-	PrintRaw           bool
-	hostname           string
-	ip                 string
-	logger             *logger.Instance
-	metrics            *metrics
+	hostname         string
+	ipAddress        string
+	metrics          *metrics
+	inputChannel     connectors.OutputChannel
+	normalizer       normalizers.INormalizer
+	filters          []*filters.Filter
+	enrichment       []enrichment.Config
+	aggregationRules []*aggregation.Rule
+	destinations     []destinations.IDestination
+	workers          int
 }
 
-func (r *Processor) Start() error {
-	r.hostname = sdk.GetHostName()
-	r.ip = sdk.GetIPAddress()
-
-	for i := 0; i < r.Workers; i++ {
-		go r.parsingRoutine()
-		go r.aggregationRoutine()
-	}
-
-	sdk.RunAggregationRules(r.AggregationRules)
-
-	if err := sdk.RunDestinations(r.Destinations); err != nil {
-		return err
-	}
-
-	logLevel := logger.LevelError
-	if r.Debug {
-		logLevel = logger.LevelDebug
-	}
-
-	r.logger = logger.NewInstance(r.ID, r.Destinations, logLevel)
-	r.metrics = newMetrics(r.MetricsPort).runServer()
-
-	if err := sdk.RunSources(r.Sources); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// Processes incoming events
-func (r *Processor) parsingRoutine() {
-	for task := range r.ParsingChannel {
-		r.metrics.registerEventInput(task.Source)
-		if len(task.Data) != 0 {
-			start := time.Now()
-
-			if r.PrintRaw {
-				fmt.Println(string(task.Data))
-			}
-
-			r.processEvent(task)
-			r.metrics.registerOverallProcessingDuration(start)
-		}
+func (r *Processor) Start() {
+	for i := 0; i < r.workers; i++ {
+		go r.worker()
 	}
 }
 
-func (r *Processor) processEvent(task *sdk.ProcessorTask) {
-	event, err := r.parse(task.Data)
+func (r *Processor) worker() {
+mainLoop:
+	for input := range r.inputChannel {
+		processingBegan := time.Now()
+		r.metrics.eventReceived()
 
-	if err != nil {
-		if r.Debug {
-			r.logger.Debug(err.Error(), &sdk.Event{Details: string(task.Data)})
-		}
-		return
-	}
-
-	event.SourceID = task.Source
-
-	for _, f := range r.Filters {
-		if !f.Pass([]*sdk.Event{event}) {
-			r.metrics.registerEventFiltration(f.ID(), task.Source)
-			if r.Debug {
-				r.logger.Debug("filtered out", &sdk.Event{Details: string(task.Data)})
-			}
-			return
-		}
-	}
-
-	if event.OriginTimestamp.IsZero() {
-		event.OriginTimestamp = time.Now()
-	}
-
-	event.ID = sdk.GetUUID()
-	event.StartTime = event.OriginTimestamp
-	event.EndTime = event.OriginTimestamp
-
-	if len(r.AggregationRules) == 0 {
-		r.AggregationChannel <- event
-		return
-	}
-
-	for _, ar := range r.AggregationRules {
-		ar.Feed(event)
-	}
-}
-
-func (r *Processor) aggregationRoutine() {
-	for event := range r.AggregationChannel {
-		event.CollectorDNSName = r.hostname
-		event.CollectorIPAddress = r.ip
-
-		if event.AggregatedEventCount > 0 {
-			r.metrics.registerEventAggregation(event.AggregationRuleName, event.AggregatedEventCount, event.SourceID)
-		}
-
-		for _, dst := range r.Destinations {
-			start := time.Now()
-			dst.Send(event)
-			r.metrics.registerSerializationDuration(dst.ID(), start)
-			r.metrics.registerEventOutput(event.SourceID)
-		}
-	}
-}
-
-// Parses events with parser/sub chain
-func (r *Processor) parse(data []byte) (event *sdk.Event, err error) {
-	for _, parser := range r.Parsers {
-		start := time.Now()
-		event, err = parser.Parse(data, nil)
-		r.metrics.registerParsingDuration(parser.ID(), start)
-
-		if err != nil {
+		event := r.normalizer.Normalize(input.Data, nil)
+		if event == nil {
+			r.metrics.eventProcessed()
 			continue
 		}
 
-		break
-	}
+		for _, dropFilter := range r.filters {
+			if dropFilter.Pass(event) {
+				r.metrics.eventFiltered(dropFilter.ID())
+				r.metrics.eventProcessed()
+				continue mainLoop
+			}
+		}
 
-	if err != nil {
-		err = sdk.ErrAllParsersFailed
-	}
+		for _, config := range r.enrichment {
+			enrichment.Enrich(config, event)
+		}
 
-	return
+		event.Timestamp = helpers.NowUnixMillis()
+		event.ID = helpers.GetUUID()
+		event.SourceID = input.Connector
+		event.CollectorDNSName = r.hostname
+		event.CollectorIPAddress = r.ipAddress
+
+		for _, rule := range r.aggregationRules {
+			if rule.Feed(event) {
+				r.metrics.eventAggregated(rule.ID())
+				r.metrics.eventProcessed()
+				r.metrics.processingTook(time.Since(processingBegan))
+				continue mainLoop
+			}
+		}
+
+		r.output(event)
+		r.metrics.eventProcessed()
+		r.metrics.processingTook(time.Since(processingBegan))
+	}
+}
+
+func (r *Processor) output(event *normalization.Event) {
+	for _, dst := range r.destinations {
+		dst.Send(event)
+		r.metrics.eventSent(dst.ID())
+	}
 }

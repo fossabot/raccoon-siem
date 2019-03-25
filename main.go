@@ -6,7 +6,6 @@ import (
 	"github.com/tephrocactus/raccoon-siem/collector"
 	"github.com/tephrocactus/raccoon-siem/core"
 	"github.com/tephrocactus/raccoon-siem/correlator"
-	"github.com/tephrocactus/raccoon-siem/player"
 	"github.com/tephrocactus/raccoon-siem/resources"
 )
 
@@ -14,7 +13,7 @@ var rootCmd = &cobra.Command{
 	Use:       "raccoon",
 	Short:     "Raccoon SIEM component launcher",
 	Args:      cobra.ExactArgs(1),
-	ValidArgs: []string{"core", "collector", "correlator", "resources", "player"},
+	ValidArgs: []string{"core", "collector", "correlator", "resources"},
 	RunE:      cobra.OnlyValidArgs,
 }
 
@@ -34,7 +33,6 @@ func init() {
 		core.Cmd,
 		collector.Cmd,
 		correlator.Cmd,
-		player.Cmd,
 		resources.Cmd)
 }
 

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/gin-gonic/gin"
-	"github.com/tephrocactus/raccoon-siem/sdk"
 )
 
 func Filters(ctx *gin.Context) {
@@ -32,24 +31,24 @@ func FilterGET(ctx *gin.Context) {
 }
 
 func FilterPUT(ctx *gin.Context) {
-	body, err := ctx.GetRawData()
-
-	if err != nil {
-		reply(ctx, err)
-		return
-	}
-
-	s := new(sdk.FilterSettings)
-	id, err := unmarshalAndGetID(s, body)
-
-	if err != nil {
-		reply(ctx, err)
-		return
-	}
-
-	reply(ctx, DBConn.h.Update(func(tx *bolt.Tx) error {
-		return tx.Bucket(dbBucketFilter).Put([]byte(id), body)
-	}))
+	//body, err := ctx.GetRawData()
+	//
+	//if err != nil {
+	//	reply(ctx, err)
+	//	return
+	//}
+	//
+	//s := new(filters.Config)
+	//id, err := unmarshalAndGetID(s, body)
+	//
+	//if err != nil {
+	//	reply(ctx, err)
+	//	return
+	//}
+	//
+	//reply(ctx, DBConn.h.Update(func(tx *bolt.Tx) error {
+	//	return tx.Bucket(dbBucketFilter).Put([]byte(id), body)
+	//}))
 }
 
 func FilterDELETE(ctx *gin.Context) {

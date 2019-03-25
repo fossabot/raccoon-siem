@@ -2,7 +2,7 @@ package resources
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/tephrocactus/raccoon-siem/sdk"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"os"
 	"reflect"
 	"text/template"
@@ -36,7 +36,7 @@ func generateElasticsearchTemplate() error {
 	}
 
 	tplData := make([]*elasticsearchMappingProperty, 0)
-	e := sdk.Event{}
+	e := normalization.Event{}
 	rt := reflect.TypeOf(e)
 
 	for i := 0; i < rt.NumField(); i++ {

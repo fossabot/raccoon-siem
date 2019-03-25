@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/gin-gonic/gin"
-	"github.com/tephrocactus/raccoon-siem/sdk"
 )
 
 func Destinations(ctx *gin.Context) {
@@ -32,24 +31,24 @@ func DestinationGET(ctx *gin.Context) {
 }
 
 func DestinationPUT(ctx *gin.Context) {
-	body, err := ctx.GetRawData()
-
-	if err != nil {
-		reply(ctx, err)
-		return
-	}
-
-	s := new(sdk.DestinationSettings)
-	id, err := unmarshalAndGetID(s, body)
-
-	if err != nil {
-		reply(ctx, err)
-		return
-	}
-
-	reply(ctx, DBConn.h.Update(func(tx *bolt.Tx) error {
-		return tx.Bucket(dbBucketDestination).Put([]byte(id), body)
-	}))
+	//body, err := ctx.GetRawData()
+	//
+	//if err != nil {
+	//	reply(ctx, err)
+	//	return
+	//}
+	//
+	//s := new(destinations.Config)
+	//id, err := unmarshalAndGetID(s, body)
+	//
+	//if err != nil {
+	//	reply(ctx, err)
+	//	return
+	//}
+	//
+	//reply(ctx, DBConn.h.Update(func(tx *bolt.Tx) error {
+	//	return tx.Bucket(dbBucketDestination).Put([]byte(id), body)
+	//}))
 }
 
 func DestinationDELETE(ctx *gin.Context) {

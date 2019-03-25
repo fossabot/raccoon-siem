@@ -1,90 +1,54 @@
 package correlator
 
 import (
-	"errors"
-	"github.com/tephrocactus/raccoon-siem/sdk"
+	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
+	"github.com/tephrocactus/raccoon-siem/sdk/correlation"
+	"github.com/tephrocactus/raccoon-siem/sdk/destinations"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
+	"runtime"
+	"time"
 )
 
 type Processor struct {
-	CorrelationChannel      chan *sdk.ProcessorTask
-	CorrelationChainChannel chan sdk.CorrelationChainTask
-	Workers                 int
-	Parsers                 []sdk.IParser
-	CorrelationRules        []sdk.ICorrelationRule
-	Sources                 []sdk.ISource
-	Destinations            []sdk.IDestination
-	Debug                   bool
-	hostname                string
-	ip                      string
+	hostname         string
+	ipAddress        string
+	metrics          *metrics
+	inputChannel     connectors.OutputChannel
+	correlationRules []correlation.IRule
+	destinations     []destinations.IDestination
+	workers          int
 }
 
-func (r *Processor) Start() error {
-	r.hostname = sdk.GetHostName()
-	r.ip = sdk.GetIPAddress()
-
-	for i := 0; i < r.Workers; i++ {
-		go r.correlationRoutine()
-		go r.correlationChainRoutine()
+func (r *Processor) Start() {
+	for i := 0; i < runtime.NumCPU(); i++ {
+		go r.worker()
 	}
-
-	sdk.RunCorrelationRules(r.CorrelationRules)
-
-	if err := sdk.RunDestinations(r.Destinations); err != nil {
-		return err
-	}
-
-	if err := sdk.RunSources(r.Sources); err != nil {
-		return err
-	}
-
-	return nil
 }
 
-// Processes incoming events
-func (r *Processor) correlationRoutine() {
-	for task := range r.CorrelationChannel {
-		event, err := r.parse(task.Data)
+func (r *Processor) worker() {
+	for input := range r.inputChannel {
+		processingBegan := time.Now()
+		r.metrics.eventReceived()
 
-		if err != nil {
+		event := new(normalization.Event)
+		if err := event.FromMsgPack(input.Data); err != nil {
+			r.metrics.eventProcessed()
 			continue
 		}
 
-		event.CorrelatorDNSName = r.hostname
-		event.CorrelatorIPAddress = r.ip
-
-		for _, rule := range r.CorrelationRules {
+		for _, rule := range r.correlationRules {
 			rule.Feed(event)
 		}
+
+		r.metrics.eventProcessed()
+		r.metrics.processingTook(time.Since(processingBegan))
 	}
 }
 
-// Processes correlated events
-func (r *Processor) correlationChainRoutine() {
-	for event := range r.CorrelationChainChannel {
-		event.CorrelatorDNSName = r.hostname
-		event.CorrelatorIPAddress = r.ip
-
-		for _, dst := range r.Destinations {
-			dst.Send(event)
-		}
+func (r *Processor) output(event *normalization.Event) {
+	r.metrics.eventCorrelated(event.CorrelationRuleName)
+	for _, dst := range r.destinations {
+		dst.Send(event)
+		r.metrics.eventSent(dst.ID())
 	}
-}
-
-// Parses incoming events
-func (r *Processor) parse(data []byte) (event *sdk.Event, err error) {
-	for _, parser := range r.Parsers {
-		event, err = parser.Parse(data, nil)
-
-		if err != nil {
-			continue
-		}
-
-		break
-	}
-
-	if err != nil {
-		err = errors.New("all parsers failed")
-	}
-
-	return
 }

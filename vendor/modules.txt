@@ -1,3 +1,8 @@
+# github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc
+github.com/alecthomas/template
+github.com/alecthomas/template/parse
+# github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf
+github.com/alecthomas/units
 # github.com/araddon/dateparse v0.0.0-20181020190151-00e168d34895
 github.com/araddon/dateparse
 # github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973
@@ -15,17 +20,19 @@ github.com/gin-gonic/gin/json
 github.com/gin-gonic/gin/render
 # github.com/golang/protobuf v1.2.0
 github.com/golang/protobuf/proto
-# github.com/google/gopacket v1.1.15
-github.com/google/gopacket
-github.com/google/gopacket/pcap
-github.com/google/gopacket/layers
+# github.com/google/btree v1.0.0
+github.com/google/btree
+# github.com/google/go-cmp v0.2.0
+github.com/google/go-cmp/cmp
+github.com/google/go-cmp/cmp/internal/diff
+github.com/google/go-cmp/cmp/internal/function
+github.com/google/go-cmp/cmp/internal/value
 # github.com/inconshreveable/mousetrap v1.0.0
 github.com/inconshreveable/mousetrap
-# github.com/jeromer/syslogparser v0.0.0-20180622150051-323c7ad120db
-github.com/jeromer/syslogparser/rfc3164
-github.com/jeromer/syslogparser
 # github.com/json-iterator/go v1.1.5
 github.com/json-iterator/go
+# github.com/konsorten/go-windows-terminal-sequences v1.0.1
+github.com/konsorten/go-windows-terminal-sequences
 # github.com/mailru/easyjson v0.0.0-20180823135443-60711f1a8329
 github.com/mailru/easyjson
 github.com/mailru/easyjson/jlexer
@@ -35,9 +42,6 @@ github.com/mailru/easyjson/buffer
 github.com/mattn/go-isatty
 # github.com/matttproud/golang_protobuf_extensions v1.0.1
 github.com/matttproud/golang_protobuf_extensions/pbutil
-# github.com/mediocregopher/radix.v3 v0.0.0-20181027185022-c629f10d0053
-github.com/mediocregopher/radix.v3
-github.com/mediocregopher/radix.v3/resp
 # github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
@@ -61,6 +65,7 @@ github.com/prometheus/client_golang/prometheus/internal
 # github.com/prometheus/client_model v0.0.0-20180712105110-5c3871d89910
 github.com/prometheus/client_model/go
 # github.com/prometheus/common v0.0.0-20181020173914-7e9e6cabbd39
+github.com/prometheus/common/log
 github.com/prometheus/common/expfmt
 github.com/prometheus/common/model
 github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
@@ -71,22 +76,25 @@ github.com/prometheus/procfs/xfs
 github.com/prometheus/procfs/internal/util
 # github.com/satori/go.uuid v1.2.0
 github.com/satori/go.uuid
+# github.com/sirupsen/logrus v1.4.0
+github.com/sirupsen/logrus
 # github.com/spf13/cobra v0.0.3
 github.com/spf13/cobra
 # github.com/spf13/pflag v1.0.3
 github.com/spf13/pflag
-# github.com/tidwall/gjson v1.1.3
-github.com/tidwall/gjson
-# github.com/tidwall/match v0.0.0-20171002075945-1731857f09b1
-github.com/tidwall/match
 # github.com/ugorji/go/codec v0.0.0-20181022190402-e5e69e061d4f
 github.com/ugorji/go/codec
 # github.com/vmihailenco/msgpack v4.0.1+incompatible
 github.com/vmihailenco/msgpack/codes
+# golang.org/x/crypto v0.0.0-20180904163835-0709b304e793
+golang.org/x/crypto/ssh/terminal
 # golang.org/x/net v0.0.0-20180724234803-3673e40ba225
 golang.org/x/net/context
 # golang.org/x/sys v0.0.0-20180906133057-8cf3aee42992
+golang.org/x/sys/windows/svc/eventlog
 golang.org/x/sys/unix
+golang.org/x/sys/windows
+golang.org/x/sys/windows/registry
 # google.golang.org/appengine v1.3.0
 google.golang.org/appengine/datastore
 google.golang.org/appengine
@@ -97,6 +105,10 @@ google.golang.org/appengine/internal/modules
 google.golang.org/appengine/internal/base
 google.golang.org/appengine/internal/log
 google.golang.org/appengine/internal/remote_api
+# gopkg.in/alecthomas/kingpin.v2 v2.2.6
+gopkg.in/alecthomas/kingpin.v2
+# gopkg.in/go-playground/assert.v1 v1.2.1
+gopkg.in/go-playground/assert.v1
 # gopkg.in/go-playground/validator.v8 v8.18.2
 gopkg.in/go-playground/validator.v8
 # gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce
@@ -106,3 +118,9 @@ gopkg.in/mgo.v2/internal/json
 gopkg.in/vmihailenco/msgpack.v4
 # gopkg.in/yaml.v2 v2.2.1
 gopkg.in/yaml.v2
+# gotest.tools v2.2.0+incompatible
+gotest.tools/assert
+gotest.tools/assert/cmp
+gotest.tools/internal/format
+gotest.tools/internal/source
+gotest.tools/internal/difflib

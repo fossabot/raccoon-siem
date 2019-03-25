@@ -18,7 +18,7 @@ var (
 	validResourceKinds = []string{
 		"collector",
 		"correlator",
-		"source",
+		"connector",
 		"destination",
 		"filter",
 		"parser",

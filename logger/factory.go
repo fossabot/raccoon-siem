@@ -1,24 +1,24 @@
 package logger
 
 import (
-	"github.com/tephrocactus/raccoon-siem/sdk"
+	"github.com/tephrocactus/raccoon-siem/sdk/destinations"
 )
 
 type Factory struct {
-	destinations []sdk.IDestination
+	destinations []destinations.IDestination
 }
 
 func (r *Factory) NewInstance(name string, level ...int) *Instance {
 	return NewInstance(name, r.destinations, level...)
 }
 
-func (r *Factory) initDestination(dstSettings sdk.DestinationSettings) error {
-	dst, err := sdk.NewDestination(dstSettings)
+func (r *Factory) initDestination(cfg destinations.Config) error {
+	dst, err := destinations.New(cfg)
 	if err != nil {
 		return err
 	}
 
-	if err = dst.Run(); err != nil {
+	if err = dst.Start(); err != nil {
 		return err
 	}
 
@@ -26,14 +26,14 @@ func (r *Factory) initDestination(dstSettings sdk.DestinationSettings) error {
 	return nil
 }
 
-func NewFactory(settings ...sdk.DestinationSettings) (*Factory, error) {
-	if len(settings) == 0 {
-		settings = []sdk.DestinationSettings{{Kind: sdk.DestinationConsole}}
+func NewFactory(cfg ...destinations.Config) (*Factory, error) {
+	if len(cfg) == 0 {
+		cfg = []destinations.Config{{Kind: destinations.DestinationConsole}}
 	}
 
 	factory := new(Factory)
-	for i := range settings {
-		if err := factory.initDestination(settings[i]); err != nil {
+	for i := range cfg {
+		if err := factory.initDestination(cfg[i]); err != nil {
 			return nil, err
 		}
 	}

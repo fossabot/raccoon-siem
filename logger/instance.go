@@ -1,85 +1,79 @@
 package logger
 
 import (
-	"github.com/tephrocactus/raccoon-siem/sdk"
-	"time"
+	"github.com/tephrocactus/raccoon-siem/sdk/destinations"
+	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
 const (
-	SeverityDebug = "debug"
-	LevelDebug    = 1
-
-	SeverityInfo = "info"
-	LevelInfo    = 2
-
-	SeverityWarn = "warning"
-	LevelWarn    = 3
-
-	SeverityError = "error"
-	LevelError    = 4
+	LevelDebug = 1
+	LevelInfo  = 2
+	LevelWarn  = 3
+	LevelError = 4
 )
 
 type Instance struct {
 	name         string
 	level        int
-	destinations []sdk.IDestination
+	destinations []destinations.IDestination
 }
 
-func (r *Instance) Debug(msg string, customEvent ...*sdk.Event) {
+func (r *Instance) Debug(msg string, customEvent ...*normalization.Event) {
 	if r.level <= LevelDebug {
 		e := r.defaultEvent(msg, customEvent...)
-		e.Severity = SeverityDebug
+		e.Severity = normalization.SeverityInfo
 		r.sendEvent(e)
 	}
 }
 
-func (r *Instance) Info(msg string, customEvent ...*sdk.Event) {
+func (r *Instance) Info(msg string, customEvent ...*normalization.Event) {
 	if r.level <= LevelInfo {
 		e := r.defaultEvent(msg, customEvent...)
-		e.Severity = SeverityInfo
+		e.Severity = normalization.SeverityInfo
 		r.sendEvent(e)
 	}
 }
 
-func (r *Instance) Warn(msg string, customEvent ...*sdk.Event) {
+func (r *Instance) Warn(msg string, customEvent ...*normalization.Event) {
 	if r.level <= LevelWarn {
 		e := r.defaultEvent(msg, customEvent...)
-		e.Severity = SeverityWarn
+		e.Severity = normalization.SeverityWarn
 		r.sendEvent(e)
 	}
 }
 
-func (r *Instance) Error(msg string, customEvent ...*sdk.Event) {
+func (r *Instance) Error(msg string, customEvent ...*normalization.Event) {
 	if r.level <= LevelError {
 		e := r.defaultEvent(msg, customEvent...)
-		e.Severity = SeverityError
+		e.Severity = normalization.SeverityError
 		r.sendEvent(e)
 	}
 }
 
-func (r *Instance) sendEvent(e *sdk.Event) {
+func (r *Instance) sendEvent(e *normalization.Event) {
 	for _, dst := range r.destinations {
 		dst.Send(e)
 	}
 }
 
-func (r *Instance) defaultEvent(msg string, customEvent ...*sdk.Event) *sdk.Event {
-	var e *sdk.Event
+func (r *Instance) defaultEvent(msg string, customEvent ...*normalization.Event) *normalization.Event {
+	var e *normalization.Event
 
 	if len(customEvent) > 0 {
 		e = customEvent[0]
 	} else {
-		e = new(sdk.Event)
+		e = new(normalization.Event)
 	}
 
-	e.OriginTimestamp = time.Now()
+	e.OriginTimestamp = helpers.NowUnixMillis()
 	e.OriginServiceName = r.name
 	e.Message = msg
 
 	return e
 }
 
-func NewInstance(name string, destinations []sdk.IDestination, level ...int) *Instance {
+func NewInstance(name string, destinations []destinations.IDestination, level ...int) *Instance {
 	effectiveLogLevel := LevelWarn
 	if len(level) != 0 {
 		effectiveLogLevel = level[0]
