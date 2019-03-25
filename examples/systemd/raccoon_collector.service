@@ -3,11 +3,10 @@ Description=Raccoon SIEM Collector
 
 [Service]
 ExecStart=/usr/local/bin/raccoon collector \
-    --core http://localhost:7220 \
+    --config <config_file_path> \
     --bus nats://localhost:4222 \
     --storage http://localhost:9200 \
-    --metrics 7221 \
-    --id example-01
+    --metrics 7221
 
 User=raccoon
 Group=raccoon

@@ -1,5 +1,0 @@
-name: elasticsearch
-kind: elasticsearch
-url: http://localhost:9200
-index: raccoon-events
-rotateIndex: true

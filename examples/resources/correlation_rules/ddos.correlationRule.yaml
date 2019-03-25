@@ -16,7 +16,7 @@ uniqueFields:
   - SourceIPAddress
 
 triggers:
-  ft:
+  firstTrigger:
     actions:
       - kind: release
         release:

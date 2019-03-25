@@ -18,7 +18,7 @@ type Processor struct {
 	metrics          *metrics
 	inputChannel     connectors.OutputChannel
 	normalizer       normalizers.INormalizer
-	dropFilters      []*filters.Filter
+	filters          []*filters.Filter
 	enrichment       []enrichment.Config
 	aggregationRules []*aggregation.Rule
 	destinations     []destinations.IDestination
@@ -43,7 +43,7 @@ mainLoop:
 			continue
 		}
 
-		for _, dropFilter := range r.dropFilters {
+		for _, dropFilter := range r.filters {
 			if dropFilter.Pass(event) {
 				r.metrics.eventFiltered(dropFilter.ID())
 				r.metrics.eventProcessed()

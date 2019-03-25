@@ -4,8 +4,8 @@ type Config struct {
 	Name          string          `yaml:"name,omitempty"`
 	Kind          string          `yaml:"kind,omitempty"`
 	Expressions   []string        `yaml:"expressions,omitempty"`
-	PairDelimiter string          `yaml:"pair_delimiter,omitempty"`
-	KVDelimiter   string          `yaml:"kv_delimiter,omitempty"`
+	PairDelimiter string          `yaml:"pairDelimiter,omitempty"`
+	KVDelimiter   string          `yaml:"kvDelimiter,omitempty"`
 	Mapping       []MappingConfig `yaml:"mapping,omitempty"`
 }
 

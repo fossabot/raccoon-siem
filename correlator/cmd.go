@@ -120,6 +120,19 @@ func run(_ *cobra.Command, _ []string) (err error) {
 	}
 
 	//
+	// Initialize connector
+	//
+
+	connector, err := connectors.New(cfg.Connector, proc.inputChannel)
+	if err != nil {
+		return err
+	}
+
+	if err := connector.Start(); err != nil {
+		return err
+	}
+
+	//
 	// Begin processing
 	//
 

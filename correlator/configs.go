@@ -2,6 +2,7 @@ package correlator
 
 import (
 	"github.com/tephrocactus/raccoon-siem/sdk/active_lists"
+	"github.com/tephrocactus/raccoon-siem/sdk/connectors"
 	"github.com/tephrocactus/raccoon-siem/sdk/correlation"
 	"github.com/tephrocactus/raccoon-siem/sdk/destinations"
 	"github.com/tephrocactus/raccoon-siem/sdk/dictionaries"
@@ -9,6 +10,7 @@ import (
 
 type Config struct {
 	Name         string                `yaml:"name,omitempty"`
+	Connector    connectors.Config     `yaml:"connector,omitempty"`
 	Rules        []correlation.Config  `yaml:"rules,omitempty"`
 	Destinations []destinations.Config `yaml:"destinations,omitempty"`
 	ActiveLists  []activeLists.Config  `yaml:"activeLists,omitempty"`

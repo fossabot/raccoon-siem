@@ -15,7 +15,7 @@ type Config struct {
 	Name         string                `yaml:"name,omitempty"`
 	Connector    connectors.Config     `yaml:"connector,omitempty"`
 	Normalizer   normalizers.Config    `yaml:"normalizer,omitempty"`
-	Filters      []filters.Config      `yaml:"filters,omitempty"`
+	Filters      []filters.Config      `yaml:"dropFilters,omitempty"`
 	Enrichment   []enrichment.Config   `yaml:"enrichment,omitempty"`
 	Rules        []aggregation.Config  `yaml:"rules,omitempty"`
 	Destinations []destinations.Config `yaml:"destinations,omitempty"`

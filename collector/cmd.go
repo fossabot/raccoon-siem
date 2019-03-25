@@ -112,7 +112,7 @@ func run(_ *cobra.Command, _ []string) (err error) {
 		if err != nil {
 			return err
 		}
-		proc.dropFilters = append(proc.dropFilters, f)
+		proc.filters = append(proc.filters, f)
 	}
 
 	//
