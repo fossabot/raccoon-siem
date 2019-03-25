@@ -7,6 +7,7 @@ import (
 	"github.com/tephrocactus/raccoon-siem/core"
 	"github.com/tephrocactus/raccoon-siem/correlator"
 	"github.com/tephrocactus/raccoon-siem/resources"
+	"os"
 )
 
 var rootCmd = &cobra.Command{
@@ -37,5 +38,7 @@ func init() {
 }
 
 func main() {
-	rootCmd.Execute()
+	if err := rootCmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }
