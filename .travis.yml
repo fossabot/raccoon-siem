@@ -8,9 +8,6 @@ before_install:
 
 jobs:
   include:
-    - stage: test
-      if: tag =~ ^v
-      script: go test -v -mod=vendor ./...
     - stage: deploy
       if: tag =~ ^v
       script:
