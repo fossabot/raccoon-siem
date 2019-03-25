@@ -3,13 +3,13 @@ package activeLists
 import "gopkg.in/vmihailenco/msgpack.v4"
 
 type Record struct {
-	Version   int64 `json:"-"`
 	ExpiresAt int64
+	Version   int64 `json:"-"`
 	Fields    map[string]interface{}
 }
 
 func (r *Record) EncodeMsgpack(enc *msgpack.Encoder) error {
-	if err := enc.EncodeMulti(r.Version, r.ExpiresAt); err != nil {
+	if err := enc.EncodeMulti(r.ExpiresAt, r.Version); err != nil {
 		return err
 	}
 
@@ -31,7 +31,7 @@ func (r *Record) EncodeMsgpack(enc *msgpack.Encoder) error {
 }
 
 func (r *Record) DecodeMsgpack(dec *msgpack.Decoder) error {
-	if err := dec.DecodeMulti(&r.Version, &r.ExpiresAt); err != nil {
+	if err := dec.DecodeMulti(&r.ExpiresAt, &r.Version); err != nil {
 		return err
 	}
 

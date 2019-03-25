@@ -2,11 +2,13 @@ package activeLists
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/nats-io/go-nats"
 	"github.com/olivere/elastic"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"gopkg.in/vmihailenco/msgpack.v4"
+	"io"
 	"runtime"
 	"time"
 )
@@ -18,6 +20,7 @@ type Container struct {
 	lists  map[string]*activeList
 	bus    *nats.Conn
 	subs   map[string]*nats.Subscription
+	esCli  *elastic.Client
 	esBulk *elastic.BulkProcessor
 }
 
@@ -105,6 +108,61 @@ func (r *Container) addList(cfg Config) error {
 	}
 
 	r.subs[cfg.Name] = sub
+
+	if err := r.fetchListRecords(cfg.Name, al); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Container) fetchListRecords(name string, list *activeList) error {
+	query := elastic.NewBoolQuery().
+		MinimumNumberShouldMatch(1).
+		Should(
+			elastic.NewRangeQuery("ExpiresAt").Gt(time.Now().UnixNano()),
+			elastic.NewTermQuery("ExpiresAt", 0),
+		)
+
+	scroll := r.esCli.
+		Scroll(alNamePrefix + name).
+		Type("_doc").
+		Query(query).
+		Version(true).
+		Size(128)
+
+	ctx := context.Background()
+	defer scroll.Clear(ctx)
+
+	for {
+		res, err := scroll.Do(ctx)
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			return err
+		}
+
+		if res.Hits == nil || res.Hits.Hits == nil || len(res.Hits.Hits) == 0 {
+			continue
+		}
+
+		for _, hit := range res.Hits.Hits {
+			if hit.Version == nil {
+				continue
+			}
+
+			chLog := changeLog{CID: r.cid, ALName: name, Op: OpSet, Key: hit.Id, Version: *hit.Version}
+			if err := json.Unmarshal(*hit.Source, &chLog.Record); err != nil {
+				continue
+			}
+
+			chLog.Record.Version = chLog.Version
+			list.apply(chLog)
+		}
+	}
+
 	return nil
 }
 
@@ -133,6 +191,7 @@ func NewContainer(lists []Config, cid, busURL, storageURL string) (*Container, e
 	container := &Container{
 		cid:    cid,
 		bus:    bus,
+		esCli:  esCli,
 		esBulk: bulkProc,
 		subs:   make(map[string]*nats.Subscription),
 		lists:  make(map[string]*activeList),

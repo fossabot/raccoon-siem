@@ -75,8 +75,8 @@ type Event struct {
 	Customer                   string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
 	Code                       string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
 	Timestamp                  int64    `json:",omitempty" msgpack:",omitempty" storage_type:"date"`
-	Severity                   int64    `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
-	Score                      int64    `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
+	Severity                   int64    `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
+	Score                      int64    `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
 	BaseEventCount             int      `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
 	AggregatedEventCount       int      `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
 	AggregationRuleName        string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`

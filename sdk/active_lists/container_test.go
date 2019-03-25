@@ -15,10 +15,7 @@ const testListName = "test"
 func init() {
 	var err error
 
-	lists := []Config{{
-		Name: testListName,
-		TTL:  time.Second,
-	}}
+	lists := []Config{{Name: testListName}}
 
 	testContainer1, err = NewContainer(
 		lists,
@@ -94,12 +91,18 @@ func TestActiveList(t *testing.T) {
 	time.Sleep(10 * time.Millisecond)
 	assert.Equal(t, testContainer2.Get(testListName, "status", keyFields, event), nil)
 
-	// Check expiration
+	// Add one record
+	// 1. Check it is read from storage by fresh container
 
 	testContainer1.Set(testListName, keyFields, mapping, event)
-	assert.Equal(t, testContainer1.Get(testListName, "msg", keyFields, event), event.Message)
-	time.Sleep(5 * time.Second)
-	assert.Equal(t, testContainer1.Get(testListName, "msg", keyFields, event), nil)
+	time.Sleep(2 * time.Second)
+	testContainer3, err := NewContainer(
+		[]Config{{Name: testListName}},
+		"3",
+		"nats://localhost:4222",
+		"http://localhost:9200")
+	assert.Equal(t, err, nil)
+	assert.Equal(t, testContainer3.Get(testListName, "msg", keyFields, event), event.Message)
 }
 
 func BenchmarkALSet(b *testing.B) {

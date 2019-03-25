@@ -32,7 +32,10 @@ func (r *activeList) set(key string, mapping []Mapping, event *normalization.Eve
 
 	rec := r.records[key]
 	rec.Version = chLog.Version
-	rec.ExpiresAt = chLog.Version + r.ttl
+
+	if r.ttl > 0 {
+		rec.ExpiresAt = chLog.Version + r.ttl
+	}
 
 	if rec.Fields == nil {
 		rec.Fields = make(map[string]interface{})
