@@ -107,9 +107,10 @@ func (r *netflowConnector) process(input []byte, remote string) error {
 
 func newNetflowConnector(cfg Config, channel OutputChannel) (*netflowConnector, error) {
 	return &netflowConnector{
-		name:       cfg.Name,
-		url:        cfg.URL,
-		bufferSize: cfg.BufferSize,
-		channel:    channel,
+		name:          cfg.Name,
+		url:           cfg.URL,
+		bufferSize:    cfg.BufferSize,
+		channel:       channel,
+		templateCache: make(map[string]*nf9packet.TemplateRecord),
 	}, nil
 }
