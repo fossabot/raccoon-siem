@@ -1,5 +1,5 @@
 name: DDoS
-window: 1m
+window: 120
 selectors:
   - tag: DDoS
     threshold: 2
@@ -8,7 +8,7 @@ selectors:
         - conditions:
           - field: CorrelationRuleName
             op: =
-            value: DoS
+            constant: DoS
 
 identicalFields:
   - DestinationIPAddress
@@ -20,7 +20,7 @@ triggers:
     actions:
       - kind: release
         release:
-          mutate:
+          enrichment:
             - targetField: Incident
               constant: "true"
             - targetField: Message

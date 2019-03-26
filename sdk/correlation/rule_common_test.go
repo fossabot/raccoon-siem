@@ -11,8 +11,8 @@ import (
 	"testing"
 )
 
-var correlatedEvents []*normalization.Event
-var rules []IRule
+var testCorrelatedEvents []*normalization.Event
+var testRules []IRule
 
 func TestCommonRule(t *testing.T) {
 	dosRule, err := NewRule(buildTestCorrelationConfigDOS(), outputFnCommonTest)
@@ -21,51 +21,51 @@ func TestCommonRule(t *testing.T) {
 	ddosRule, err := NewRule(buildTestCorrelationConfigDDOS(), outputFnCommonTest)
 	assert.Assert(t, err == nil)
 
-	rules = append(rules, dosRule, ddosRule)
+	testRules = append(testRules, dosRule, ddosRule)
 
 	for _, event := range generateTestEvents() {
 		inputFnCommonTest(event)
 	}
 
-	assert.Equal(t, len(correlatedEvents), 3)
+	assert.Equal(t, len(testCorrelatedEvents), 3)
 
-	assert.Equal(t, correlatedEvents[0].CorrelationRuleName, "DoS")
-	assert.Equal(t, correlatedEvents[0].Correlated, true)
-	assert.Equal(t, correlatedEvents[0].Message, "DoS attack detected")
-	assert.Equal(t, correlatedEvents[0].SourceIPAddress, "192.168.2.2")
-	assert.Equal(t, correlatedEvents[0].DestinationIPAddress, "192.168.1.254")
-	assert.Equal(t, correlatedEvents[0].BaseEventCount, 1)
-	assert.Equal(t, correlatedEvents[0].AggregatedEventCount, 0)
+	assert.Equal(t, testCorrelatedEvents[0].CorrelationRuleName, "DoS")
+	assert.Equal(t, testCorrelatedEvents[0].Correlated, true)
+	assert.Equal(t, testCorrelatedEvents[0].Message, "DoS attack detected")
+	assert.Equal(t, testCorrelatedEvents[0].SourceIPAddress, "192.168.2.2")
+	assert.Equal(t, testCorrelatedEvents[0].DestinationIPAddress, "192.168.1.254")
+	assert.Equal(t, testCorrelatedEvents[0].BaseEventCount, 1)
+	assert.Equal(t, testCorrelatedEvents[0].AggregatedEventCount, 0)
 
-	assert.Equal(t, correlatedEvents[1].CorrelationRuleName, "DoS")
-	assert.Equal(t, correlatedEvents[1].Correlated, true)
-	assert.Equal(t, correlatedEvents[1].Message, "DoS attack detected")
-	assert.Equal(t, correlatedEvents[1].SourceIPAddress, "192.168.2.3")
-	assert.Equal(t, correlatedEvents[1].DestinationIPAddress, "192.168.1.254")
-	assert.Equal(t, correlatedEvents[1].BaseEventCount, 1)
-	assert.Equal(t, correlatedEvents[1].AggregatedEventCount, 0)
+	assert.Equal(t, testCorrelatedEvents[1].CorrelationRuleName, "DoS")
+	assert.Equal(t, testCorrelatedEvents[1].Correlated, true)
+	assert.Equal(t, testCorrelatedEvents[1].Message, "DoS attack detected")
+	assert.Equal(t, testCorrelatedEvents[1].SourceIPAddress, "192.168.2.3")
+	assert.Equal(t, testCorrelatedEvents[1].DestinationIPAddress, "192.168.1.254")
+	assert.Equal(t, testCorrelatedEvents[1].BaseEventCount, 1)
+	assert.Equal(t, testCorrelatedEvents[1].AggregatedEventCount, 0)
 
-	assert.Equal(t, correlatedEvents[2].CorrelationRuleName, "DDoS")
-	assert.Equal(t, correlatedEvents[2].Correlated, true)
-	assert.Equal(t, correlatedEvents[2].Message, "DDoS attack detected")
-	assert.Equal(t, correlatedEvents[2].SourceIPAddress, "")
-	assert.Equal(t, correlatedEvents[2].DestinationIPAddress, "192.168.1.254")
-	assert.Equal(t, correlatedEvents[2].BaseEventCount, 2)
-	assert.Equal(t, correlatedEvents[2].AggregatedEventCount, 0)
+	assert.Equal(t, testCorrelatedEvents[2].CorrelationRuleName, "DDoS")
+	assert.Equal(t, testCorrelatedEvents[2].Correlated, true)
+	assert.Equal(t, testCorrelatedEvents[2].Message, "DDoS attack detected")
+	assert.Equal(t, testCorrelatedEvents[2].SourceIPAddress, "")
+	assert.Equal(t, testCorrelatedEvents[2].DestinationIPAddress, "192.168.1.254")
+	assert.Equal(t, testCorrelatedEvents[2].BaseEventCount, 2)
+	assert.Equal(t, testCorrelatedEvents[2].AggregatedEventCount, 0)
 
-	for _, event := range correlatedEvents {
+	for _, event := range testCorrelatedEvents {
 		fmt.Println(event)
 	}
 }
 
 func inputFnCommonTest(event *normalization.Event) {
-	for _, rule := range rules {
+	for _, rule := range testRules {
 		rule.Feed(event)
 	}
 }
 
 func outputFnCommonTest(event *normalization.Event) {
-	correlatedEvents = append(correlatedEvents, event)
+	testCorrelatedEvents = append(testCorrelatedEvents, event)
 	inputFnCommonTest(event)
 }
 

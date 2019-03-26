@@ -1,0 +1,40 @@
+name: Server rebooted and remains in down state
+kind: recovery
+window: 60
+selectors:
+  - tag: Reboot
+    threshold: 1
+    filter:
+      sections:
+        - conditions:
+            - field: Message
+              op: =
+              constant: "server rebooted"
+            - field: OriginServiceName
+              op: =
+              constant: "nagios"
+  - tag: Boot
+      recovery: true
+      filter:
+        sections:
+          - conditions:
+              - field: Message
+                op: =
+                constant: "server booted"
+              - field: OriginServiceName
+                op: =
+                constant: "nagios"
+
+identicalFields:
+  - SourceDNSName
+
+triggers:
+  timeout:
+    actions:
+      - kind: release
+        release:
+          enrichment:
+            - targetField: Incident
+              constant: "true"
+            - targetField: Message
+              constant: "Server rebooted and remains in down state"

@@ -49,13 +49,13 @@ rules:
       - RequestResults
     filter:
       name: netflow
-      sect
-            - field: Correlated
-              op: =
-              constant: false
-            - field: OriginServiceName
-              op: =
-              constant: netflow
+      sections:
+        - field: Correlated
+          op: =
+          constant: false
+        - field: OriginServiceName
+          op: =
+          constant: netflow
 
 destinations:
   - name: storage

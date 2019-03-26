@@ -19,7 +19,7 @@ const (
 
 const (
 	RuleKindCommon   = "common"
-	RuleKindRecovery = "recover"
+	RuleKindRecovery = "recovery"
 )
 
 const (

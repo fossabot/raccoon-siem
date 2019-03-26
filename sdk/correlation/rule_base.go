@@ -232,6 +232,7 @@ func newBaseRule(
 		selector := eventSelector{
 			tag:       selectorCfg.Tag,
 			threshold: selectorCfg.Threshold,
+			recovery:  selectorCfg.Recovery,
 		}
 
 		filter, err := filters.NewFilter(selectorCfg.Filter)

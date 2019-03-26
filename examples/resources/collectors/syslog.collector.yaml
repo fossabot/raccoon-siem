@@ -60,7 +60,7 @@ enrichment:
 rules:
   - name: rest-ok
     threshold: 100
-    window: 1s
+    window: 10
     identicalFields:
       - RequestURL
       - RequestMethod

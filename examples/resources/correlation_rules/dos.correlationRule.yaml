@@ -1,5 +1,5 @@
 name: DoS
-window: 1s
+window: 0
 
 selectors:
   - tag: DoS
@@ -9,13 +9,13 @@ selectors:
         - conditions:
           - field: Correlated
             op: =
-            value: false
+            constant: false
           - field: OriginServiceName
             op: =
-            value: PeakFlow
+            constant: PeakFlow
           - field: Message
             op: =
-            value: DoS
+            constant: DoS
 
 identicalFields:
   - SourceIPAddress
@@ -26,6 +26,6 @@ triggers:
     actions:
       - kind: release
         release:
-          mutate:
+          enrichment:
             - targetField: Message
               constant: DoS attack detected
