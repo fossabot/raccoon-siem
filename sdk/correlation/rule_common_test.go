@@ -9,7 +9,6 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"gotest.tools/assert"
 	"testing"
-	"time"
 )
 
 var correlatedEvents []*normalization.Event
@@ -98,7 +97,7 @@ func generateTestEvents() (events []*normalization.Event) {
 func buildTestCorrelationConfigDOS() Config {
 	return Config{
 		Name:   "DoS",
-		Window: time.Second,
+		Window: 1,
 		IdenticalFields: []string{
 			"SourceIPAddress",
 			"DestinationIPAddress",
@@ -134,7 +133,7 @@ func buildTestCorrelationConfigDOS() Config {
 func buildTestCorrelationConfigDDOS() Config {
 	return Config{
 		Name:            "DDoS",
-		Window:          time.Second,
+		Window:          1,
 		IdenticalFields: []string{"DestinationIPAddress"},
 		UniqueFields:    []string{"SourceIPAddress"},
 		Triggers: map[string]TriggerConfig{

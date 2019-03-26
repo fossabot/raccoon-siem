@@ -3,6 +3,7 @@ name: json
 connector:
   name: tcp
   kind: listener
+  protocol: tcp
   url: :2019
 
 normalizer:

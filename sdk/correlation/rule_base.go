@@ -210,7 +210,7 @@ func newBaseRule(
 ) (baseRule, error) {
 	r := baseRule{
 		name:            cfg.Name,
-		window:          cfg.Window,
+		window:          cfg.WindowDuration(),
 		identicalFields: cfg.IdenticalFields,
 		uniqueFields:    cfg.UniqueFields,
 		buckets:         make(map[string]*bucket),

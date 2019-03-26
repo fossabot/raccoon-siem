@@ -11,6 +11,7 @@ var colonEqualInput = []byte("key1=value1:key2=value2;")
 var minusCommaInput = []byte("key1,value1-key2,value2")
 var spacedInput = []byte(" first key = value1, second key = value2 ")
 var escapedInput = []byte("key1\\=key2=value1\\,value2,second key = value2 ")
+var commonInput = []byte("key1=value1 key2=value2")
 
 const (
 	equal     = byte('=')
@@ -48,6 +49,14 @@ func TestParser(t *testing.T) {
 	assert.Assert(t, success, true)
 	assert.DeepEqual(t, res["key1\\=key2"], []byte("value1\\,value2"))
 	assert.DeepEqual(t, res["second key"], []byte("value2"))
+
+	res, success = Parse(commonInput, space, equal)
+	assert.Assert(t, success, true)
+	assert.DeepEqual(t, res["key1"], []byte("value1"))
+	assert.DeepEqual(t, res["key2"], []byte("value2"))
+
+	res, success = Parse([]byte(""), space, equal)
+	assert.Assert(t, success, false)
 }
 
 func BenchmarkParser(b *testing.B) {

@@ -12,7 +12,7 @@ type Config struct {
 	Name            string         `yaml:"name,omitempty"`
 	Filter          filters.Config `yaml:"filter,omitempty"`
 	Threshold       int            `yaml:"threshold,omitempty"`
-	Window          time.Duration  `yaml:"window,omitempty"`
+	Window          int64          `yaml:"window,omitempty"`
 	IdenticalFields []string       `yaml:"identicalFields,omitempty"`
 	UniqueFields    []string       `yaml:"uniqueFields,omitempty"`
 	SumFields       []string       `yaml:"sumFields,omitempty"`
@@ -21,4 +21,8 @@ type Config struct {
 
 func (r *Config) ID() string {
 	return r.Name
+}
+
+func (r *Config) WindowDuration() time.Duration {
+	return time.Duration(r.Window) * time.Second
 }

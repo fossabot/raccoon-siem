@@ -158,7 +158,7 @@ func NewRule(cfg Config, outputFn OutputFn) (*Rule, error) {
 	r := &Rule{
 		name:            cfg.Name,
 		threshold:       cfg.Threshold,
-		window:          cfg.Window,
+		window:          cfg.WindowDuration(),
 		recovery:        cfg.Recovery,
 		identicalFields: cfg.IdenticalFields,
 		uniqueFields:    cfg.UniqueFields,

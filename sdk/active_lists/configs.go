@@ -10,8 +10,12 @@ const (
 )
 
 type Config struct {
-	Name string        `yaml:"name"`
-	TTL  time.Duration `yaml:"ttl"`
+	Name string `yaml:"name"`
+	TTL  int64  `yaml:"ttl"`
+}
+
+func (r *Config) TTLDuration() time.Duration {
+	return time.Duration(r.TTL) * time.Second
 }
 
 type Mapping struct {

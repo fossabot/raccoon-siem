@@ -55,7 +55,8 @@ func TestRuleWindow(t *testing.T) {
 	rule, err := NewRule(Config{
 		Name:            "netflow",
 		Filter:          getTestFilterConfig(),
-		Window:          time.Second,
+		Threshold:       30,
+		Window:          1,
 		IdenticalFields: getTestIdenticalFields(),
 		SumFields:       getTestSumFields(),
 	}, outputFn)
@@ -80,7 +81,7 @@ func BenchmarkRule(b *testing.B) {
 		Name:            "netflow",
 		Filter:          getTestFilterConfig(),
 		Threshold:       100,
-		Window:          time.Second,
+		Window:          1,
 		IdenticalFields: getTestIdenticalFields(),
 	}, outputFn)
 

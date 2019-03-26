@@ -37,20 +37,19 @@ enrichment:
 rules:
   - name: netflow
     threshold: 100
-    window: 30s
+    window: 30
     identicalFields:
       - SourceIPAddress
       - DestinationIPAddress
       - DestinationPort
       - RequestTransportProtocol
       - OriginServiceName
-    sumField:
+    sumFields:
       - RequestBytesIn
       - RequestResults
     filter:
       name: netflow
-      sections:
-        - conditions:
+      sect
             - field: Correlated
               op: =
               constant: false

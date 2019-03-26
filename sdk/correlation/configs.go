@@ -36,11 +36,15 @@ type Config struct {
 	UniqueFields    []string                 `yaml:"uniqueFields,omitempty"`
 	Filter          *filters.JoinConfig      `yaml:"filter,omitempty"`
 	Triggers        map[string]TriggerConfig `yaml:"triggers,omitempty"`
-	Window          time.Duration            `yaml:"window,omitempty"`
+	Window          int64                    `yaml:"window,omitempty"`
 }
 
 func (r *Config) ID() string {
 	return r.Name
+}
+
+func (r *Config) WindowDuration() time.Duration {
+	return time.Duration(r.Window) * time.Second
 }
 
 type EventSelector struct {

@@ -99,7 +99,7 @@ func (r *Container) onChangeLog(msg *nats.Msg) {
 }
 
 func (r *Container) addList(cfg Config) error {
-	al := newList(cfg.Name, cfg.TTL.Nanoseconds(), r.persistAndBroadcast)
+	al := newList(cfg.Name, cfg.TTLDuration().Nanoseconds(), r.persistAndBroadcast)
 	r.lists[cfg.Name] = al
 
 	sub, err := r.bus.Subscribe(alNamePrefix+cfg.Name, r.onChangeLog)
