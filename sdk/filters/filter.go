@@ -64,6 +64,13 @@ func (r *Filter) conditionMatch(event *normalization.Event, cond ConditionConfig
 }
 
 func NewFilter(cfg Config) (*Filter, error) {
+	for i := range cfg.Sections {
+		for j := range cfg.Sections[i].Conditions {
+			cfg.Sections[i].Conditions[j].Constant =
+				normalization.To64Bits(cfg.Sections[i].Conditions[j].Constant)
+		}
+	}
+
 	return &Filter{
 		name:     cfg.Name,
 		not:      cfg.Not,
