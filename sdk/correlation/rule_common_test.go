@@ -15,6 +15,9 @@ var testCorrelatedEvents []*normalization.Event
 var testRules []IRule
 
 func TestCommonRule(t *testing.T) {
+	testRules = nil
+	testCorrelatedEvents = nil
+
 	dosRule, err := NewRule(buildTestCorrelationConfigDOS(), outputFnCommonTest)
 	assert.Assert(t, err == nil)
 

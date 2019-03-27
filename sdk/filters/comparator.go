@@ -23,6 +23,8 @@ func (r *comparator) compareValues(src interface{}, dst interface{}, op string) 
 	switch src.(type) {
 	case int64:
 		return r.compareInt(src.(int64), dst, op)
+	case int:
+		return r.compareInt(int64(src.(int)), dst, op)
 	case float64:
 		return r.compareFloat(src.(float64), dst, op)
 	case string:

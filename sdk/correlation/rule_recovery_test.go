@@ -12,6 +12,9 @@ import (
 )
 
 func TestRecoveryRule(t *testing.T) {
+	testRules = nil
+	testCorrelatedEvents = nil
+
 	cfg := buildTestCorrelationConfigRecovery()
 	rule, err := NewRule(cfg, outputFnRecoveryTest)
 	assert.Equal(t, err, nil)

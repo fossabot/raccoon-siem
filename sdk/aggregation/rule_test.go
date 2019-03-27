@@ -1,6 +1,7 @@
 package aggregation
 
 import (
+	"fmt"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"gotest.tools/assert"
@@ -72,6 +73,7 @@ func TestRuleWindow(t *testing.T) {
 
 	time.Sleep(2 * time.Second)
 	assert.Equal(t, len(aggregatedEvents), 2)
+	fmt.Println(aggregatedEvents)
 }
 
 func BenchmarkRule(b *testing.B) {
