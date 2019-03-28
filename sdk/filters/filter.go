@@ -53,13 +53,7 @@ func (r *Filter) conditionMatch(event *normalization.Event, cond ConditionConfig
 	case CMPSourceKindAL:
 		alValue := normalization.ToFieldType(
 			cond.Field,
-			globals.ActiveLists.Get(cond.CMPSourceName, cond.CMPSourceField, cond.KeyFields, event),
-		)
-
-		if alValue == nil {
-			return false
-		}
-
+			globals.ActiveLists.Get(cond.CMPSourceName, cond.CMPSourceField, cond.KeyFields, event))
 		return r.compareValues(lv, alValue, cond.Op)
 	default:
 		return r.compareValues(lv, cond.Constant, cond.Op)
