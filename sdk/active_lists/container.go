@@ -24,13 +24,13 @@ type Container struct {
 	esBulk *elastic.BulkProcessor
 }
 
-func (r *Container) Get(listName, field string, keyFields []string, event *normalization.Event) interface{} {
+func (r *Container) Get(listName, field string, keyFields []string, event *normalization.Event) string {
 	key := helpers.MakeKey(keyFields, event)
 	list := r.lists[listName]
 	if list != nil {
 		return list.get(key, field)
 	}
-	return nil
+	return ""
 }
 
 func (r *Container) Set(listName string, keyFields []string, mapping []Mapping, event *normalization.Event) {
@@ -58,7 +58,7 @@ func (r *Container) persistAndBroadcast(alName string, chLog changeLog) {
 		_ = r.bus.Publish(subject, encodedChangeLog)
 	}
 
-	fieldsCopy := make(map[string]interface{})
+	fieldsCopy := make(map[string]string)
 	for k, v := range chLog.Record.Fields {
 		fieldsCopy[k] = v
 	}

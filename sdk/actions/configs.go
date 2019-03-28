@@ -9,7 +9,7 @@ import (
 
 const (
 	KindRelease    = "release"
-	KindActiveList = "al"
+	KindActiveList = "activeList"
 )
 
 type ReleaseConfig struct {

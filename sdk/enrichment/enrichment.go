@@ -47,7 +47,7 @@ func fromEvent(cfg Config, targetEvent *normalization.Event, sourceEvents []*nor
 
 func fromAL(cfg Config, targetEvent *normalization.Event) {
 	alValue := globals.ActiveLists.Get(cfg.ValueSourceName, cfg.ValueSourceField, cfg.KeyFields, targetEvent)
-	setValueFromInterface(cfg.Field, alValue, targetEvent)
+	targetEvent.SetAnyField(cfg.Field, alValue)
 }
 
 func setValueFromInterface(field string, value interface{}, targetEvent *normalization.Event) {

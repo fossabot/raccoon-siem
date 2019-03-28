@@ -35,6 +35,21 @@
         }
       ],
       "triggers": {
+        "firstThreshold": {
+          "actions": [
+            {
+              "kind": "activeList",
+              "activeList": {
+                "name": "attackers",
+                "op": "set",
+                "keyFields": [ "SourceIPAddress" ],
+                "mapping": [
+                  { "eventField": "SourceIPAddress", "activeListField": "ip" }
+                ]
+              }
+            }
+          ]
+        },
         "everyThreshold": {
           "actions": [
             {
@@ -48,10 +63,51 @@
           ]
         }
       }
+    },
+    {
+      "name": "Multi source DNS requests for single domain",
+      "window": 300,
+      "identicalFields": [ "DestinationDNSName" ],
+      "uniqueFields": [ "SourceIPAddress" ],
+      "selectors": [
+        {
+          "tag": "DNSRequest",
+          "threshold": 100,
+          "filter": {
+            "name": "DNSRequest",
+            "sections": [
+              {
+                "conditions": [
+                  { "field": "Correlated", "op": "=", "constant": false },
+                  { "field": "OriginServiceName", "op": "=", "constant": "dns" }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "triggers": {
+        "everyThreshold": {
+          "actions": [
+            {
+              "kind": "release",
+              "release": {
+                "enrichment": [
+                  { "field": "Message", "constant": "Multi source DNS requests for single domain" }
+                ]
+              }
+            }
+          ]
+        }
+      }
     }
   ],
 
   "destinations": [
     { "name": "correlations", "kind": "nats", "url": "nats://localhost:4222", "subject": "raccoon-correlation" }
+  ],
+
+  "activeLists": [
+    { "name": "attackers", "ttl": 3600 }
   ]
 }

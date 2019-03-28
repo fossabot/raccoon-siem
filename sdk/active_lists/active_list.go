@@ -16,7 +16,7 @@ type activeList struct {
 	persistFn persistFn
 }
 
-func (r *activeList) get(key, field string) (v interface{}) {
+func (r *activeList) get(key, field string) (v string) {
 	r.mu.RLock()
 	rec := r.records[key]
 	if rec.Fields != nil {
@@ -38,22 +38,37 @@ func (r *activeList) set(key string, mapping []Mapping, event *normalization.Eve
 	}
 
 	if rec.Fields == nil {
-		rec.Fields = make(map[string]interface{})
+		rec.Fields = make(map[string]string)
 	}
 
+	changes := 0
 	for _, m := range mapping {
+		currentValue := rec.Fields[m.ALField]
+		var newValue string
+
 		if m.Constant != nil {
-			rec.Fields[m.ALField] = m.Constant
-			continue
+			newValue = normalization.ToString(m.Constant)
+		} else {
+			newValue = normalization.ToString(event.GetAnyField(m.EventField))
 		}
-		rec.Fields[m.ALField] = event.GetAnyField(m.EventField)
+
+		if currentValue != newValue {
+			rec.Fields[m.ALField] = newValue
+			changes++
+		}
+	}
+
+	r.expTree.touch(key, rec.ExpiresAt)
+
+	if changes == 0 {
+		r.mu.Unlock()
+		return
 	}
 
 	r.records[key] = rec
-	r.expTree.touch(key, rec.ExpiresAt)
 	chLog.Record = rec
-
 	r.persistFn(r.name, chLog)
+
 	r.mu.Unlock()
 }
 

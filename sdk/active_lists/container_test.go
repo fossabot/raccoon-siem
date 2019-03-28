@@ -57,9 +57,9 @@ func TestActiveList(t *testing.T) {
 	}
 
 	testContainer1.Set(testListName, keyFields, mapping, event)
-	assert.Equal(t, testContainer1.Get(testListName, "bytes_in", keyFields, event), bytesIn)
+	assert.Equal(t, normalization.ToInt64(testContainer1.Get(testListName, "bytes_in", keyFields, event)), bytesIn)
 	time.Sleep(10 * time.Millisecond)
-	assert.Equal(t, testContainer2.Get(testListName, "bytes_in", keyFields, event), bytesIn)
+	assert.Equal(t, normalization.ToInt64(testContainer2.Get(testListName, "bytes_in", keyFields, event)), bytesIn)
 
 	// Update single field and add new one:
 	// 1. Check local result
@@ -76,20 +76,20 @@ func TestActiveList(t *testing.T) {
 	testContainer2.Set(testListName, keyFields, mapping2, event)
 	assert.Equal(t, testContainer2.Get(testListName, "status", keyFields, event), event.RequestStatus)
 	assert.Equal(t, testContainer2.Get(testListName, "msg", keyFields, event), event.Message)
-	assert.Equal(t, testContainer2.Get(testListName, "bytes_in", keyFields, event), bytesIn)
+	assert.Equal(t, normalization.ToInt64(testContainer2.Get(testListName, "bytes_in", keyFields, event)), bytesIn)
 	time.Sleep(10 * time.Millisecond)
 	assert.Equal(t, testContainer1.Get(testListName, "status", keyFields, event), event.RequestStatus)
 	assert.Equal(t, testContainer1.Get(testListName, "msg", keyFields, event), event.Message)
-	assert.Equal(t, testContainer1.Get(testListName, "bytes_in", keyFields, event), bytesIn)
+	assert.Equal(t, normalization.ToInt64(testContainer1.Get(testListName, "bytes_in", keyFields, event)), bytesIn)
 
 	// Delete key
 	// 1. Check local result
 	// 2. Check replicated result
 
 	testContainer1.Del(testListName, keyFields, event)
-	assert.Equal(t, testContainer1.Get(testListName, "status", keyFields, event), nil)
+	assert.Equal(t, testContainer1.Get(testListName, "status", keyFields, event), "")
 	time.Sleep(10 * time.Millisecond)
-	assert.Equal(t, testContainer2.Get(testListName, "status", keyFields, event), nil)
+	assert.Equal(t, testContainer2.Get(testListName, "status", keyFields, event), "")
 
 	// Add one record
 	// 1. Check it is read from storage by fresh container

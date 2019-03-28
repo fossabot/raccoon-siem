@@ -55,7 +55,7 @@ func testGetChangeLog() changeLog {
 		Version: ts,
 		Record: Record{
 			Version: ts,
-			Fields:  map[string]interface{}{"testField": int64(123)},
+			Fields:  map[string]string{"testField": "123"},
 		},
 	}
 }

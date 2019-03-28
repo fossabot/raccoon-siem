@@ -5,7 +5,7 @@ import "gopkg.in/vmihailenco/msgpack.v4"
 type Record struct {
 	ExpiresAt int64
 	Version   int64 `json:"-"`
-	Fields    map[string]interface{}
+	Fields    map[string]string
 }
 
 func (r *Record) EncodeMsgpack(enc *msgpack.Encoder) error {
@@ -22,7 +22,7 @@ func (r *Record) EncodeMsgpack(enc *msgpack.Encoder) error {
 			return err
 		}
 
-		if err := enc.EncodeMulti(v); err != nil {
+		if err := enc.EncodeString(v); err != nil {
 			return err
 		}
 	}
@@ -45,14 +45,14 @@ func (r *Record) DecodeMsgpack(dec *msgpack.Decoder) error {
 		return nil
 	}
 
-	r.Fields = make(map[string]interface{})
+	r.Fields = make(map[string]string)
 	for i := 0; i < l; i++ {
 		k, err := dec.DecodeString()
 		if err != nil {
 			return err
 		}
 
-		v, err := dec.DecodeInterface()
+		v, err := dec.DecodeString()
 		if err != nil {
 			return err
 		}
