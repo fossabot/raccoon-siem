@@ -64,6 +64,10 @@ func run(_ *cobra.Command, _ []string) (err error) {
 		}
 	}
 
+	if err := cfg.Validate(); err != nil {
+		return err
+	}
+
 	//
 	// Prepare processor for initialization
 	//
@@ -100,6 +104,7 @@ func run(_ *cobra.Command, _ []string) (err error) {
 		if err != nil {
 			return err
 		}
+
 		rule.Start()
 		proc.correlationRules = append(proc.correlationRules, rule)
 	}

@@ -1,0 +1,57 @@
+{
+  "name": "test",
+
+  "connector": {
+    "name": "nats",
+    "kind": "nats",
+    "url": "nats://localhost:4222",
+    "subject": "raccoon-correlation"
+  },
+
+  "rules": [
+    {
+      "name": "SSH Bruteforce",
+      "window": 60,
+      "identicalFields": [ "SourceIPAddress" ],
+      "uniqueFields": [ "DestinationIPAddress" ],
+      "selectors": [
+        {
+          "tag": "PossibleFailedLogin",
+          "threshold": 2,
+          "filter": {
+            "name": "PossibleFailedLogin",
+            "sections": [
+              {
+                "conditions": [
+                  { "field": "Correlated", "op": "=", "constant": false },
+                  { "field": "OriginServiceName", "op": "=", "constant": "netflow" },
+                  { "field": "DestinationPort", "op": "=", "constant": "22" },
+                  { "field": "RequestResults", "op": ">", "constant": 11 },
+                  { "field": "RequestResults", "op": "<", "constant": 51 }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "triggers": {
+        "everyThreshold": {
+          "actions": [
+            {
+              "kind": "release",
+              "release": {
+                "enrichment": [
+                  { "field": "Message", "constant": "SSH Bruteforce" }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+
+  "destinations": [
+    { "name": "correlations", "kind": "nats", "url": "nats://localhost:4222", "subject": "raccoon-correlation" }
+  ]
+}

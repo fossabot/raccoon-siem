@@ -127,34 +127,6 @@ type Event struct {
 	DestinationPort            string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
 }
 
-func (r *Event) SetField(name string, value interface{}, timeUnit byte) {
-	targetFieldType := EventFieldTypeByName[name]
-
-	finalValue := ConvertValue(value, targetFieldType, timeUnit)
-
-	reflectValue := reflect.ValueOf(finalValue)
-	reflect.ValueOf(r).Elem().FieldByName(name).Set(reflectValue)
-}
-
-func (r *Event) SetFieldNoConversion(name string, value interface{}) {
-	reflectValue := reflect.ValueOf(value)
-	reflect.ValueOf(r).Elem().FieldByName(name).Set(reflectValue)
-}
-
-func (r *Event) GetField(name string) (value interface{}, fieldType byte) {
-	value = reflect.ValueOf(r).Elem().FieldByName(name).Interface()
-	fieldType = EventFieldTypeByName[name]
-	return
-}
-
-func (r *Event) GetFieldNoType(name string) interface{} {
-	return reflect.ValueOf(r).Elem().FieldByName(name).Interface()
-}
-
-func (r *Event) FieldEmpty(name string) bool {
-	return reflect.ValueOf(r).Elem().FieldByName(name).IsValid()
-}
-
 func (r *Event) HashFields(fieldNames []string) string {
 	if len(fieldNames) == 0 {
 		return DefaultEventFieldsHash

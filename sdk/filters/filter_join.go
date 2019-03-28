@@ -78,6 +78,6 @@ func NewJoinFilter(cfg JoinConfig) (*JoinFilter, error) {
 	return &JoinFilter{
 		name:     cfg.Name,
 		not:      cfg.Not,
-		sections: cfg.JoinSections,
+		sections: cfg.Sections,
 	}, nil
 }

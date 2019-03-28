@@ -1,14 +1,15 @@
 package helpers
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/satori/go.uuid"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
+	"reflect"
 	"strings"
 	"time"
 )
@@ -76,7 +77,7 @@ func ReadConfigFromCore(baseURL string, component string, id string, dst interfa
 		return err
 	}
 
-	return yaml.Unmarshal(body, dst)
+	return json.Unmarshal(body, dst)
 }
 
 func ReadConfigFromFile(path string, dstPointer interface{}) error {
@@ -84,7 +85,7 @@ func ReadConfigFromFile(path string, dstPointer interface{}) error {
 	if err != nil {
 		return err
 	}
-	return yaml.Unmarshal(data, dstPointer)
+	return json.Unmarshal(data, dstPointer)
 }
 
 func NowUnixMillis() int64 {
@@ -134,4 +135,16 @@ func MakeKey(keyFields []string, event *normalization.Event) string {
 		key.WriteString(normalization.ToString(event.GetAnyField(field)))
 	}
 	return key.String()
+}
+
+func AreEventFieldTypesEqual(lf, rf string) bool {
+	event := new(normalization.Event)
+	lv := event.GetAnyField(lf)
+	rv := event.GetAnyField(rf)
+	return reflect.TypeOf(lv).Kind() == reflect.TypeOf(rv).Kind()
+}
+
+func IsEventFieldAccessable(field string) bool {
+	event := new(normalization.Event)
+	return event.GetAnyField(field) != nil
 }

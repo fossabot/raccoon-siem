@@ -2,7 +2,6 @@ package filters
 
 import (
 	"github.com/tephrocactus/raccoon-siem/sdk/globals"
-	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
@@ -51,10 +50,6 @@ func (r *Filter) conditionMatch(event *normalization.Event, cond ConditionConfig
 	switch cond.CMPSourceKind {
 	case CMPSourceKindEvent:
 		return r.compareValues(lv, event.GetAnyField(cond.CMPSourceField), cond.Op)
-	case CMPSourceKindDict:
-		key := helpers.MakeKey(cond.KeyFields, event)
-		rv := globals.Dictionaries.Get(cond.CMPSourceName, key)
-		return r.compareValues(lv, rv, cond.Op)
 	case CMPSourceKindAL:
 		alValue := globals.ActiveLists.Get(cond.CMPSourceName, cond.CMPSourceField, cond.KeyFields, event)
 		return r.compareValues(lv, alValue, cond.Op)
@@ -64,13 +59,6 @@ func (r *Filter) conditionMatch(event *normalization.Event, cond ConditionConfig
 }
 
 func NewFilter(cfg Config) (*Filter, error) {
-	for i := range cfg.Sections {
-		for j := range cfg.Sections[i].Conditions {
-			cfg.Sections[i].Conditions[j].Constant =
-				normalization.To64Bits(cfg.Sections[i].Conditions[j].Constant)
-		}
-	}
-
 	return &Filter{
 		name:     cfg.Name,
 		not:      cfg.Not,

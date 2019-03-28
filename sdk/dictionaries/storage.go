@@ -12,10 +12,10 @@ func NewStorage(dictionaries []Config) *Storage {
 	return s
 }
 
-func (r *Storage) Get(dictionaryName string, key string) interface{} {
+func (r *Storage) Get(dictionaryName string, key string) string {
 	dictionary, found := r.data[dictionaryName]
 	if !found {
-		return nil
+		return ""
 	}
 	return dictionary[key]
 }

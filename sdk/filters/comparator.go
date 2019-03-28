@@ -23,8 +23,6 @@ func (r *comparator) compareValues(src interface{}, dst interface{}, op string) 
 	switch src.(type) {
 	case int64:
 		return r.compareInt(src.(int64), dst, op)
-	case int:
-		return r.compareInt(int64(src.(int)), dst, op)
 	case float64:
 		return r.compareFloat(src.(float64), dst, op)
 	case string:
@@ -35,7 +33,11 @@ func (r *comparator) compareValues(src interface{}, dst interface{}, op string) 
 }
 
 func (r *comparator) compareInt(src int64, dst interface{}, op string) bool {
-	dstVal := dst.(int64)
+	dstVal, ok := dst.(int64)
+	if !ok {
+		return false
+	}
+
 	switch op {
 	case OpGT:
 		return src > dstVal
@@ -46,11 +48,16 @@ func (r *comparator) compareInt(src int64, dst interface{}, op string) bool {
 	case OpLTorEQ:
 		return src <= dstVal
 	}
+
 	return false
 }
 
 func (r *comparator) compareFloat(src float64, dst interface{}, op string) bool {
-	dstVal := dst.(float64)
+	dstVal, ok := dst.(float64)
+	if !ok {
+		return false
+	}
+
 	switch op {
 	case OpGT:
 		return src > dstVal
@@ -61,11 +68,16 @@ func (r *comparator) compareFloat(src float64, dst interface{}, op string) bool 
 	case OpLTorEQ:
 		return src <= dstVal
 	}
+
 	return false
 }
 
 func (r *comparator) compareString(src string, dst interface{}, op string) bool {
-	dstVal := dst.(string)
+	dstVal, ok := dst.(string)
+	if !ok {
+		return false
+	}
+
 	switch op {
 	case OpGT:
 		return src > dstVal
@@ -76,5 +88,6 @@ func (r *comparator) compareString(src string, dst interface{}, op string) bool 
 	case OpLTorEQ:
 		return src <= dstVal
 	}
+
 	return false
 }

@@ -66,6 +66,10 @@ func run(_ *cobra.Command, _ []string) (err error) {
 		}
 	}
 
+	if err := cfg.Validate(); err != nil {
+		return err
+	}
+
 	//
 	// Prepare processor for initialization
 	//
@@ -104,7 +108,7 @@ func run(_ *cobra.Command, _ []string) (err error) {
 	}
 
 	//
-	// Initialize drop filters
+	// Initialize filters
 	//
 
 	for _, cfg := range cfg.Filters {

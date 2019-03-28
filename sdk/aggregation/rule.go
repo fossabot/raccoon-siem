@@ -150,7 +150,10 @@ func (r *Rule) timeoutRoutine() {
 		}
 
 		r.mu.Unlock()
-		skip = nextReleaseMin - now
+
+		if nextReleaseMin != math.MaxInt64 {
+			skip = nextReleaseMin - now
+		}
 	}
 }
 

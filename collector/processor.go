@@ -43,9 +43,9 @@ mainLoop:
 			continue
 		}
 
-		for _, dropFilter := range r.filters {
-			if dropFilter.Pass(event) {
-				r.metrics.eventFiltered(dropFilter.ID())
+		for _, filter := range r.filters {
+			if !filter.Pass(event) {
+				r.metrics.eventFiltered(filter.ID())
 				r.metrics.eventProcessed()
 				continue mainLoop
 			}
