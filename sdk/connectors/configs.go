@@ -33,6 +33,8 @@ func (r *Config) Validate() error {
 		return r.validateNetflow()
 	case connectorNats:
 		return r.validateNats()
+	case connectorKafka:
+		return r.validateKafka()
 	default:
 		return fmt.Errorf("connector: unknown kind %s", r.Kind)
 	}
@@ -64,6 +66,18 @@ func (r *Config) validateNetflow() error {
 }
 
 func (r *Config) validateNats() error {
+	if r.URL == "" {
+		return fmt.Errorf("connector: url required")
+	}
+
+	if r.Subject == "" {
+		return fmt.Errorf("connector: subject required")
+	}
+
+	return nil
+}
+
+func (r *Config) validateKafka() error {
 	if r.URL == "" {
 		return fmt.Errorf("connector: url required")
 	}
