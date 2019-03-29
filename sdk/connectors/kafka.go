@@ -2,6 +2,7 @@ package connectors
 
 import (
 	"context"
+	"fmt"
 	"github.com/segmentio/kafka-go"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"time"
@@ -11,6 +12,7 @@ type kafkaConnector struct {
 	name    string
 	reader  *kafka.Reader
 	channel OutputChannel
+	debug   bool
 }
 
 func (r *kafkaConnector) ID() string {
@@ -27,11 +29,21 @@ func (r *kafkaConnector) Start() error {
 
 func (r *kafkaConnector) worker() {
 	for {
-		if m, err := r.reader.ReadMessage(context.Background()); err == nil {
-			r.channel <- Output{
-				Connector: r.name,
-				Data:      helpers.CopyBytes(m.Value),
+		m, err := r.reader.ReadMessage(context.Background())
+		if err != nil {
+			if r.debug {
+				fmt.Println(err)
 			}
+			continue
+		}
+
+		if r.debug {
+			fmt.Println(string(m.Value))
+		}
+
+		r.channel <- Output{
+			Connector: r.name,
+			Data:      helpers.CopyBytes(m.Value),
 		}
 	}
 }
@@ -39,6 +51,7 @@ func (r *kafkaConnector) worker() {
 func newKafkaConnector(cfg Config, channel OutputChannel) (*kafkaConnector, error) {
 	return &kafkaConnector{
 		name:    cfg.Name,
+		debug:   cfg.Debug,
 		channel: channel,
 		reader: kafka.NewReader(kafka.ReaderConfig{
 			Brokers:        []string{cfg.URL},
