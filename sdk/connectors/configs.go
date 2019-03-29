@@ -14,6 +14,7 @@ type Config struct {
 	Delimiter  string `json:"delimiter"`
 	BufferSize int    `json:"bufferSize"`
 	MaxLen     int    `json:"maxLen"`
+	Partition  int    `json:"partition"`
 }
 
 func (r *Config) ID() string {

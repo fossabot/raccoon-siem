@@ -13,6 +13,7 @@ require (
 	github.com/gogo/protobuf v1.1.1 // indirect
 	github.com/google/btree v1.0.0
 	github.com/google/go-cmp v0.2.0 // indirect
+	github.com/gorilla/websocket v1.4.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.5 // indirect
 	github.com/mailru/easyjson v0.0.0-20180823135443-60711f1a8329 // indirect
@@ -23,6 +24,7 @@ require (
 	github.com/nats-io/gnatsd v1.3.0 // indirect
 	github.com/nats-io/go-nats v1.6.0
 	github.com/nats-io/nuid v1.0.0 // indirect
+	github.com/nlopes/slack v0.5.0
 	github.com/olivere/elastic v6.2.11+incompatible
 	github.com/pkg/errors v0.8.0
 	github.com/prometheus/client_golang v0.9.0
@@ -30,6 +32,7 @@ require (
 	github.com/prometheus/common v0.0.0-20181020173914-7e9e6cabbd39
 	github.com/prometheus/procfs v0.0.0-20181005140218-185b4288413d // indirect
 	github.com/satori/go.uuid v1.2.0
+	github.com/segmentio/kafka-go v0.2.2
 	github.com/simplereach/timeutils v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.4.0 // indirect
 	github.com/spf13/cobra v0.0.3

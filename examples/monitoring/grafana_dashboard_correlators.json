@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 2,
-  "iteration": 1553766891063,
+  "iteration": 1553773331960,
   "links": [],
   "panels": [
     {
@@ -867,14 +867,16 @@
         "current": {
           "tags": [],
           "text": "localhost:7222",
-          "value": "localhost:7222"
+          "value": [
+            "localhost:7222"
+          ]
         },
         "datasource": "Prometheus",
         "definition": "label_values(up{job=\"$siem\", components=\"correlators\"}, instance)",
         "hide": 0,
-        "includeAll": true,
+        "includeAll": false,
         "label": null,
-        "multi": false,
+        "multi": true,
         "name": "correlator",
         "options": [],
         "query": "label_values(up{job=\"$siem\", components=\"correlators\"}, instance)",
@@ -922,5 +924,5 @@
   "timezone": "",
   "title": "Raccoon SIEM Correlators",
   "uid": "b28_aM6iz",
-  "version": 12
+  "version": 14
 }

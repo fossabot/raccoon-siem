@@ -8,6 +8,7 @@ const (
 	connectorListener = "listener"
 	connectorNetflow  = "netflow"
 	connectorNats     = "nats"
+	connectorKafka    = "kafka"
 )
 
 type IConnector interface {
@@ -28,6 +29,8 @@ func New(cfg Config, channel OutputChannel) (IConnector, error) {
 		return newListenerConnector(cfg, channel)
 	case connectorNats:
 		return newNATSConnector(cfg, channel)
+	case connectorKafka:
+		return newKafkaConnector(cfg, channel)
 	case connectorNetflow:
 		return newNetflowConnector(cfg, channel)
 	default:
