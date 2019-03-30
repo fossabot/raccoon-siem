@@ -46,7 +46,7 @@ require (
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
-	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce
+	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce // indirect
 	gopkg.in/vmihailenco/msgpack.v4 v4.0.1
 	gopkg.in/yaml.v2 v2.2.1
 	gotest.tools v2.2.0+incompatible
