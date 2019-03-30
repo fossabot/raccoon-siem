@@ -1,64 +1,67 @@
 package activeLists
 
-import "gopkg.in/vmihailenco/msgpack.v4"
+import (
+	"github.com/francoispqt/gojay"
+)
 
-type Record struct {
+type record struct {
 	ExpiresAt int64
-	Version   int64 `json:"-"`
-	Fields    map[string]string
+	Version   int64
+	Fields    recordFields
 }
 
-func (r *Record) EncodeMsgpack(enc *msgpack.Encoder) error {
-	if err := enc.EncodeMulti(r.ExpiresAt, r.Version); err != nil {
-		return err
-	}
-
-	if err := enc.EncodeMapLen(len(r.Fields)); err != nil {
-		return err
-	}
-
-	for k, v := range r.Fields {
-		if err := enc.EncodeString(k); err != nil {
-			return err
-		}
-
-		if err := enc.EncodeString(v); err != nil {
-			return err
-		}
-	}
-
-	return nil
+func newRecord() record {
+	return record{Fields: make(recordFields)}
 }
 
-func (r *Record) DecodeMsgpack(dec *msgpack.Decoder) error {
-	if err := dec.DecodeMulti(&r.ExpiresAt, &r.Version); err != nil {
-		return err
-	}
+func (r *record) MarshalJSONObject(enc *gojay.Encoder) {
+	enc.Int64KeyOmitEmpty("ExpiresAt", r.ExpiresAt)
+	enc.Int64KeyOmitEmpty("Version", r.Version)
+	enc.ObjectKeyOmitEmpty("Fields", r.Fields)
+}
 
-	l, err := dec.DecodeMapLen()
-	if err != nil {
-		return err
-	}
-
-	if l == 0 {
-		r.Fields = nil
+func (r *record) UnmarshalJSONObject(dec *gojay.Decoder, k string) error {
+	switch k {
+	case "ExpiresAt":
+		return dec.Int64(&r.ExpiresAt)
+	case "Version":
+		return dec.Int64(&r.Version)
+	case "Fields":
+		return dec.Object(r.Fields)
+	default:
 		return nil
 	}
+}
 
-	r.Fields = make(map[string]string)
-	for i := 0; i < l; i++ {
-		k, err := dec.DecodeString()
-		if err != nil {
-			return err
-		}
+func (r *record) NKeys() int {
+	return 0
+}
 
-		v, err := dec.DecodeString()
-		if err != nil {
-			return err
-		}
+func (r *record) IsNil() bool {
+	return r == nil
+}
 
-		r.Fields[k] = v
+type recordFields map[string]string
+
+func (r recordFields) MarshalJSONObject(enc *gojay.Encoder) {
+	for k, v := range r {
+		enc.StringKeyOmitEmpty(k, v)
 	}
+}
 
+func (r recordFields) UnmarshalJSONObject(dec *gojay.Decoder, k string) error {
+	str := ""
+	if err := dec.String(&str); err != nil {
+		return err
+	}
+	r[k] = str
 	return nil
+}
+
+func (r recordFields) IsNil() bool {
+	return r == nil
+}
+
+func (r recordFields) NKeys() int {
+	return 0
 }

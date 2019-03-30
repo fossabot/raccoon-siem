@@ -16,6 +16,9 @@ func normalize(
 
 	for _, m := range mapping {
 		event.SetAnyFieldBytes(m.EventField, parsingResult[m.SourceField])
+		if m.labelField != "" {
+			event.SetAnyField(m.labelField, m.Label)
+		}
 	}
 
 	for _, m := range mapping {

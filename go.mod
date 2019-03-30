@@ -8,6 +8,7 @@ require (
 	github.com/boltdb/bolt v1.3.1
 	github.com/fln/nf9packet v0.0.0-20160617165915-086bda80ed9d
 	github.com/fortytw2/leaktest v1.3.0 // indirect
+	github.com/francoispqt/gojay v1.2.10
 	github.com/gin-contrib/sse v0.0.0-20170109093832-22d885f9ecc7 // indirect
 	github.com/gin-gonic/gin v1.3.0
 	github.com/gogo/protobuf v1.1.1 // indirect

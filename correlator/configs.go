@@ -7,11 +7,13 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk/correlation"
 	"github.com/tephrocactus/raccoon-siem/sdk/destinations"
 	"github.com/tephrocactus/raccoon-siem/sdk/dictionaries"
+	"github.com/tephrocactus/raccoon-siem/sdk/notifier"
 )
 
 type Config struct {
 	Name         string                `json:"name,omitempty"`
 	Connector    connectors.Config     `json:"connector,omitempty"`
+	Notifier     notifier.Config       `json:"notifier,omitempty"`
 	Rules        []correlation.Config  `json:"rules,omitempty"`
 	Destinations []destinations.Config `json:"destinations,omitempty"`
 	ActiveLists  []activeLists.Config  `json:"activeLists,omitempty"`
@@ -63,6 +65,10 @@ func (r *Config) Validate() error {
 		}
 	}
 
+	if err := r.Notifier.Validate(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -74,4 +80,5 @@ type cmdFlags struct {
 	StorageURL  string
 	MetricsPort string
 	Workers     int
+	Debug       bool
 }

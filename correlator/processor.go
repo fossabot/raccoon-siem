@@ -5,6 +5,7 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk/correlation"
 	"github.com/tephrocactus/raccoon-siem/sdk/destinations"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
+	"log"
 	"runtime"
 	"time"
 )
@@ -17,6 +18,7 @@ type Processor struct {
 	correlationRules []correlation.IRule
 	destinations     []destinations.IDestination
 	workers          int
+	debug            bool
 }
 
 func (r *Processor) Start() {
@@ -31,7 +33,7 @@ func (r *Processor) worker() {
 		r.metrics.eventReceived()
 
 		event := new(normalization.Event)
-		if err := event.FromMsgPack(input.Data); err != nil {
+		if err := event.FromJSON(input.Data); err != nil {
 			r.metrics.eventProcessed()
 			continue
 		}
@@ -47,8 +49,15 @@ func (r *Processor) worker() {
 
 func (r *Processor) output(event *normalization.Event) {
 	r.metrics.eventCorrelated(event.CorrelationRuleName)
-	for _, dst := range r.destinations {
-		dst.Send(event)
-		r.metrics.eventSent(dst.ID())
+
+	if r.debug {
+		log.Println(event)
+	}
+
+	if encodedEvent, err := event.ToJSON(); err == nil {
+		for _, dst := range r.destinations {
+			dst.Send(encodedEvent)
+			r.metrics.eventSent(dst.ID())
+		}
 	}
 }

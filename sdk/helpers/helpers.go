@@ -12,12 +12,17 @@ import (
 	"reflect"
 	"strings"
 	"time"
+	"unsafe"
 )
 
 func CopyBytes(data []byte) []byte {
 	dataCopy := make([]byte, len(data))
 	copy(dataCopy, data)
 	return dataCopy
+}
+
+func BytesToString(input []byte) string {
+	return *(*string)(unsafe.Pointer(&input))
 }
 
 func SumEvents(dst *normalization.Event, src *normalization.Event, fields []string) {
@@ -144,7 +149,19 @@ func AreEventFieldTypesEqual(lf, rf string) bool {
 	return reflect.TypeOf(lv).Kind() == reflect.TypeOf(rv).Kind()
 }
 
-func IsEventFieldAccessable(field string) bool {
-	event := new(normalization.Event)
-	return event.GetAnyField(field) != nil
+func EventFieldHasGetter(field string) bool {
+	event := normalization.Event{}
+	rt := reflect.TypeOf(event)
+	_, ok := rt.FieldByName(field)
+	return ok
+}
+
+func EventFieldHasSetter(field string) bool {
+	event := normalization.Event{}
+	rt := reflect.TypeOf(event)
+	f, ok := rt.FieldByName(field)
+	if !ok {
+		return false
+	}
+	return f.Tag.Get("set") != ""
 }

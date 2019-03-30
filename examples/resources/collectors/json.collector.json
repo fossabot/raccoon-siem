@@ -5,8 +5,7 @@
     "name": "tcp",
     "kind": "listener",
     "proto": "tcp",
-    "url": ":2019",
-    "delimiter": "\n"
+    "url": ":2019"
   },
 
   "normalizer": {
@@ -16,7 +15,7 @@
       { "sourceField": "dns_response", "eventField": "RequestStatus" },
       { "sourceField": "dns_client_ip", "eventField": "SourceIPAddress" },
       { "sourceField": "dns_query_name", "eventField": "DestinationDNSName" },
-      { "sourceField": "dns_char_flags", "eventField": "Message" },
+      { "sourceField": "dns_char_flags", "eventField": "UserString1", "label": "dns char flags" },
       { "sourceField": "dns_ip_protocol", "eventField": "RequestTransportProtocol" },
       { "sourceField": "servername", "eventField": "OriginDNSName" },
       { "sourceField": "type", "eventField": "OriginProcessName" },
@@ -32,7 +31,6 @@
   ],
 
   "destinations": [
-    { "name": "console", "kind": "console" },
     { "name": "correlation", "kind": "nats", "url": "nats://localhost:4222", "subject": "raccoon-correlation" }
   ]
 }

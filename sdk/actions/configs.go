@@ -44,7 +44,7 @@ func (r *ActiveListConfig) Validate() error {
 	}
 
 	switch r.Op {
-	case activeLists.OpSet, activeLists.OpDel, activeLists.OpGet:
+	case activeLists.OpSet, activeLists.OpDel:
 	default:
 		return fmt.Errorf("active list action: unknown operation %s", r.Op)
 	}
@@ -54,7 +54,7 @@ func (r *ActiveListConfig) Validate() error {
 	}
 
 	for _, f := range r.KeyFields {
-		if !helpers.IsEventFieldAccessable(f) {
+		if !helpers.EventFieldHasGetter(f) {
 			return fmt.Errorf("active list action: invalid event field %s", f)
 		}
 	}

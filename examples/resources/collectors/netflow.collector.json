@@ -61,7 +61,6 @@
   ],
 
   "destinations": [
-    { "name": "console", "kind": "console" },
     { "name": "correlation", "kind": "nats", "url": "nats://localhost:4222", "subject": "raccoon-correlation" }
   ],
 

@@ -92,4 +92,5 @@ type cmdFlags struct {
 	StorageURL  string
 	MetricsPort string
 	Workers     int
+	Debug       bool
 }

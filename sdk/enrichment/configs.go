@@ -25,7 +25,7 @@ type Config struct {
 }
 
 func (r *Config) Validate() error {
-	if !helpers.IsEventFieldAccessable(r.Field) {
+	if !helpers.EventFieldHasSetter(r.Field) {
 		return fmt.Errorf("enrichment: invalid event field %s", r.Field)
 	}
 
@@ -62,7 +62,7 @@ func (r *Config) validateAL() error {
 	}
 
 	for _, f := range r.KeyFields {
-		if !helpers.IsEventFieldAccessable(f) {
+		if !helpers.EventFieldHasGetter(f) {
 			return fmt.Errorf("enrichment: invalid event field %s", f)
 		}
 	}
@@ -84,7 +84,7 @@ func (r *Config) validateDict() error {
 	}
 
 	for _, f := range r.KeyFields {
-		if !helpers.IsEventFieldAccessable(f) {
+		if !helpers.EventFieldHasGetter(f) {
 			return fmt.Errorf("enrichment: invalid event field %s", f)
 		}
 	}
@@ -101,7 +101,7 @@ func (r *Config) validateEvent() error {
 		return fmt.Errorf("enrichment: source event tag required")
 	}
 
-	if !helpers.IsEventFieldAccessable(r.ValueSourceField) {
+	if !helpers.EventFieldHasGetter(r.ValueSourceField) {
 		return fmt.Errorf("enrichment: invalid event field %s", r.ValueSourceField)
 	}
 

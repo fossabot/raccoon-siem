@@ -10,6 +10,7 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk/dictionaries"
 	"github.com/tephrocactus/raccoon-siem/sdk/globals"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
+	"github.com/tephrocactus/raccoon-siem/sdk/notifier"
 	"runtime"
 )
 
@@ -39,6 +40,8 @@ func init() {
 	Cmd.Flags().StringVar(&flags.MetricsPort, "metrics", "7222", "metrics port")
 	// Worker count
 	Cmd.Flags().IntVar(&flags.Workers, "workers", runtime.NumCPU(), "worker count")
+	// Debug
+	Cmd.Flags().BoolVar(&flags.Debug, "debug", false, "debug mode")
 }
 
 func run(_ *cobra.Command, _ []string) (err error) {
@@ -78,6 +81,7 @@ func run(_ *cobra.Command, _ []string) (err error) {
 		metrics:      newMetrics(flags.MetricsPort),
 		inputChannel: make(connectors.OutputChannel),
 		workers:      flags.Workers,
+		debug:        flags.Debug,
 	}
 
 	//
@@ -94,6 +98,12 @@ func run(_ *cobra.Command, _ []string) (err error) {
 	//
 
 	globals.Dictionaries = dictionaries.NewStorage(cfg.Dictionaries)
+
+	//
+	// Initialize notifier
+	//
+
+	globals.Notifier, err = notifier.New(cfg.Notifier)
 
 	//
 	// Initialize correlation rules

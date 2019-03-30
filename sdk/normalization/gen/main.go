@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"os"
 	"reflect"
@@ -12,11 +13,54 @@ type eventFieldMeta struct {
 	Name string
 	Kind string
 	Set  bool
-	Last bool
+	Time bool
 }
 
+var packageImportTemplate = `package normalization
+
+// 
+// THIS FILE IS GENERATED. DO NOT EDIT!
+//
+
+import (
+	"strings"
+	"gopkg.in/vmihailenco/msgpack.v4"
+	"github.com/francoispqt/gojay"
+)
+`
+
 func main() {
-	getters()
+	outPath := flag.String("out", "", "")
+	flag.Parse()
+
+	_ = os.Remove(*outPath)
+
+	outFile, err := os.OpenFile(*outPath, os.O_CREATE|os.O_RDWR, 0655)
+	if err != nil {
+		panic(err)
+	}
+
+	meta := scanEvent()
+	templates := []string{
+		packageImportTemplate,
+		gettersTemplate,
+		settersTemplate,
+		encodeMsgpackTemplate,
+		decodeMsgpackTemplate,
+		encodeJSONTemplate,
+		decodeJSONTemplate,
+	}
+
+	for _, t := range templates {
+		tpl, err := template.New("").Parse(t)
+		if err != nil {
+			panic(err)
+		}
+
+		if err := tpl.Execute(outFile, meta); err != nil {
+			panic(err)
+		}
+	}
 }
 
 func scanEvent() (result []eventFieldMeta) {
@@ -25,77 +69,17 @@ func scanEvent() (result []eventFieldMeta) {
 
 	for i := 0; i < rt.NumField(); i++ {
 		f := rt.Field(i)
-		if strings.Index(f.Name, "_") == 0 {
-			continue
-		}
+
+		isLabel := strings.Index(f.Name, "User") == 0 && strings.Index(f.Name, "Label") > -1
+		isTimestamp := strings.Index(f.Name, "Timestamp") > -1
 
 		result = append(result, eventFieldMeta{
 			Name: f.Name,
-			Kind: f.Type.Kind().String(),
+			Kind: f.Type.Name(),
 			Set:  f.Tag.Get("set") != "",
+			Time: isTimestamp && !isLabel,
 		})
 	}
 
-	if len(result) > 0 {
-		result[len(result)-1].Last = true
-	}
-
 	return
-}
-
-var gettersTemplate = `
-package normalization
-
-func (r *Event) GetAnyField(field string) interface{} {
-	switch field {
-	{{- range .}}
-	case "{{.Name}}": return r.{{.Name}}
-	{{- end}}
-	default: return nil
-	}
-}
-
-func (r *Event) GetIntField(field string) int64 {
-	switch field {
-	{{- range .}}
-	{{- if eq .Kind "int64"}}
-	case "{{.Name}}": return r.{{.Name}}
-	{{- end}}
-	{{- end}}
-	default: return 0
-	}
-}
-
-func (r *Event) GetFloatField(field string) float64 {
-	switch field {
-	{{- range .}}
-	{{- if eq .Kind "float64"}}
-	case "{{.Name}}": return r.{{.Name}}
-	{{- end}}
-	{{- end}}
-	default: return 0
-	}
-}
-
-func (r *Event) GetBoolField(field string) bool {
-	switch field {
-	{{- range .}}
-	{{- if eq .Kind "bool"}}
-	case "{{.Name}}": return r.{{.Name}}
-	{{- end}}
-	{{- end}}
-	default: return 0
-	}
-}
-`
-
-func getters() {
-	tpl, err := template.New("gettersTemplate").Parse(gettersTemplate)
-	if err != nil {
-		panic(err)
-	}
-
-	if err := tpl.Execute(os.Stdout, scanEvent()); err != nil {
-		panic(err)
-	}
 }

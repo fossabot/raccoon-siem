@@ -6,7 +6,6 @@ import (
 )
 
 const (
-	DestinationConsole = "console"
 	DestinationNATS    = "nats"
 	DestinationElastic = "elastic"
 )
@@ -33,8 +32,6 @@ func (r *Config) Validate() error {
 		return r.validateElastic()
 	case DestinationNATS:
 		return r.validateNats()
-	case DestinationConsole:
-		return nil
 	default:
 		return fmt.Errorf("destination: unknown kind %s", r.Kind)
 	}

@@ -91,13 +91,13 @@ func (r *Config) Validate() error {
 	}
 
 	for _, f := range r.IdenticalFields {
-		if !helpers.IsEventFieldAccessable(f) {
+		if !helpers.EventFieldHasGetter(f) {
 			return fmt.Errorf("aggregation rule: invalid event field %s", f)
 		}
 	}
 
 	for _, f := range r.UniqueFields {
-		if !helpers.IsEventFieldAccessable(f) {
+		if !helpers.EventFieldHasGetter(f) {
 			return fmt.Errorf("aggregation rule: invalid event field %s", f)
 		}
 	}

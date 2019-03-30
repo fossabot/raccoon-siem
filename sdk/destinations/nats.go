@@ -2,7 +2,6 @@ package destinations
 
 import (
 	"github.com/nats-io/go-nats"
-	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"sync"
 )
 
@@ -35,8 +34,6 @@ func (r *natsDestination) Start() error {
 	return nil
 }
 
-func (r *natsDestination) Send(event *normalization.Event) {
-	if data, err := event.ToMsgPack(); err == nil {
-		_ = r.connection.Publish(r.subject, data)
-	}
+func (r *natsDestination) Send(data []byte) {
+	_ = r.connection.Publish(r.subject, data)
 }

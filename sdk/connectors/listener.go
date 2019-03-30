@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
+	"log"
 	"net"
 )
 
@@ -13,6 +14,7 @@ type listenerConnector struct {
 	protocol   string
 	delimiter  byte
 	bufferSize int
+	debug      bool
 	channel    OutputChannel
 }
 
@@ -45,6 +47,10 @@ func (r *listenerConnector) handleConnection(conn net.Conn) {
 	scanner.Split(r.framer)
 
 	for scanner.Scan() {
+		if r.debug {
+			log.Println(string(scanner.Bytes()))
+		}
+
 		r.channel <- Output{
 			Connector: r.name,
 			Data:      helpers.CopyBytes(scanner.Bytes()),
@@ -101,6 +107,7 @@ func newListenerConnector(cfg Config, channel OutputChannel) (*listenerConnector
 		protocol:   cfg.Proto,
 		delimiter:  delimiter,
 		bufferSize: cfg.BufferSize,
+		debug:      cfg.Debug,
 		channel:    channel,
 	}, nil
 }

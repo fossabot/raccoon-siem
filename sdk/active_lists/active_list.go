@@ -9,7 +9,7 @@ import (
 type activeList struct {
 	mu        sync.RWMutex
 	name      string
-	records   map[string]Record
+	records   map[string]record
 	ttl       int64
 	expTree   expirationTree
 	expTicker *time.Ticker
@@ -119,7 +119,7 @@ func (r *activeList) expirationRoutine() {
 func newList(name string, ttl int64, persistFn persistFn) *activeList {
 	al := &activeList{
 		name:      name,
-		records:   make(map[string]Record),
+		records:   make(map[string]record),
 		ttl:       ttl,
 		expTree:   createExpirationTree(),
 		expTicker: time.NewTicker(time.Second),

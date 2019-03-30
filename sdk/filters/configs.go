@@ -99,7 +99,7 @@ type ConditionConfig struct {
 }
 
 func (r *ConditionConfig) Validate() error {
-	if !helpers.IsEventFieldAccessable(r.Field) {
+	if !helpers.EventFieldHasGetter(r.Field) {
 		return fmt.Errorf("condition: invalid event field %s", r.Field)
 	}
 
@@ -133,7 +133,7 @@ func (r *ConditionConfig) validateAL() error {
 	}
 
 	for _, f := range r.KeyFields {
-		if !helpers.IsEventFieldAccessable(f) {
+		if !helpers.EventFieldHasGetter(f) {
 			return fmt.Errorf("condition: invalid event field %s", f)
 		}
 	}
@@ -150,7 +150,7 @@ func (r *ConditionConfig) validateAL() error {
 }
 
 func (r *ConditionConfig) validateEvent() error {
-	if !helpers.IsEventFieldAccessable(r.CMPSourceField) {
+	if !helpers.EventFieldHasGetter(r.CMPSourceField) {
 		return fmt.Errorf("condition: invalid event field %s", r.CMPSourceField)
 	}
 
@@ -198,11 +198,11 @@ func (r *JoinConditionConfig) Validate() error {
 		return fmt.Errorf("condition: right event tag required")
 	}
 
-	if !helpers.IsEventFieldAccessable(r.LeftField) {
+	if !helpers.EventFieldHasGetter(r.LeftField) {
 		return fmt.Errorf("condition: invalid event field")
 	}
 
-	if !helpers.IsEventFieldAccessable(r.RightField) {
+	if !helpers.EventFieldHasGetter(r.RightField) {
 		return fmt.Errorf("condition: invalid event field")
 	}
 

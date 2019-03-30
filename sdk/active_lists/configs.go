@@ -41,7 +41,7 @@ type Mapping struct {
 }
 
 func (r *Mapping) Validate() error {
-	if r.Constant == nil && !helpers.IsEventFieldAccessable(r.EventField) {
+	if r.Constant == nil && !helpers.EventFieldHasGetter(r.EventField) {
 		return fmt.Errorf("mapping: invalid event field %s", r.EventField)
 	}
 	return nil

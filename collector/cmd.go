@@ -41,6 +41,8 @@ func init() {
 	Cmd.Flags().StringVar(&flags.MetricsPort, "metrics", "7221", "metrics port")
 	// Worker count
 	Cmd.Flags().IntVar(&flags.Workers, "workers", runtime.NumCPU(), "worker count")
+	// Debug
+	Cmd.Flags().BoolVar(&flags.Debug, "debug", false, "debug mode")
 }
 
 func run(_ *cobra.Command, _ []string) (err error) {
@@ -81,6 +83,7 @@ func run(_ *cobra.Command, _ []string) (err error) {
 		inputChannel: make(connectors.OutputChannel),
 		enrichment:   cfg.Enrichment,
 		workers:      flags.Workers,
+		debug:        flags.Debug,
 	}
 
 	//

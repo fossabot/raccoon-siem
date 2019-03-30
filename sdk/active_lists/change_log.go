@@ -1,6 +1,6 @@
 package activeLists
 
-import "gopkg.in/vmihailenco/msgpack.v4"
+import "github.com/francoispqt/gojay"
 
 type changeLog struct {
 	CID     string
@@ -8,19 +8,45 @@ type changeLog struct {
 	Op      string
 	Key     string
 	Version int64
-	Record  Record
+	Record  record
 }
 
-func (r *changeLog) EncodeMsgpack(enc *msgpack.Encoder) error {
-	if err := enc.EncodeMulti(r.CID, r.ALName, r.Op, r.Key, r.Version); err != nil {
-		return err
-	}
-	return r.Record.EncodeMsgpack(enc)
+func newChangeLog() changeLog {
+	return changeLog{Record: newRecord()}
 }
 
-func (r *changeLog) DecodeMsgpack(dec *msgpack.Decoder) error {
-	if err := dec.DecodeMulti(&r.CID, &r.ALName, &r.Op, &r.Key, &r.Version); err != nil {
-		return err
+func (r *changeLog) MarshalJSONObject(enc *gojay.Encoder) {
+	enc.StringKeyOmitEmpty("CID", r.CID)
+	enc.StringKeyOmitEmpty("ALName", r.ALName)
+	enc.StringKeyOmitEmpty("Op", r.Op)
+	enc.StringKeyOmitEmpty("Key", r.Key)
+	enc.Int64KeyOmitEmpty("Version", r.Version)
+	enc.ObjectKeyOmitEmpty("Record", &r.Record)
+}
+
+func (r *changeLog) UnmarshalJSONObject(dec *gojay.Decoder, k string) error {
+	switch k {
+	case "CID":
+		return dec.String(&r.CID)
+	case "ALName":
+		return dec.String(&r.ALName)
+	case "Op":
+		return dec.String(&r.Op)
+	case "Key":
+		return dec.String(&r.Key)
+	case "Version":
+		return dec.Int64(&r.Version)
+	case "Record":
+		return dec.Object(&r.Record)
+	default:
+		return nil
 	}
-	return r.Record.DecodeMsgpack(dec)
+}
+
+func (r *changeLog) NKeys() int {
+	return 0
+}
+
+func (r *changeLog) IsNil() bool {
+	return r == nil
 }

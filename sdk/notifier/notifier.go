@@ -1,9 +1,8 @@
 package notifier
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 )
@@ -26,27 +25,13 @@ func (r *Notifier) Notify(msg, url string) {
 
 func (r *Notifier) worker() {
 	for n := range r.queue {
-		if err := r.sendSlack(slackNotification{Text: n.message}); err != nil {
-			fmt.Println(err)
+		if r.slackURL != "" {
+			slack := slackNotification{Text: fmt.Sprintf("%s: <%s>", n.message, n.url)}
+			if err := slack.send(r.httpClient, r.slackURL); err != nil {
+				log.Println(err)
+			}
 		}
 	}
-}
-
-func (r *Notifier) sendSlack(n slackNotification) error {
-	body, err := json.Marshal(n)
-	if err != nil {
-		return err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, r.slackURL, bytes.NewBuffer(body))
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-type", "application/json")
-
-	_, err = r.httpClient.Do(req)
-	return err
 }
 
 func New(cfg Config) (*Notifier, error) {

@@ -3,6 +3,7 @@ package connectors
 import (
 	"github.com/nats-io/go-nats"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
+	"log"
 )
 
 type natsConnector struct {
@@ -10,6 +11,7 @@ type natsConnector struct {
 	url     string
 	subject string
 	queue   string
+	debug   bool
 	channel OutputChannel
 }
 
@@ -27,6 +29,10 @@ func (r *natsConnector) Start() error {
 }
 
 func (r *natsConnector) messageHandler(msg *nats.Msg) {
+	if r.debug {
+		log.Println(string(msg.Data))
+	}
+
 	r.channel <- Output{
 		Connector: r.name,
 		Data:      helpers.CopyBytes(msg.Data),
@@ -39,6 +45,7 @@ func newNATSConnector(cfg Config, channel OutputChannel) (*natsConnector, error)
 		url:     cfg.URL,
 		subject: cfg.Subject,
 		queue:   cfg.Queue,
+		debug:   cfg.Debug,
 		channel: channel,
 	}, nil
 }

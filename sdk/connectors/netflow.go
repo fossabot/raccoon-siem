@@ -3,6 +3,7 @@ package connectors
 import (
 	"fmt"
 	"github.com/fln/nf9packet"
+	"log"
 	"net"
 	"strconv"
 	"strings"
@@ -14,6 +15,7 @@ type netflowConnector struct {
 	bufferSize    int
 	channel       OutputChannel
 	templateCache map[string]*nf9packet.TemplateRecord
+	debug         bool
 }
 
 func (r *netflowConnector) ID() string {
@@ -95,6 +97,10 @@ func (r *netflowConnector) process(input []byte, remote string) error {
 				sb.WriteString(" ")
 			}
 
+			if r.debug {
+				log.Println(sb.String())
+			}
+
 			r.channel <- Output{
 				Connector: r.name,
 				Data:      []byte(sb.String()),
@@ -111,6 +117,7 @@ func newNetflowConnector(cfg Config, channel OutputChannel) (*netflowConnector, 
 		url:           cfg.URL,
 		bufferSize:    cfg.BufferSize,
 		channel:       channel,
+		debug:         cfg.Debug,
 		templateCache: make(map[string]*nf9packet.TemplateRecord),
 	}, nil
 }

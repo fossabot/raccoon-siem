@@ -2,12 +2,11 @@ package activeLists
 
 import (
 	"context"
-	"encoding/json"
+	"github.com/francoispqt/gojay"
 	"github.com/nats-io/go-nats"
 	"github.com/olivere/elastic"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
-	"gopkg.in/vmihailenco/msgpack.v4"
 	"io"
 	"runtime"
 	"time"
@@ -54,7 +53,7 @@ func (r *Container) persistAndBroadcast(alName string, chLog changeLog) {
 	chLog.ALName = alName
 	subject := alNamePrefix + alName
 
-	if encodedChangeLog, err := msgpack.Marshal(&chLog); err == nil {
+	if encodedChangeLog, err := gojay.Marshal(&chLog); err == nil {
 		_ = r.bus.Publish(subject, encodedChangeLog)
 	}
 
@@ -84,8 +83,8 @@ func (r *Container) persistAndBroadcast(alName string, chLog changeLog) {
 }
 
 func (r *Container) onChangeLog(msg *nats.Msg) {
-	chLog := changeLog{}
-	if err := msgpack.Unmarshal(msg.Data, &chLog); err != nil {
+	chLog := newChangeLog()
+	if err := gojay.Unmarshal(msg.Data, &chLog); err != nil {
 		return
 	}
 
@@ -153,8 +152,16 @@ func (r *Container) fetchListRecords(name string, list *activeList) error {
 				continue
 			}
 
-			chLog := changeLog{CID: r.cid, ALName: name, Op: OpSet, Key: hit.Id, Version: *hit.Version}
-			if err := json.Unmarshal(*hit.Source, &chLog.Record); err != nil {
+			chLog := changeLog{
+				CID:     r.cid,
+				ALName:  name,
+				Op:      OpSet,
+				Key:     hit.Id,
+				Version: *hit.Version,
+				Record:  newRecord(),
+			}
+
+			if err := gojay.Unmarshal(*hit.Source, &chLog.Record); err != nil {
 				continue
 			}
 

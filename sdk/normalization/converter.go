@@ -3,6 +3,7 @@ package normalization
 import (
 	"github.com/araddon/dateparse"
 	"strconv"
+	"strings"
 	"unsafe"
 )
 
@@ -11,7 +12,15 @@ func BytesToString(input []byte) string {
 }
 
 func StringToInt(input string) int64 {
-	num, err := strconv.ParseInt(input, 10, 64)
+	num, err := strconv.ParseInt(strings.TrimSpace(input), 10, 64)
+	if err != nil {
+		return 0
+	}
+	return num
+}
+
+func StringToFloat(input string) float64 {
+	num, err := strconv.ParseFloat(strings.TrimSpace(input), 64)
 	if err != nil {
 		return 0
 	}
@@ -19,7 +28,7 @@ func StringToInt(input string) int64 {
 }
 
 func StringToTime(input string) int64 {
-	t, err := dateparse.ParseAny(input)
+	t, err := dateparse.ParseAny(strings.TrimSpace(input))
 	if err != nil {
 		return 0
 	}
@@ -27,7 +36,7 @@ func StringToTime(input string) int64 {
 }
 
 func StringToBool(input string) bool {
-	return input == "true"
+	return strings.TrimSpace(input) == "true"
 }
 
 func ToFieldType(field string, v interface{}) interface{} {
@@ -68,8 +77,7 @@ func ToInt64(src interface{}) int64 {
 	case float64:
 		return int64(src.(float64))
 	case string:
-		out, _ := strconv.ParseInt(src.(string), 10, 64)
-		return out
+		return StringToInt(src.(string))
 	case bool:
 		if src.(bool) {
 			return 1
@@ -88,8 +96,7 @@ func ToFloat64(src interface{}) float64 {
 	case int64:
 		return float64(src.(int64))
 	case string:
-		out, _ := strconv.ParseFloat(src.(string), 64)
-		return out
+		return StringToFloat(src.(string))
 	case bool:
 		if src.(bool) {
 			return 1
@@ -110,8 +117,7 @@ func ToBool(src interface{}) bool {
 	case float64:
 		return src.(float64) > 0
 	case string:
-		out, _ := strconv.ParseBool(src.(string))
-		return out
+		return StringToBool(src.(string))
 	default:
 		return false
 	}

@@ -1,7 +1,7 @@
 package activeLists
 
 import (
-	"gopkg.in/vmihailenco/msgpack.v4"
+	"github.com/francoispqt/gojay"
 	"gotest.tools/assert"
 	"testing"
 	"time"
@@ -10,11 +10,11 @@ import (
 func TestChangeLogEncodeDecode(t *testing.T) {
 	chLog := testGetChangeLog()
 
-	encoded, err := msgpack.Marshal(&chLog)
+	encoded, err := gojay.Marshal(&chLog)
 	assert.Equal(t, err, nil)
 
-	var decoded changeLog
-	err = msgpack.Unmarshal(encoded, &decoded)
+	decoded := newChangeLog()
+	err = gojay.Unmarshal(encoded, &decoded)
 	assert.Equal(t, err, nil)
 
 	assert.Equal(t, decoded.CID, chLog.CID)
@@ -30,18 +30,18 @@ func BenchmarkChangeLogEncode(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = msgpack.Marshal(&chLog)
+		_, _ = gojay.Marshal(&chLog)
 	}
 }
 
 func BenchmarkChangeLogDecode(b *testing.B) {
 	chLog := testGetChangeLog()
-	serialized, _ := msgpack.Marshal(&chLog)
+	encoded, _ := gojay.Marshal(&chLog)
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		deserialized := changeLog{}
-		_ = msgpack.Unmarshal(serialized, &deserialized)
+		decoded := newChangeLog()
+		_ = gojay.Unmarshal(encoded, &decoded)
 	}
 }
 
@@ -53,7 +53,7 @@ func testGetChangeLog() changeLog {
 		Op:      OpSet,
 		Key:     "testKey",
 		Version: ts,
-		Record: Record{
+		Record: record{
 			Version: ts,
 			Fields:  map[string]string{"testField": "123"},
 		},
