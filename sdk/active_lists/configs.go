@@ -46,3 +46,11 @@ func (r *Mapping) Validate() error {
 	}
 	return nil
 }
+
+type ScanCallback func(key string, value []byte)
+
+type IStorage interface {
+	Put(list, key string, data map[string]interface{}, ttl time.Duration) error
+	Del(list, key string) error
+	Get(list, key, field string) ([]byte, error)
+}

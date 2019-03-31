@@ -73,12 +73,14 @@ func (r *Config) Validate() error {
 }
 
 type cmdFlags struct {
-	ID          string
-	ConfigPath  string
-	CoreURL     string
-	BusURL      string
-	StorageURL  string
-	MetricsPort string
-	Workers     int
-	Debug       bool
+	ID           string
+	ConfigPath   string
+	CoreURL      string
+	BusURL       string
+	StorageURL   string
+	ALStorageURL string
+	MetricsPort  string
+	Workers      int
+	TestConfig   bool
+	Debug        bool
 }
