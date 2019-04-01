@@ -104,7 +104,8 @@
   ],
 
   "destinations": [
-    { "name": "correlations", "kind": "nats", "url": "nats://localhost:4222", "subject": "raccoon-correlation" }
+    { "name": "correlations", "kind": "nats", "url": "nats://localhost:4222", "subject": "raccoon-correlation" },
+    { "name": "storage", "kind": "elastic", "url": "http://localhost:9200", "index": "raccoon-events" }
   ],
 
   "activeLists": [
