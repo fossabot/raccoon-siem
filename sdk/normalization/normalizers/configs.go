@@ -32,6 +32,10 @@ type MappingConfig struct {
 	Extra       []ExtraConfig `yaml:"extra,omitempty" json:"extra"`
 }
 
+func (r *Config) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
+
 func (r *Config) Unmarshal(data []byte) error {
 	config := Config{}
 	err := json.Unmarshal(data, &config)

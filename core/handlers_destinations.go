@@ -7,8 +7,6 @@ import (
 )
 
 func Destinations(ctx *gin.Context) {
-	records, err := DBConn.ListKeys(dbBucketDestination)
-	reply(ctx, err, records)
 }
 
 func DestinationGET(ctx *gin.Context) {

@@ -1,12 +1,14 @@
 package core
 
 import (
+	"database/sql"
 	"github.com/boltdb/bolt"
+	_ "github.com/tephrocactus/raccoon-siem/core/migrator"
 	"gopkg.in/yaml.v2"
 )
 
 var (
-	DBConn                  *DB
+	DBConn                  *sql.DB
 	dbBucketCorrelationRule = []byte("correlationRule")
 	dbBucketAggregationRule = []byte("aggregationRule")
 	dbBucketFilter          = []byte("filter")

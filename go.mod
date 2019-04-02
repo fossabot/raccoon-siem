@@ -14,7 +14,9 @@ require (
 	github.com/google/btree v1.0.0
 	github.com/google/go-cmp v0.2.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/jessevdk/go-assets v0.0.0-20160921144138-4f4301a06e15
 	github.com/json-iterator/go v1.1.5 // indirect
+	github.com/lib/pq v1.0.0
 	github.com/mailru/easyjson v0.0.0-20180823135443-60711f1a8329 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
@@ -46,4 +48,5 @@ require (
 	gopkg.in/vmihailenco/msgpack.v4 v4.0.1
 	gopkg.in/yaml.v2 v2.2.1
 	gotest.tools v2.2.0+incompatible
+	upper.io/db.v3 v3.5.7+incompatible
 )
