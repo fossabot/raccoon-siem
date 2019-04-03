@@ -1,6 +1,7 @@
 package normalizers
 
 import (
+	"encoding/json"
 	"gotest.tools/assert"
 	"testing"
 )
@@ -65,7 +66,7 @@ var (
 					"name": "json-ip",
 					"kind": "json",
 					"mapping": [{
-						"eventField": "OriginHost",
+						"eventField": "OriginDomain",
 						"sourceField": "host"
 					}]
 				}
@@ -76,16 +77,36 @@ var (
 
 func TestConfigUnmarshal(t *testing.T) {
 	cfg := Config{}
-	assert.Error(t, cfg.Unmarshal(withoutName), "name required")
-	assert.Error(t, cfg.Unmarshal(withoutKind), "kind required")
-	assert.Error(t, cfg.Unmarshal(withoutExpressions), "expressions required")
-	assert.Error(t, cfg.Unmarshal(withoutDelimiters), "delimiters required")
-	assert.Error(t, cfg.Unmarshal(withoutDelimiters), "delimiters required")
-	assert.Error(t, cfg.Unmarshal(withoutMapping), "mapping required")
-	assert.Error(t, cfg.Unmarshal(withoutSourceField), "source field required")
-	assert.Error(t, cfg.Unmarshal(withoutEventField), "event field required")
-	assert.Error(t, cfg.Unmarshal(withoutTriggerField), "trigger field required")
-	assert.NilError(t, cfg.Unmarshal(full))
+	_ = json.Unmarshal(withoutName, &cfg)
+	assert.Error(t, cfg.Validate(), "normalizer: name required")
+
+	cfg = Config{}
+	_ = json.Unmarshal(withoutKind, &cfg)
+	assert.Error(t, cfg.Validate(), "normalizer: unknown kind ")
+	cfg = Config{}
+	_ = json.Unmarshal(withoutExpressions, &cfg)
+	assert.Error(t, cfg.Validate(), "normalizer: expressions required")
+	cfg = Config{}
+	_ = json.Unmarshal(withoutDelimiters, &cfg)
+	assert.Error(t, cfg.Validate(), "normalizer: delimiters required")
+	cfg = Config{}
+	_ = json.Unmarshal(withoutDelimiters, &cfg)
+	assert.Error(t, cfg.Validate(), "normalizer: delimiters required")
+	cfg = Config{}
+	_ = json.Unmarshal(withoutMapping, &cfg)
+	assert.Error(t, cfg.Validate(), "normalizer: mapping required")
+	cfg = Config{}
+	_ = json.Unmarshal(withoutSourceField, &cfg)
+	assert.Error(t, cfg.Validate(), "mapping: source field required")
+	cfg = Config{}
+	_ = json.Unmarshal(withoutEventField, &cfg)
+	assert.Error(t, cfg.Validate(), "mapping: invalid event field ")
+	cfg = Config{}
+	_ = json.Unmarshal(withoutTriggerField, &cfg)
+	assert.Error(t, cfg.Validate(), "extra: trigger field required")
+	cfg = Config{}
+	_ = json.Unmarshal(full, &cfg)
+	assert.NilError(t, cfg.Validate())
 
 	assert.Equal(t, cfg.Name, "general")
 	assert.Equal(t, cfg.Kind, "syslog")

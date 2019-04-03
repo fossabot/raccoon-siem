@@ -10,6 +10,7 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk/dictionaries"
 	"github.com/tephrocactus/raccoon-siem/sdk/globals"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
+	"github.com/tephrocactus/raccoon-siem/sdk/notifier"
 	"runtime"
 )
 
@@ -35,10 +36,16 @@ func init() {
 	Cmd.Flags().StringVar(&flags.BusURL, "bus", "nats://localhost:4222", "bus URL")
 	// Raccoon storage URL
 	Cmd.Flags().StringVar(&flags.StorageURL, "storage", "http://localhost:9200", "storage URL")
+	// Raccoon active lists storage URL
+	Cmd.Flags().StringVar(&flags.ALStorageURL, "al-storage", "localhost:6379", "active lists storage URL")
 	// Prometheus metrics port
 	Cmd.Flags().StringVar(&flags.MetricsPort, "metrics", "7222", "metrics port")
 	// Worker count
 	Cmd.Flags().IntVar(&flags.Workers, "workers", runtime.NumCPU(), "worker count")
+	// Test config
+	Cmd.Flags().BoolVar(&flags.TestConfig, "test-config", false, "test config and exit")
+	// Debug
+	Cmd.Flags().BoolVar(&flags.Debug, "debug", false, "debug mode")
 }
 
 func run(_ *cobra.Command, _ []string) (err error) {
@@ -64,6 +71,18 @@ func run(_ *cobra.Command, _ []string) (err error) {
 		}
 	}
 
+	if err := cfg.Validate(); err != nil {
+		return err
+	}
+
+	//
+	// If user only asked to test configuration for correctness - do not proceed
+	//
+
+	if flags.TestConfig {
+		return nil
+	}
+
 	//
 	// Prepare processor for initialization
 	//
@@ -74,13 +93,14 @@ func run(_ *cobra.Command, _ []string) (err error) {
 		metrics:      newMetrics(flags.MetricsPort),
 		inputChannel: make(connectors.OutputChannel),
 		workers:      flags.Workers,
+		debug:        flags.Debug,
 	}
 
 	//
 	// Initialize active lists
 	//
 
-	globals.ActiveLists, err = activeLists.NewContainer(cfg.ActiveLists, cfg.Name, flags.BusURL, flags.StorageURL)
+	globals.ActiveLists, err = activeLists.NewContainer(cfg.ActiveLists, flags.ALStorageURL)
 	if err != nil {
 		return err
 	}
@@ -92,6 +112,12 @@ func run(_ *cobra.Command, _ []string) (err error) {
 	globals.Dictionaries = dictionaries.NewStorage(cfg.Dictionaries)
 
 	//
+	// Initialize notifier
+	//
+
+	globals.Notifier, err = notifier.New(cfg.Notifier)
+
+	//
 	// Initialize correlation rules
 	//
 
@@ -100,6 +126,7 @@ func run(_ *cobra.Command, _ []string) (err error) {
 		if err != nil {
 			return err
 		}
+
 		rule.Start()
 		proc.correlationRules = append(proc.correlationRules, rule)
 	}

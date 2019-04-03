@@ -82,7 +82,7 @@ func BenchmarkEnrich(b *testing.B) {
 func fillDictionaryStorage() {
 	raccoonDict := dictionaries.Config{
 		Name: raccoon,
-		Data: map[string]interface{}{
+		Data: map[string]string{
 			"ERROR": "error",
 			"DEBUG": "debug",
 			"INFO":  "info",
@@ -91,7 +91,7 @@ func fillDictionaryStorage() {
 
 	weirdDict := dictionaries.Config{
 		Name: weird,
-		Data: map[string]interface{}{
+		Data: map[string]string{
 			"1": "error",
 			"2": "debug",
 			"3": "info",

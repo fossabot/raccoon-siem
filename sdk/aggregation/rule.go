@@ -150,7 +150,10 @@ func (r *Rule) timeoutRoutine() {
 		}
 
 		r.mu.Unlock()
-		skip = nextReleaseMin - now
+
+		if nextReleaseMin != math.MaxInt64 {
+			skip = nextReleaseMin - now
+		}
 	}
 }
 
@@ -158,7 +161,7 @@ func NewRule(cfg Config, outputFn OutputFn) (*Rule, error) {
 	r := &Rule{
 		name:            cfg.Name,
 		threshold:       cfg.Threshold,
-		window:          cfg.Window,
+		window:          cfg.WindowDuration(),
 		recovery:        cfg.Recovery,
 		identicalFields: cfg.IdenticalFields,
 		uniqueFields:    cfg.UniqueFields,

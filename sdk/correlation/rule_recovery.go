@@ -1,7 +1,6 @@
 package correlation
 
 import (
-	"fmt"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
@@ -29,19 +28,6 @@ func newRecoveryRule(cfg Config, outputFn OutputFn) (*recoveryRule, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	hasRecoverySelector := false
-	for _, selector := range base.selectors {
-		if selector.recovery {
-			hasRecoverySelector = true
-			break
-		}
-	}
-
-	if !hasRecoverySelector {
-		return nil, fmt.Errorf("%s: at least one recovery selector required", base.name)
-	}
-
 	r.baseRule = base
 	return r, nil
 }

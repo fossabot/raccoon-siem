@@ -27,6 +27,10 @@ func (r *kvNormalizer) Normalize(data []byte, event *normalization.Event) *norma
 }
 
 func newKVNormalizer(cfg Config) (*kvNormalizer, error) {
+	if cfg.PairDelimiter == cfg.KVDelimiter {
+		return nil, errors.New("kv and pair separators must be different")
+	}
+
 	pairDelimiter, err := helpers.StringToSingleByte(cfg.PairDelimiter)
 	if err != nil {
 		return nil, err
@@ -37,13 +41,10 @@ func newKVNormalizer(cfg Config) (*kvNormalizer, error) {
 		return nil, err
 	}
 
-	if cfg.PairDelimiter == cfg.KVDelimiter {
-		return nil, errors.New("kv and pair separators must be different")
-	}
-
 	return &kvNormalizer{
 		name:          cfg.Name,
 		pairDelimiter: pairDelimiter,
 		kvDelimiter:   kvDelimiter,
+		mapping:       cfg.Mapping,
 	}, nil
 }

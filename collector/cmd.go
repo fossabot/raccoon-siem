@@ -37,10 +37,16 @@ func init() {
 	Cmd.Flags().StringVar(&flags.BusURL, "bus", "nats://localhost:4222", "bus URL")
 	// Raccoon storage URL
 	Cmd.Flags().StringVar(&flags.StorageURL, "storage", "http://localhost:9200", "storage URL")
+	// Raccoon active lists storage URL
+	Cmd.Flags().StringVar(&flags.ALStorageURL, "al-storage", "localhost:6379", "active lists storage URL")
 	// Prometheus metrics port
 	Cmd.Flags().StringVar(&flags.MetricsPort, "metrics", "7221", "metrics port")
 	// Worker count
 	Cmd.Flags().IntVar(&flags.Workers, "workers", runtime.NumCPU(), "worker count")
+	// Test config
+	Cmd.Flags().BoolVar(&flags.TestConfig, "test-config", false, "test config and exit")
+	// Debug
+	Cmd.Flags().BoolVar(&flags.Debug, "debug", false, "debug mode")
 }
 
 func run(_ *cobra.Command, _ []string) (err error) {
@@ -66,6 +72,18 @@ func run(_ *cobra.Command, _ []string) (err error) {
 		}
 	}
 
+	if err := cfg.Validate(); err != nil {
+		return err
+	}
+
+	//
+	// If user only asked to test configuration for correctness - do not proceed
+	//
+
+	if flags.TestConfig {
+		return nil
+	}
+
 	//
 	// Prepare processor for initialization
 	//
@@ -77,14 +95,14 @@ func run(_ *cobra.Command, _ []string) (err error) {
 		inputChannel: make(connectors.OutputChannel),
 		enrichment:   cfg.Enrichment,
 		workers:      flags.Workers,
+		debug:        flags.Debug,
 	}
 
 	//
 	// Initialize active lists
 	//
 
-	globals.ActiveLists, err = activeLists.NewContainer(cfg.ActiveLists, cfg.Name, flags.BusURL, flags.StorageURL)
-	if err != nil {
+	if globals.ActiveLists, err = activeLists.NewContainer(cfg.ActiveLists, flags.ALStorageURL); err != nil {
 		return err
 	}
 
@@ -98,13 +116,12 @@ func run(_ *cobra.Command, _ []string) (err error) {
 	// Initialize normalizer
 	//
 
-	proc.normalizer, err = normalizers.New(cfg.Normalizer)
-	if err != nil {
+	if proc.normalizer, err = normalizers.New(cfg.Normalizer); err != nil {
 		return err
 	}
 
 	//
-	// Initialize drop filters
+	// Initialize filters
 	//
 
 	for _, cfg := range cfg.Filters {

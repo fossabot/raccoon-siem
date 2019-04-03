@@ -3,23 +3,8 @@ package normalization
 import (
 	"github.com/araddon/dateparse"
 	"strconv"
-	"time"
+	"strings"
 	"unsafe"
-)
-
-const (
-	TimeUnitSecondsString      = "s"
-	TimeUnitMillisecondsString = "ms"
-	TimeUnitMicrosecondsString = "us"
-	TimeUnitNanosecondsString  = "ns"
-)
-
-const (
-	TimeUnitNone = iota
-	TimeUnitSeconds
-	TimeUnitMilliseconds
-	TimeUnitMicroseconds
-	TimeUnitNanoseconds
 )
 
 func BytesToString(input []byte) string {
@@ -27,7 +12,15 @@ func BytesToString(input []byte) string {
 }
 
 func StringToInt(input string) int64 {
-	num, err := strconv.ParseInt(input, 10, 64)
+	num, err := strconv.ParseInt(strings.TrimSpace(input), 10, 64)
+	if err != nil {
+		return 0
+	}
+	return num
+}
+
+func StringToFloat(input string) float64 {
+	num, err := strconv.ParseFloat(strings.TrimSpace(input), 64)
 	if err != nil {
 		return 0
 	}
@@ -35,7 +28,7 @@ func StringToInt(input string) int64 {
 }
 
 func StringToTime(input string) int64 {
-	t, err := dateparse.ParseAny(input)
+	t, err := dateparse.ParseAny(strings.TrimSpace(input))
 	if err != nil {
 		return 0
 	}
@@ -43,39 +36,22 @@ func StringToTime(input string) int64 {
 }
 
 func StringToBool(input string) bool {
-	return input == "true"
+	return strings.TrimSpace(input) == "true"
 }
 
-func StringToDuration(input string, unit byte) time.Duration {
-	dur, err := time.ParseDuration(input)
-	if err == nil {
-		return dur
-	}
-
-	num, err := strconv.ParseInt(input, 10, 64)
-	if err != nil {
-		return 0
-	}
-
-	return DurationFromInt(num, unit)
-}
-
-func ConvertValue(src interface{}, dstType byte, timeUnit byte) interface{} {
-	switch dstType {
-	case FieldTypeString:
-		return ToString(src)
-	case FieldTypeInt:
-		return ToInt(src)
-	case FieldTypeFloat:
-		return ToFloat(src)
-	case FieldTypeBool:
-		return ToBool(src)
-	case FieldTypeTime:
-		return ToTime(src, timeUnit)
-	case FieldTypeDuration:
-		return ToDuration(src, timeUnit)
+func ToFieldType(field string, v interface{}) interface{} {
+	fv := new(Event).GetAnyField(field)
+	switch fv.(type) {
+	case string:
+		return ToString(v)
+	case int64:
+		return ToInt64(v)
+	case float64:
+		return ToFloat64(v)
+	case bool:
+		return ToBool(v)
 	default:
-		return src
+		return nil
 	}
 }
 
@@ -94,15 +70,14 @@ func ToString(src interface{}) string {
 	}
 }
 
-func ToInt(src interface{}) int64 {
+func ToInt64(src interface{}) int64 {
 	switch src.(type) {
 	case int64:
 		return src.(int64)
 	case float64:
 		return int64(src.(float64))
 	case string:
-		out, _ := strconv.ParseInt(src.(string), 10, 64)
-		return out
+		return StringToInt(src.(string))
 	case bool:
 		if src.(bool) {
 			return 1
@@ -114,15 +89,14 @@ func ToInt(src interface{}) int64 {
 	}
 }
 
-func ToFloat(src interface{}) float64 {
+func ToFloat64(src interface{}) float64 {
 	switch src.(type) {
 	case float64:
 		return src.(float64)
 	case int64:
 		return float64(src.(int64))
 	case string:
-		out, _ := strconv.ParseFloat(src.(string), 64)
-		return out
+		return StringToFloat(src.(string))
 	case bool:
 		if src.(bool) {
 			return 1
@@ -143,66 +117,9 @@ func ToBool(src interface{}) bool {
 	case float64:
 		return src.(float64) > 0
 	case string:
-		out, _ := strconv.ParseBool(src.(string))
-		return out
+		return StringToBool(src.(string))
 	default:
 		return false
-	}
-}
-
-func ToTime(src interface{}, unit byte) time.Time {
-	switch src.(type) {
-	case int64:
-		return TimeFromInt(src.(int64), unit)
-	case float64:
-		return TimeFromInt(int64(src.(float64)), unit)
-	case string:
-		out, _ := dateparse.ParseAny(src.(string))
-		return out
-	default:
-		return time.Time{}
-	}
-}
-
-func ToDuration(src interface{}, unit byte) time.Duration {
-	switch src.(type) {
-	case int64:
-		return DurationFromInt(src.(int64), unit)
-	case float64:
-		return DurationFromInt(int64(src.(float64)), unit)
-	case string:
-		out, _ := time.ParseDuration(src.(string))
-		return out
-	default:
-		return 0
-	}
-}
-
-func TimeFromInt(v int64, unit byte) time.Time {
-	switch unit {
-	case TimeUnitSeconds:
-		return time.Unix(v, 0)
-	case TimeUnitMilliseconds:
-		return time.Unix(0, v*1000000)
-	case TimeUnitMicroseconds:
-		return time.Unix(0, v*1000)
-	case TimeUnitNanoseconds:
-		return time.Unix(0, v)
-	default:
-		return time.Unix(0, 0)
-	}
-}
-
-func DurationFromInt(v int64, unit byte) time.Duration {
-	switch unit {
-	case TimeUnitSeconds:
-		return time.Duration(v) * time.Second
-	case TimeUnitMilliseconds:
-		return time.Duration(v) * time.Millisecond
-	case TimeUnitMicroseconds:
-		return time.Duration(v) * time.Microsecond
-	default:
-		return time.Duration(v)
 	}
 }
 

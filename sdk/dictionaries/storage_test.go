@@ -13,7 +13,7 @@ const (
 func TestDictionary(t *testing.T) {
 	raccoonDict := Config{
 		Name: raccoon,
-		Data: map[string]interface{}{
+		Data: map[string]string{
 			"ERROR": "error",
 			"DEBUG": "debug",
 			"INFO":  "info",
@@ -22,7 +22,7 @@ func TestDictionary(t *testing.T) {
 
 	weirdDict := Config{
 		Name: weird,
-		Data: map[string]interface{}{
+		Data: map[string]string{
 			"1": "error",
 			"2": "debug",
 			"3": "info",

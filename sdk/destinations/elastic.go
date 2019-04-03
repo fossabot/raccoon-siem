@@ -3,7 +3,6 @@ package destinations
 import (
 	"context"
 	"github.com/olivere/elastic"
-	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"runtime"
 	"strings"
 	"sync"
@@ -55,12 +54,11 @@ func (r *elasticDestination) Start() error {
 	return nil
 }
 
-func (r *elasticDestination) Send(event *normalization.Event) {
+func (r *elasticDestination) Send(data []byte) {
 	r.esBulk.Add(elastic.NewBulkIndexRequest().
 		Index(r.makeFinalIndexName()).
 		Type("_doc").
-		Doc(event).
-		UseEasyJSON(true))
+		Doc(string(data)))
 }
 
 func (r *elasticDestination) makeFinalIndexName() string {

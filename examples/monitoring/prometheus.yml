@@ -12,3 +12,6 @@ scrape_configs:
   - targets: ['localhost:7221']
     labels:
       components: 'collectors'
+  - targets: ['localhost:7222']
+      labels:
+        components: 'correlators'

@@ -3,8 +3,8 @@ package connectors
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
+	"log"
 	"net"
 )
 
@@ -14,6 +14,7 @@ type listenerConnector struct {
 	protocol   string
 	delimiter  byte
 	bufferSize int
+	debug      bool
 	channel    OutputChannel
 }
 
@@ -46,6 +47,10 @@ func (r *listenerConnector) handleConnection(conn net.Conn) {
 	scanner.Split(r.framer)
 
 	for scanner.Scan() {
+		if r.debug {
+			log.Println(string(scanner.Bytes()))
+		}
+
 		r.channel <- Output{
 			Connector: r.name,
 			Data:      helpers.CopyBytes(scanner.Bytes()),
@@ -87,12 +92,6 @@ func dropCR(data []byte) []byte {
 }
 
 func newListenerConnector(cfg Config, channel OutputChannel) (*listenerConnector, error) {
-	switch cfg.Protocol {
-	case "tcp", "udp":
-	default:
-		return nil, fmt.Errorf("unknown protocol: %s", cfg.Protocol)
-	}
-
 	delimiter := byte('\n')
 	if cfg.Delimiter != "" {
 		d, err := helpers.StringToSingleByte(cfg.Delimiter)
@@ -105,9 +104,10 @@ func newListenerConnector(cfg Config, channel OutputChannel) (*listenerConnector
 	return &listenerConnector{
 		name:       cfg.Name,
 		url:        cfg.URL,
-		protocol:   cfg.Protocol,
+		protocol:   cfg.Proto,
 		delimiter:  delimiter,
 		bufferSize: cfg.BufferSize,
+		debug:      cfg.Debug,
 		channel:    channel,
 	}, nil
 }

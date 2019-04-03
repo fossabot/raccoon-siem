@@ -1,11 +1,9 @@
 package normalization
 
 import (
-	"encoding/gob"
 	"encoding/json"
-	"gopkg.in/mgo.v2/bson"
+	"github.com/francoispqt/gojay"
 	"gopkg.in/vmihailenco/msgpack.v4"
-	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -31,128 +29,129 @@ const (
 	DefaultEventFieldsHash = "_"
 )
 
-var EventFieldTypeByName = make(map[string]byte)
-
-func init() {
-	event := Event{}
-	gob.Register(event)
-
-	v := reflect.ValueOf(event)
-	for i := 0; i < v.NumField(); i++ {
-		fieldName := v.Type().Field(i).Name
-		fieldType := v.Field(i).Type().Name()
-
-		var numFieldType byte
-
-		switch fieldType {
-		case "string":
-			numFieldType = FieldTypeString
-		case "int64":
-			numFieldType = FieldTypeInt
-		case "float64":
-			numFieldType = FieldTypeFloat
-		case "bool":
-			numFieldType = FieldTypeBool
-		case "Time":
-			numFieldType = FieldTypeTime
-		case "Duration":
-			numFieldType = FieldTypeDuration
-		default:
-			continue
-		}
-
-		EventFieldTypeByName[fieldName] = numFieldType
-	}
-}
-
 type Event struct {
-	_msgpack                   struct{} `msgpack:",asArray"`
-	ID                         string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	Incident                   bool     `storage_type:"boolean"`
-	Correlated                 bool     `storage_type:"boolean"`
-	Tag                        string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	ParentID                   string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	Customer                   string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	Code                       string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	Timestamp                  int64    `json:",omitempty" msgpack:",omitempty" storage_type:"date"`
-	Severity                   int64    `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
-	Score                      int64    `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
-	BaseEventCount             int      `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
-	AggregatedEventCount       int      `json:",omitempty" msgpack:",omitempty" storage_type:"integer"`
-	AggregationRuleName        string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	CollectorIPAddress         string   `json:",omitempty" msgpack:",omitempty" storage_type:"ip"`
-	CollectorDNSName           string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	CorrelationRuleName        string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	CorrelatorIPAddress        string   `json:",omitempty" msgpack:",omitempty" storage_type:"ip"`
-	CorrelatorDNSName          string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	CorrelatorEventSpecID      string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	SourceID                   string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	BaseEventIDs               []string `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	BaseEvents                 []*Event `json:"-" msgpack:"-"`
-	Message                    string   `json:",omitempty" msgpack:",omitempty" storage_type:"text"`
-	Details                    string   `json:",omitempty" msgpack:",omitempty" storage_type:"text"`
-	Trace                      string   `json:",omitempty" msgpack:",omitempty" storage_type:"text"`
-	OriginEventID              string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginTimestamp            int64    `json:",omitempty" msgpack:",omitempty" storage_type:"date"`
-	OriginEnvironment          string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginSeverity             string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginServiceName          string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginServiceVersion       string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginProcessName          string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginFileName             string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginDNSName              string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	OriginIPAddress            string   `json:",omitempty" msgpack:",omitempty" storage_type:"ip"`
-	RequestID                  string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestApplicationProtocol string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestTransportProtocol   string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestURL                 string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestReferrer            string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestMethod              string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestUserAgent           string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestStatus              string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestTook                int64    `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
-	RequestBytesIn             int64    `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
-	RequestBytesOut            int64    `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
-	RequestResults             int64    `json:",omitempty" msgpack:",omitempty" storage_type:"long"`
-	RequestUser                string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestUnit                string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	RequestOrganization        string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	SourceIPAddress            string   `json:",omitempty" msgpack:",omitempty" storage_type:"ip"`
-	SourceMACAddress           string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	SourceDNSName              string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	SourcePort                 string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	DestinationIPAddress       string   `json:",omitempty" msgpack:",omitempty" storage_type:"ip"`
-	DestinationMACAddress      string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	DestinationDNSName         string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
-	DestinationPort            string   `json:",omitempty" msgpack:",omitempty" storage_type:"keyword"`
+	ID                         string   `storage_type:"keyword"`
+	Tag                        string   `storage_type:"keyword"`
+	Timestamp                  int64    `storage_type:"date"`
+	BaseEventCount             int      `storage_type:"integer"`
+	AggregatedEventCount       int      `storage_type:"integer"`
+	AggregationRuleName        string   `storage_type:"keyword"`
+	CollectorIPAddress         string   `storage_type:"ip" `
+	CollectorDNSName           string   `storage_type:"keyword"`
+	CorrelationRuleName        string   `storage_type:"keyword"`
+	CorrelatorIPAddress        string   `storage_type:"ip"`
+	CorrelatorDNSName          string   `storage_type:"keyword"`
+	SourceID                   string   `storage_type:"keyword"`
+	BaseEventIDs               strSlice `storage_type:"keyword"`
+	Incident                   bool     `storage_type:"boolean" set:"y"`
+	Correlated                 bool     `storage_type:"boolean" set:"y"`
+	Score                      int64    `storage_type:"integer" set:"y"`
+	Severity                   int64    `storage_type:"integer" set:"y"`
+	Customer                   string   `storage_type:"keyword" set:"y"`
+	Code                       string   `storage_type:"keyword" set:"y"`
+	Message                    string   `storage_type:"text" set:"y"`
+	Details                    string   `storage_type:"text" set:"y"`
+	Trace                      string   `storage_type:"text" set:"y"`
+	OriginEventID              string   `storage_type:"keyword" set:"y"`
+	OriginTimestamp            int64    `storage_type:"date" set:"y"`
+	OriginEnvironment          string   `storage_type:"keyword" set:"y"`
+	OriginSeverity             string   `storage_type:"keyword" set:"y"`
+	OriginServiceName          string   `storage_type:"keyword" set:"y"`
+	OriginServiceVersion       string   `storage_type:"keyword" set:"y"`
+	OriginProcessName          string   `storage_type:"keyword" set:"y"`
+	OriginFileName             string   `storage_type:"keyword" set:"y"`
+	OriginDNSName              string   `storage_type:"keyword" set:"y"`
+	OriginDomain               string   `storage_type:"keyword" set:"y"`
+	OriginIPAddress            string   `storage_type:"ip" set:"y"`
+	RequestID                  string   `storage_type:"keyword" set:"y"`
+	RequestApplicationProtocol string   `storage_type:"keyword" set:"y"`
+	RequestTransportProtocol   string   `storage_type:"keyword" set:"y"`
+	RequestURL                 string   `storage_type:"keyword" set:"y"`
+	RequestReferrer            string   `storage_type:"keyword" set:"y"`
+	RequestMethod              string   `storage_type:"keyword" set:"y"`
+	RequestUserAgent           string   `storage_type:"keyword" set:"y"`
+	RequestStatus              string   `storage_type:"keyword" set:"y"`
+	RequestTook                int64    `storage_type:"long" set:"y"`
+	RequestBytesIn             int64    `storage_type:"long" set:"y"`
+	RequestBytesOut            int64    `storage_type:"long" set:"y"`
+	RequestResults             int64    `storage_type:"long" set:"y"`
+	RequestUser                string   `storage_type:"keyword" set:"y"`
+	RequestUnit                string   `storage_type:"keyword" set:"y"`
+	RequestOrganization        string   `storage_type:"keyword" set:"y"`
+	SourceIPAddress            string   `storage_type:"ip" set:"y"`
+	SourceMACAddress           string   `storage_type:"keyword" set:"y"`
+	SourceDomain               string   `storage_type:"keyword" set:"y"`
+	SourceDNSName              string   `storage_type:"keyword" set:"y"`
+	SourcePort                 string   `storage_type:"keyword" set:"y"`
+	DestinationIPAddress       string   `storage_type:"ip" set:"y"`
+	DestinationMACAddress      string   `storage_type:"keyword" set:"y"`
+	DestinationDomain          string   `storage_type:"keyword" set:"y"`
+	DestinationDNSName         string   `storage_type:"keyword" set:"y"`
+	DestinationPort            string   `storage_type:"keyword" set:"y"`
+	UserString1                string   `storage_type:"keyword" set:"y"`
+	UserString1Label           string   `storage_type:"keyword" set:"y"`
+	UserString2                string   `storage_type:"keyword" set:"y"`
+	UserString2Label           string   `storage_type:"keyword" set:"y"`
+	UserString3                string   `storage_type:"keyword" set:"y"`
+	UserString3Label           string   `storage_type:"keyword" set:"y"`
+	UserString4                string   `storage_type:"keyword" set:"y"`
+	UserString4Label           string   `storage_type:"keyword" set:"y"`
+	UserString5                string   `storage_type:"keyword" set:"y"`
+	UserString5Label           string   `storage_type:"keyword" set:"y"`
+	UserString6                string   `storage_type:"keyword" set:"y"`
+	UserString6Label           string   `storage_type:"keyword" set:"y"`
+	UserString7                string   `storage_type:"keyword" set:"y"`
+	UserString7Label           string   `storage_type:"keyword" set:"y"`
+	UserString8                string   `storage_type:"keyword" set:"y"`
+	UserString8Label           string   `storage_type:"keyword" set:"y"`
+	UserInt1                   int64    `storage_type:"long" set:"y"`
+	UserInt1Label              string   `storage_type:"keyword" set:"y"`
+	UserInt2                   int64    `storage_type:"long" set:"y"`
+	UserInt2Label              string   `storage_type:"keyword" set:"y"`
+	UserInt3                   int64    `storage_type:"long" set:"y"`
+	UserInt3Label              string   `storage_type:"keyword" set:"y"`
+	UserInt4                   int64    `storage_type:"long" set:"y"`
+	UserInt4Label              string   `storage_type:"keyword" set:"y"`
+	UserInt5                   int64    `storage_type:"long" set:"y"`
+	UserInt5Label              string   `storage_type:"keyword" set:"y"`
+	UserInt6                   int64    `storage_type:"long" set:"y"`
+	UserInt6Label              string   `storage_type:"keyword" set:"y"`
+	UserInt7                   int64    `storage_type:"long" set:"y"`
+	UserInt7Label              string   `storage_type:"keyword" set:"y"`
+	UserInt8                   int64    `storage_type:"long" set:"y"`
+	UserInt8Label              string   `storage_type:"keyword" set:"y"`
+	UserFloat1                 float64  `storage_type:"double" set:"y"`
+	UserFloat1Label            string   `storage_type:"keyword" set:"y"`
+	UserFloat2                 float64  `storage_type:"double" set:"y"`
+	UserFloat2Label            string   `storage_type:"keyword" set:"y"`
+	UserFloat3                 float64  `storage_type:"double" set:"y"`
+	UserFloat3Label            string   `storage_type:"keyword" set:"y"`
+	UserFloat4                 float64  `storage_type:"double" set:"y"`
+	UserFloat4Label            string   `storage_type:"keyword" set:"y"`
+	UserFloat5                 float64  `storage_type:"double" set:"y"`
+	UserFloat5Label            string   `storage_type:"keyword" set:"y"`
+	UserFloat6                 float64  `storage_type:"double" set:"y"`
+	UserFloat6Label            string   `storage_type:"keyword" set:"y"`
+	UserFloat7                 float64  `storage_type:"double" set:"y"`
+	UserFloat7Label            string   `storage_type:"keyword" set:"y"`
+	UserFloat8                 float64  `storage_type:"double" set:"y"`
+	UserFloat8Label            string   `storage_type:"keyword" set:"y"`
+	UserTimestamp1             int64    `storage_type:"date" set:"y"`
+	UserTimestamp1Label        string   `storage_type:"keyword" set:"y"`
+	UserTimestamp2             int64    `storage_type:"date" set:"y"`
+	UserTimestamp2Label        string   `storage_type:"keyword" set:"y"`
+	UserTimestamp3             int64    `storage_type:"date" set:"y"`
+	UserTimestamp3Label        string   `storage_type:"keyword" set:"y"`
+	UserTimestamp4             int64    `storage_type:"date" set:"y"`
+	UserTimestamp4Label        string   `storage_type:"keyword" set:"y"`
 }
 
-func (r *Event) SetField(name string, value interface{}, timeUnit byte) {
-	targetFieldType := EventFieldTypeByName[name]
-
-	finalValue := ConvertValue(value, targetFieldType, timeUnit)
-
-	reflectValue := reflect.ValueOf(finalValue)
-	reflect.ValueOf(r).Elem().FieldByName(name).Set(reflectValue)
+func (r *Event) SetID(id string) {
+	r.ID = id
 }
 
-func (r *Event) SetFieldNoConversion(name string, value interface{}) {
-	reflectValue := reflect.ValueOf(value)
-	reflect.ValueOf(r).Elem().FieldByName(name).Set(reflectValue)
-}
-
-func (r *Event) GetField(name string) (value interface{}, fieldType byte) {
-	value = reflect.ValueOf(r).Elem().FieldByName(name).Interface()
-	fieldType = EventFieldTypeByName[name]
-	return
-}
-
-func (r *Event) GetFieldNoType(name string) interface{} {
-	return reflect.ValueOf(r).Elem().FieldByName(name).Interface()
-}
-
-func (r *Event) FieldEmpty(name string) bool {
-	return reflect.ValueOf(r).Elem().FieldByName(name).IsValid()
+func (r *Event) SetAnyFieldBytes(field string, value []byte) {
+	r.SetAnyField(field, BytesToString(value))
 }
 
 func (r *Event) HashFields(fieldNames []string) string {
@@ -187,19 +186,11 @@ func (r *Event) Clone() Event {
 }
 
 func (r *Event) ToJSON() ([]byte, error) {
-	return json.Marshal(r)
+	return gojay.Marshal(r)
 }
 
 func (r *Event) FromJSON(input []byte) error {
-	return json.Unmarshal(input, r)
-}
-
-func (r *Event) ToBSON() ([]byte, error) {
-	return bson.Marshal(r)
-}
-
-func (r *Event) FromBSON(input []byte) error {
-	return bson.Unmarshal(input, r)
+	return gojay.Unmarshal(input, r)
 }
 
 func (r *Event) ToMsgPack() ([]byte, error) {
@@ -208,6 +199,14 @@ func (r *Event) ToMsgPack() ([]byte, error) {
 
 func (r *Event) FromMsgPack(input []byte) error {
 	return msgpack.Unmarshal(input, r)
+}
+
+func (r *Event) NKeys() int {
+	return 0
+}
+
+func (r *Event) IsNil() bool {
+	return r == nil
 }
 
 func (r *Event) String() string {

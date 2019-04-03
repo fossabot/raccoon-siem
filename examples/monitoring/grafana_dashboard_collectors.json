@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1553355327362,
+  "iteration": 1553787663060,
   "links": [],
   "panels": [
     {
@@ -871,9 +871,9 @@
         "datasource": "Prometheus",
         "definition": "",
         "hide": 0,
-        "includeAll": true,
+        "includeAll": false,
         "label": null,
-        "multi": false,
+        "multi": true,
         "name": "collector",
         "options": [],
         "query": "label_values(up{job=\"$siem\", components=\"collectors\"}, instance)",
@@ -921,5 +921,5 @@
   "timezone": "",
   "title": "Raccoon SIEM Collectors",
   "uid": "V8s1Goamk",
-  "version": 38
+  "version": 40
 }

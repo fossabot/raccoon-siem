@@ -1,6 +1,7 @@
 package aggregation
 
 import (
+	"fmt"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"gotest.tools/assert"
@@ -55,7 +56,8 @@ func TestRuleWindow(t *testing.T) {
 	rule, err := NewRule(Config{
 		Name:            "netflow",
 		Filter:          getTestFilterConfig(),
-		Window:          time.Second,
+		Threshold:       30,
+		Window:          1,
 		IdenticalFields: getTestIdenticalFields(),
 		SumFields:       getTestSumFields(),
 	}, outputFn)
@@ -71,6 +73,7 @@ func TestRuleWindow(t *testing.T) {
 
 	time.Sleep(2 * time.Second)
 	assert.Equal(t, len(aggregatedEvents), 2)
+	fmt.Println(aggregatedEvents)
 }
 
 func BenchmarkRule(b *testing.B) {
@@ -80,7 +83,7 @@ func BenchmarkRule(b *testing.B) {
 		Name:            "netflow",
 		Filter:          getTestFilterConfig(),
 		Threshold:       100,
-		Window:          time.Second,
+		Window:          1,
 		IdenticalFields: getTestIdenticalFields(),
 	}, outputFn)
 

@@ -26,7 +26,7 @@ func (r *regexpNormalizer) Normalize(data []byte, event *normalization.Event) *n
 }
 
 func newRegexpNormalizer(cfg Config) (*regexpNormalizer, error) {
-	n := &regexpNormalizer{name: cfg.Name}
+	n := &regexpNormalizer{name: cfg.Name, mapping: cfg.Mapping}
 
 	for _, e := range cfg.Expressions {
 		compiledExpr, err := regexp.Compile(e)

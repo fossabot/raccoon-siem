@@ -1,100 +1,107 @@
 package normalizers
 
 import (
-	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
+	"strings"
 )
 
+
 type Config struct {
-	Name          string          `yaml:"name,omitempty" json:"name"`
-	Kind          string          `yaml:"kind,omitempty" json:"kind"`
-	Expressions   []string        `yaml:"expressions,omitempty" json:"expressions"`
-	PairDelimiter string          `yaml:"pairDelimiter,omitempty" json:"pairDelimiter"`
-	KVDelimiter   string          `yaml:"kvDelimiter,omitempty" json:"kvDelimiter"`
-	Mapping       []MappingConfig `yaml:"mapping,omitempty" json:"mapping"`
+	Name          string          `json:"name,omitempty"`
+	Kind          string          `json:"kind,omitempty"`
+	Expressions   []string        `json:"expressions,omitempty"`
+	PairDelimiter string          `json:"pairDelimiter,omitempty"`
+	KVDelimiter   string          `json:"kvDelimiter,omitempty"`
+	Mapping       []MappingConfig `json:"mapping,omitempty"`
 }
 
 func (r *Config) ID() string {
 	return r.Name
 }
 
-type ExtraConfig struct {
-	Normalizer   Config      `yaml:"normalizer" json:"normalizer"`
-	TriggerField string      `yaml:"triggerField,omitempty" json:"triggerField"`
-	TriggerValue string      `yaml:"triggerValue,omitempty" json:"triggerValue"`
-	triggerValue []byte      `json:"-" yaml:"-"`
-	normalizer   INormalizer `json:"-" yaml:"-"`
-}
-
-type MappingConfig struct {
-	SourceField string        `yaml:"sourceField,omitempty" json:"sourceField"`
-	EventField  string        `yaml:"eventField,omitempty" json:"eventField"`
-	Extra       []ExtraConfig `yaml:"extra,omitempty" json:"extra"`
-}
-
-func (r *Config) Marshal() ([]byte, error) {
-	return json.Marshal(r)
-}
-
-func (r *Config) Unmarshal(data []byte) error {
-	config := Config{}
-	err := json.Unmarshal(data, &config)
-	if err != nil {
-		return err
-	}
-
-	err = config.validate()
-
-	if err == nil {
-		*r = config
-	}
-	return err
-}
-
-func (r *Config) validate() error {
+func (r *Config) Validate() error {
 	if r.Name == "" {
-		return errors.New("name required")
+		return errors.New("normalizer: name required")
 	}
 
-	if r.Kind == "" {
-		return errors.New("kind required")
-	}
-
-	if r.Kind == KindRegexp {
+	switch r.Kind {
+	case KindJSON, KindSyslog, KindCEF:
+	case KindRegexp:
 		if len(r.Expressions) == 0 {
-			return errors.New("expressions required")
+			return errors.New("normalizer: expressions required")
 		}
-	} else if r.Kind == KindKV {
+	case KindKV:
 		if r.KVDelimiter == "" || r.PairDelimiter == "" {
-			return errors.New("delimiters required")
+			return errors.New("normalizer: delimiters required")
 		}
+	default:
+		return fmt.Errorf("normalizer: unknown kind %s", r.Kind)
 	}
 
 	if len(r.Mapping) == 0 {
-		return errors.New("mapping required")
+		return errors.New("normalizer: mapping required")
 	}
 
 	for i := range r.Mapping {
-		if r.Mapping[i].SourceField == "" {
-			return errors.New("source field required")
-		}
-
-		if r.Mapping[i].EventField == "" {
-			return errors.New("event field required")
-		}
-
-		for j := range r.Mapping[i].Extra {
-			extraConfig := r.Mapping[i].Extra[j]
-			if extraConfig.TriggerValue != "" && extraConfig.TriggerField == "" {
-				return errors.New("trigger field required")
-			}
-
-			err := extraConfig.Normalizer.validate()
-			if err != nil {
-				return err
-			}
+		if err := r.Mapping[i].Validate(); err != nil {
+			return err
 		}
 	}
 
 	return nil
+}
+
+type MappingConfig struct {
+	SourceField string        `json:"sourceField,omitempty"`
+	EventField  string        `json:"eventField,omitempty"`
+	Extra       []ExtraConfig `json:"extra,omitempty"`
+	Label       string        `json:"label,omitempty"`
+	labelField  string        `json:"-"`
+}
+
+func (r *MappingConfig) Validate() error {
+	if r.SourceField == "" {
+		return errors.New("mapping: source field required")
+	}
+
+	if !helpers.EventFieldHasGetter(r.EventField) {
+		return fmt.Errorf("mapping: invalid event field %s", r.EventField)
+	}
+
+	if r.Label != "" {
+		if strings.Index(r.EventField, "User") != 0 {
+			return fmt.Errorf("only User* event fields may have a label")
+		}
+		r.labelField = r.EventField + "Label"
+	}
+
+	for i := range r.Extra {
+		if err := r.Extra[i].Validate(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+type ExtraConfig struct {
+	Normalizer   Config      `json:"normalizer"`
+	TriggerField string      `json:"triggerField,omitempty"`
+	TriggerValue string      `json:"triggerValue,omitempty"`
+	triggerValue []byte      `json:"-"`
+	normalizer   INormalizer `json:"-"`
+}
+
+func (r *ExtraConfig) Validate() error {
+	if r.TriggerValue != "" && r.TriggerField == "" {
+		return errors.New("extra: trigger field required")
+	}
+	return r.Normalizer.Validate()
+}
+
+type extraMarker struct {
+	extPtr *ExtraConfig
+	value  []byte
 }

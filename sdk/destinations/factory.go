@@ -2,19 +2,16 @@ package destinations
 
 import (
 	"fmt"
-	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
 type IDestination interface {
 	ID() string
 	Start() error
-	Send(event *normalization.Event)
+	Send(data []byte)
 }
 
 func New(cfg Config) (IDestination, error) {
 	switch cfg.Kind {
-	case DestinationConsole:
-		return newConsoleDestination(cfg)
 	case DestinationNATS:
 		return newNATS(cfg)
 	case DestinationElastic:

@@ -44,31 +44,31 @@ func newMetrics(port string) *metrics {
 		eventsReceived: prometheus.NewCounter(
 			prometheus.CounterOpts{
 				Namespace: sdk.MetricsNamespace,
-				Subsystem: sdk.MetricsSubsystemCollector,
+				Subsystem: sdk.MetricsSubsystemCorrelator,
 				Name:      "eventsReceived",
 			}),
 		eventsProcessed: prometheus.NewCounter(
 			prometheus.CounterOpts{
 				Namespace: sdk.MetricsNamespace,
-				Subsystem: sdk.MetricsSubsystemCollector,
+				Subsystem: sdk.MetricsSubsystemCorrelator,
 				Name:      "eventsProcessed",
 			}),
 		eventsCorrelated: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace: sdk.MetricsNamespace,
-				Subsystem: sdk.MetricsSubsystemCollector,
+				Subsystem: sdk.MetricsSubsystemCorrelator,
 				Name:      "eventsCorrelated",
 			}, []string{"rule"}),
 		eventsSent: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace: sdk.MetricsNamespace,
-				Subsystem: sdk.MetricsSubsystemCollector,
+				Subsystem: sdk.MetricsSubsystemCorrelator,
 				Name:      "eventsSent",
 			}, []string{"destination"}),
 		processingLatency: prometheus.NewHistogram(
 			prometheus.HistogramOpts{
 				Namespace: sdk.MetricsNamespace,
-				Subsystem: sdk.MetricsSubsystemCollector,
+				Subsystem: sdk.MetricsSubsystemCorrelator,
 				Name:      "processingLatency",
 				Buckets:   prometheus.DefBuckets,
 			}),

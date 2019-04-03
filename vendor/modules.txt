@@ -11,6 +11,8 @@ github.com/beorn7/perks/quantile
 github.com/boltdb/bolt
 # github.com/fln/nf9packet v0.0.0-20160617165915-086bda80ed9d
 github.com/fln/nf9packet
+# github.com/francoispqt/gojay v1.2.10
+github.com/francoispqt/gojay
 # github.com/gin-contrib/sse v0.0.0-20170109093832-22d885f9ecc7
 github.com/gin-contrib/sse
 # github.com/gin-gonic/gin v1.3.0
@@ -18,10 +20,16 @@ github.com/gin-gonic/gin
 github.com/gin-gonic/gin/binding
 github.com/gin-gonic/gin/json
 github.com/gin-gonic/gin/render
+# github.com/go-redis/redis v6.15.2+incompatible
+github.com/go-redis/redis
+github.com/go-redis/redis/internal
+github.com/go-redis/redis/internal/consistenthash
+github.com/go-redis/redis/internal/hashtag
+github.com/go-redis/redis/internal/pool
+github.com/go-redis/redis/internal/proto
+github.com/go-redis/redis/internal/util
 # github.com/golang/protobuf v1.2.0
 github.com/golang/protobuf/proto
-# github.com/google/btree v1.0.0
-github.com/google/btree
 # github.com/google/go-cmp v0.2.0
 github.com/google/go-cmp/cmp
 github.com/google/go-cmp/cmp/internal/diff
@@ -76,6 +84,8 @@ github.com/prometheus/procfs/xfs
 github.com/prometheus/procfs/internal/util
 # github.com/satori/go.uuid v1.2.0
 github.com/satori/go.uuid
+# github.com/segmentio/kafka-go v0.2.2
+github.com/segmentio/kafka-go
 # github.com/sirupsen/logrus v1.4.0
 github.com/sirupsen/logrus
 # github.com/spf13/cobra v0.0.3
@@ -88,9 +98,9 @@ github.com/ugorji/go/codec
 github.com/vmihailenco/msgpack/codes
 # golang.org/x/crypto v0.0.0-20180904163835-0709b304e793
 golang.org/x/crypto/ssh/terminal
-# golang.org/x/net v0.0.0-20180724234803-3673e40ba225
+# golang.org/x/net v0.0.0-20180906233101-161cd47e91fd
 golang.org/x/net/context
-# golang.org/x/sys v0.0.0-20180906133057-8cf3aee42992
+# golang.org/x/sys v0.0.0-20180909124046-d0be0721c37e
 golang.org/x/sys/windows/svc/eventlog
 golang.org/x/sys/unix
 golang.org/x/sys/windows
@@ -107,13 +117,8 @@ google.golang.org/appengine/internal/log
 google.golang.org/appengine/internal/remote_api
 # gopkg.in/alecthomas/kingpin.v2 v2.2.6
 gopkg.in/alecthomas/kingpin.v2
-# gopkg.in/go-playground/assert.v1 v1.2.1
-gopkg.in/go-playground/assert.v1
 # gopkg.in/go-playground/validator.v8 v8.18.2
 gopkg.in/go-playground/validator.v8
-# gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce
-gopkg.in/mgo.v2/bson
-gopkg.in/mgo.v2/internal/json
 # gopkg.in/vmihailenco/msgpack.v4 v4.0.1
 gopkg.in/vmihailenco/msgpack.v4
 # gopkg.in/yaml.v2 v2.2.1

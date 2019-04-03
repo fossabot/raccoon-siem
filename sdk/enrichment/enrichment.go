@@ -19,14 +19,13 @@ func Enrich(cfg Config, targetEvent *normalization.Event, sourceEvents ...*norma
 	case ValueSourceKindAL:
 		fromAL(cfg, targetEvent)
 	default:
-		setValue(cfg.Field, cfg.Constant, targetEvent)
+		setValueFromInterface(cfg.Field, cfg.Constant, targetEvent)
 	}
 }
 
 func fromDict(cfg Config, targetEvent *normalization.Event) {
 	key := helpers.MakeKey(cfg.KeyFields, targetEvent)
-	dictValue := globals.Dictionaries.Get(cfg.ValueSourceName, key)
-	setValue(cfg.Field, dictValue, targetEvent)
+	targetEvent.SetAnyField(cfg.Field, globals.Dictionaries.Get(cfg.ValueSourceName, key))
 }
 
 func fromEvent(cfg Config, targetEvent *normalization.Event, sourceEvents []*normalization.Event) {
@@ -43,20 +42,18 @@ func fromEvent(cfg Config, targetEvent *normalization.Event, sourceEvents []*nor
 		sourceField = cfg.Field
 	}
 
-	setValue(sourceField, sourceEvent.GetAnyField(sourceField), targetEvent)
+	setValueFromInterface(sourceField, sourceEvent.GetAnyField(sourceField), targetEvent)
 }
 
 func fromAL(cfg Config, targetEvent *normalization.Event) {
 	alValue := globals.ActiveLists.Get(cfg.ValueSourceName, cfg.ValueSourceField, cfg.KeyFields, targetEvent)
-	setValue(cfg.Field, alValue, targetEvent)
+	targetEvent.SetAnyField(cfg.Field, alValue)
 }
 
-func setValue(field string, value interface{}, targetEvent *normalization.Event) {
+func setValueFromInterface(field string, value interface{}, targetEvent *normalization.Event) {
 	switch value.(type) {
 	case string:
 		targetEvent.SetAnyField(field, value.(string))
-	case int:
-		targetEvent.SetIntField(field, int64(value.(int)))
 	case int64:
 		targetEvent.SetIntField(field, value.(int64))
 	case float64:

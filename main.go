@@ -11,11 +11,12 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:       "raccoon",
-	Short:     "Raccoon SIEM component launcher",
-	Args:      cobra.ExactArgs(1),
-	ValidArgs: []string{"core", "collector", "correlator", "resources"},
-	RunE:      cobra.OnlyValidArgs,
+	Use:          "raccoon",
+	Short:        "Raccoon SIEM component launcher",
+	Args:         cobra.ExactArgs(1),
+	ValidArgs:    []string{"core", "collector", "correlator", "resources"},
+	SilenceUsage: true,
+	RunE:         cobra.OnlyValidArgs,
 }
 
 var version string

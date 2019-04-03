@@ -9,6 +9,7 @@ import (
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers"
+	"log"
 	"time"
 )
 
@@ -23,6 +24,7 @@ type Processor struct {
 	aggregationRules []*aggregation.Rule
 	destinations     []destinations.IDestination
 	workers          int
+	debug            bool
 }
 
 func (r *Processor) Start() {
@@ -39,13 +41,12 @@ mainLoop:
 
 		event := r.normalizer.Normalize(input.Data, nil)
 		if event == nil {
-			r.metrics.eventProcessed()
 			continue
 		}
 
-		for _, dropFilter := range r.filters {
-			if dropFilter.Pass(event) {
-				r.metrics.eventFiltered(dropFilter.ID())
+		for _, filter := range r.filters {
+			if !filter.Pass(event) {
+				r.metrics.eventFiltered(filter.ID())
 				r.metrics.eventProcessed()
 				continue mainLoop
 			}
@@ -77,8 +78,14 @@ mainLoop:
 }
 
 func (r *Processor) output(event *normalization.Event) {
-	for _, dst := range r.destinations {
-		dst.Send(event)
-		r.metrics.eventSent(dst.ID())
+	if r.debug {
+		log.Println(event)
+	}
+
+	if encodedEvent, err := event.ToJSON(); err == nil {
+		for _, dst := range r.destinations {
+			dst.Send(encodedEvent)
+			r.metrics.eventSent(dst.ID())
+		}
 	}
 }

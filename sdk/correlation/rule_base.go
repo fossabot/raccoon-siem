@@ -1,7 +1,6 @@
 package correlation
 
 import (
-	"fmt"
 	"github.com/satori/go.uuid"
 	"github.com/tephrocactus/raccoon-siem/sdk/actions"
 	"github.com/tephrocactus/raccoon-siem/sdk/filters"
@@ -79,7 +78,7 @@ func (r *baseRule) Feed(event *normalization.Event) bool {
 	return false
 }
 
-func (r baseRule) aggregate(selector eventSelector, event *normalization.Event) bool {
+func (r *baseRule) aggregate(selector eventSelector, event *normalization.Event) bool {
 	key := event.HashFields(r.identicalFields)
 	r.mu.Lock()
 
@@ -198,7 +197,10 @@ func (r *baseRule) timeoutRoutine() {
 		}
 
 		r.mu.Unlock()
-		skip = closestTimeout - now
+
+		if closestTimeout != math.MaxInt64 {
+			skip = closestTimeout - now
+		}
 	}
 }
 
@@ -210,7 +212,7 @@ func newBaseRule(
 ) (baseRule, error) {
 	r := baseRule{
 		name:            cfg.Name,
-		window:          cfg.Window,
+		window:          cfg.WindowDuration(),
 		identicalFields: cfg.IdenticalFields,
 		uniqueFields:    cfg.UniqueFields,
 		buckets:         make(map[string]*bucket),
@@ -232,6 +234,7 @@ func newBaseRule(
 		selector := eventSelector{
 			tag:       selectorCfg.Tag,
 			threshold: selectorCfg.Threshold,
+			recovery:  selectorCfg.Recovery,
 		}
 
 		filter, err := filters.NewFilter(selectorCfg.Filter)
@@ -241,10 +244,6 @@ func newBaseRule(
 
 		selector.filter = filter
 		r.selectors = append(r.selectors, selector)
-	}
-
-	if len(r.selectors) == 0 {
-		return r, fmt.Errorf("%s: at least one event selector required", r.name)
 	}
 
 	for kind, trigger := range cfg.Triggers {

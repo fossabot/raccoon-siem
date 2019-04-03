@@ -1,22 +1,28 @@
 package helpers
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/satori/go.uuid"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
+	"reflect"
 	"strings"
 	"time"
+	"unsafe"
 )
 
 func CopyBytes(data []byte) []byte {
 	dataCopy := make([]byte, len(data))
 	copy(dataCopy, data)
 	return dataCopy
+}
+
+func BytesToString(input []byte) string {
+	return *(*string)(unsafe.Pointer(&input))
 }
 
 func SumEvents(dst *normalization.Event, src *normalization.Event, fields []string) {
@@ -76,7 +82,7 @@ func ReadConfigFromCore(baseURL string, component string, id string, dst interfa
 		return err
 	}
 
-	return yaml.Unmarshal(body, dst)
+	return json.Unmarshal(body, dst)
 }
 
 func ReadConfigFromFile(path string, dstPointer interface{}) error {
@@ -84,7 +90,7 @@ func ReadConfigFromFile(path string, dstPointer interface{}) error {
 	if err != nil {
 		return err
 	}
-	return yaml.Unmarshal(data, dstPointer)
+	return json.Unmarshal(data, dstPointer)
 }
 
 func NowUnixMillis() int64 {
@@ -134,4 +140,28 @@ func MakeKey(keyFields []string, event *normalization.Event) string {
 		key.WriteString(normalization.ToString(event.GetAnyField(field)))
 	}
 	return key.String()
+}
+
+func AreEventFieldTypesEqual(lf, rf string) bool {
+	event := new(normalization.Event)
+	lv := event.GetAnyField(lf)
+	rv := event.GetAnyField(rf)
+	return reflect.TypeOf(lv).Kind() == reflect.TypeOf(rv).Kind()
+}
+
+func EventFieldHasGetter(field string) bool {
+	event := normalization.Event{}
+	rt := reflect.TypeOf(event)
+	_, ok := rt.FieldByName(field)
+	return ok
+}
+
+func EventFieldHasSetter(field string) bool {
+	event := normalization.Event{}
+	rt := reflect.TypeOf(event)
+	f, ok := rt.FieldByName(field)
+	if !ok {
+		return false
+	}
+	return f.Tag.Get("set") != ""
 }
