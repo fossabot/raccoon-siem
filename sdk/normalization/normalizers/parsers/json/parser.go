@@ -147,6 +147,8 @@ func extractValue(kind valueKind, data []byte, offset *int, start int) []byte {
 		skipString(data, offset)
 	case valueKindNumberBoolNull:
 		skipNumberBoolNull(data, offset)
+	case valueKindObject:
+		skipComplex(data, offset)
 	default:
 		return nil
 	}
