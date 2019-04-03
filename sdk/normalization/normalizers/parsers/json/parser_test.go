@@ -126,13 +126,17 @@ var SampleLarge = []byte(`{
 }`)
 
 func TestJSONParser(t *testing.T) {
-	var result map[string][]byte
-	var success bool
-	for i := 0; i < 5; i++ {
-		result, success = Parse(sample)
+	success := false
+	result := make(map[string][]byte)
+	callback := func(key string, value []byte) {
+		result[key] = value
 	}
-	assert.Equal(t, success, true)
 
+	for i := 0; i < 5; i++ {
+		success = Parse(sample, callback)
+	}
+
+	assert.Equal(t, success, true)
 	assert.DeepEqual(t, result["first"], []byte("timestamp"))
 	assert.DeepEqual(t, result["timestamp"], []byte("2018-05-24 23:15:07"))
 	assert.DeepEqual(t, result["connection_id"], []byte("12"))
@@ -141,16 +145,17 @@ func TestJSONParser(t *testing.T) {
 	assert.DeepEqual(t, result["connection_data.connection_type"], []byte("tcp/ip"))
 	assert.DeepEqual(t, result["level"], []byte("-1"))
 
-	_, success = Parse(sampleWithoutOpenCurlyBracket)
+	success = Parse(sampleWithoutOpenCurlyBracket, callback)
 	assert.Equal(t, success, false)
 
-	_, success = Parse(sampleWithoutCloseCurlyBracket)
+	success = Parse(sampleWithoutCloseCurlyBracket, callback)
 	assert.Equal(t, success, false)
 }
 
 func BenchmarkJSONParser(b *testing.B) {
+	cb := func(key string, value []byte) {}
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		Parse(SampleLarge)
+		Parse(SampleLarge, cb)
 	}
 }

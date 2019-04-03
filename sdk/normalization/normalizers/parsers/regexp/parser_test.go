@@ -18,8 +18,12 @@ var expressions = []string{
 
 func TestRegexp(t *testing.T) {
 	exps := compileExpressions()
+	result := make(map[string][]byte)
+	callback := func(key string, value []byte) {
+		result[key] = value
+	}
 
-	result, ok := Parse(messages[0], exps)
+	ok := Parse(messages[0], exps, callback)
 	assert.Equal(t, ok, true)
 	assert.DeepEqual(t, result["pri"], []byte("165"))
 	assert.DeepEqual(t, result["version"], []byte("1"))
@@ -29,7 +33,7 @@ func TestRegexp(t *testing.T) {
 	assert.DeepEqual(t, result["mid"], []byte("ID1714"))
 	assert.DeepEqual(t, result["msg"], []byte("test message"))
 
-	result, ok = Parse(messages[1], exps)
+	ok = Parse(messages[1], exps, callback)
 	assert.DeepEqual(t, ok, true)
 	assert.DeepEqual(t, result["pri"], []byte("34"))
 	assert.DeepEqual(t, result["time"], []byte("Oct 11 22:14:15"))
@@ -39,12 +43,12 @@ func TestRegexp(t *testing.T) {
 }
 
 func BenchmarkRegexp(b *testing.B) {
-	b.StopTimer()
-	b.ReportAllocs()
+	callback := func(key string, value []byte) {}
 	exps := compileExpressions()
-	b.StartTimer()
+	b.ReportAllocs()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		Parse(messages[0], exps)
+		Parse(messages[0], exps, callback)
 	}
 }
 

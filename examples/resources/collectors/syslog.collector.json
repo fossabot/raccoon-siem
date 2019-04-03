@@ -16,32 +16,30 @@
       { "sourceField": "time", "eventField": "OriginTimestamp" },
       { "sourceField": "host", "eventField": "OriginDNSName" },
       { "sourceField": "app", "eventField": "OriginServiceName" },
+      { "sourceField": "msg", "eventField": "Message" }
+    ],
+    "extra": [
       {
-        "sourceField": "msg",
-        "eventField": "Message",
-        "extra": [
-          {
-           "triggerField": "app",
-           "triggerValue": "netflow",
-           "normalizer": {
-             "name": "json",
-             "kind": "json",
-             "mapping": [
-               { "sourceField": "version", "eventField": "OriginServiceVersion" },
-               { "sourceField": "request.proto", "eventField": "RequestApplicationProtocol" },
-               { "sourceField": "request.method", "eventField": "RequestMethod" },
-               { "sourceField": "request.url", "eventField": "RequestURL" },
-               { "sourceField": "request.status", "eventField": "RequestStatus" },
-               { "sourceField": "request.bytes", "eventField": "RequestBytesIn" },
-               { "sourceField": "request.user", "eventField": "RequestUser" },
-               { "sourceField": "request.port", "eventField": "DestinationPort" },
-               { "sourceField": "request.packets", "eventField": "RequestResults" },
-               { "sourceField": "request.srcIP", "eventField": "SourceIPAddress" },
-               { "sourceField": "request.dstIP", "eventField": "DestinationIPAddress" }
-             ]
-           }
-          }
-        ]
+       "conditionEventField": "OriginServiceName",
+       "conditionValue": "rest",
+       "sourceEventField": "Message",
+       "normalizer": {
+         "name": "json",
+         "kind": "json",
+         "mapping": [
+           { "sourceField": "version", "eventField": "OriginServiceVersion" },
+           { "sourceField": "request.proto", "eventField": "RequestApplicationProtocol" },
+           { "sourceField": "request.method", "eventField": "RequestMethod" },
+           { "sourceField": "request.url", "eventField": "RequestURL" },
+           { "sourceField": "request.status", "eventField": "RequestStatus" },
+           { "sourceField": "request.bytes", "eventField": "RequestBytesIn" },
+           { "sourceField": "request.user", "eventField": "RequestUser" },
+           { "sourceField": "request.port", "eventField": "DestinationPort" },
+           { "sourceField": "request.packets", "eventField": "RequestResults" },
+           { "sourceField": "request.srcIP", "eventField": "SourceIPAddress" },
+           { "sourceField": "request.dstIP", "eventField": "DestinationIPAddress" }
+         ]
+       }
       }
     ]
   },
@@ -49,11 +47,10 @@
   "filters": [
     {
       "name": "cron",
-      "not": true,
       "sections": [
         {
           "conditions": [
-            { "field": "OriginProcessName", "op": "=", "constant": "cron" }
+            { "field": "OriginServiceName", "op": "!=", "constant": "CRON" }
           ]
         }
       ]
@@ -90,8 +87,7 @@
   ],
 
   "destinations": [
-    { "name": "correlation", "kind": "nats", "url": "nats://localhost:4222", "subject": "raccoon-correlation" },
-    { "name": "storage", "kind": "elastic", "url": "http://localhost:9200", "index": "raccoon-events" }
+    { "name": "correlation", "kind": "nats", "url": "nats://localhost:4222", "subject": "raccoon-correlation" }
   ],
 
   "dictionaries": [

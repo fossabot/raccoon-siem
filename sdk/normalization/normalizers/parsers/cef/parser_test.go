@@ -8,10 +8,15 @@ import (
 var sample = []byte(`CEF:0|енот|threatmanager|1.0|100|detected a \| in message|10|src=10.0.0.1 act=blocked message dst=1.1.1.1`)
 
 func TestCEF(t *testing.T) {
-	result, ok := Parse([]byte("invalid"))
+	result := make(map[string][]byte)
+	callback := func(key string, value []byte) {
+		result[key] = value
+	}
+
+	ok := Parse([]byte("invalid"), callback)
 	assert.Equal(t, ok, false)
 
-	result, ok = Parse(sample)
+	ok = Parse(sample, callback)
 	assert.Equal(t, ok, true)
 	assert.DeepEqual(t, result["deviceVendor"], []byte("енот"))
 	assert.DeepEqual(t, result["deviceProduct"], []byte("threatmanager"))
@@ -25,8 +30,10 @@ func TestCEF(t *testing.T) {
 }
 
 func BenchmarkCEF(b *testing.B) {
+	cb := func(key string, value []byte) {}
 	b.ReportAllocs()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		Parse(sample)
+		Parse(sample, cb)
 	}
 }

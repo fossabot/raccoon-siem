@@ -34,7 +34,6 @@ func (r *Processor) worker() {
 
 		event := new(normalization.Event)
 		if err := event.FromJSON(input.Data); err != nil {
-			r.metrics.eventProcessed()
 			continue
 		}
 
@@ -42,13 +41,13 @@ func (r *Processor) worker() {
 			rule.Feed(event)
 		}
 
-		r.metrics.eventProcessed()
 		r.metrics.processingTook(time.Since(processingBegan))
 	}
 }
 
 func (r *Processor) output(event *normalization.Event) {
 	r.metrics.eventCorrelated(event.CorrelationRuleName)
+	outputBegan := time.Now()
 
 	if r.debug {
 		log.Println(event)
@@ -60,4 +59,6 @@ func (r *Processor) output(event *normalization.Event) {
 			r.metrics.eventSent(dst.ID())
 		}
 	}
+
+	r.metrics.outputTook(time.Since(outputBegan))
 }

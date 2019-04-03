@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"strings"
 )
 
@@ -14,6 +15,7 @@ type Config struct {
 	PairDelimiter string          `json:"pairDelimiter,omitempty"`
 	KVDelimiter   string          `json:"kvDelimiter,omitempty"`
 	Mapping       []MappingConfig `json:"mapping,omitempty"`
+	Extra         []ExtraConfig   `json:"extra,omitempty"`
 }
 
 func (r *Config) ID() string {
@@ -49,15 +51,20 @@ func (r *Config) Validate() error {
 		}
 	}
 
+	for i := range r.Extra {
+		if err := r.Extra[i].Validate(); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
 type MappingConfig struct {
-	SourceField string        `json:"sourceField,omitempty"`
-	EventField  string        `json:"eventField,omitempty"`
-	Extra       []ExtraConfig `json:"extra,omitempty"`
-	Label       string        `json:"label,omitempty"`
-	labelField  string        `json:"-"`
+	SourceField string `json:"sourceField,omitempty"`
+	EventField  string `json:"eventField,omitempty"`
+	Label       string `json:"label,omitempty"`
+	labelField  string `json:"-"`
 }
 
 func (r *MappingConfig) Validate() error {
@@ -76,31 +83,45 @@ func (r *MappingConfig) Validate() error {
 		r.labelField = r.EventField + "Label"
 	}
 
-	for i := range r.Extra {
-		if err := r.Extra[i].Validate(); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
 type ExtraConfig struct {
-	Normalizer   Config      `json:"normalizer"`
-	TriggerField string      `json:"triggerField,omitempty"`
-	TriggerValue string      `json:"triggerValue,omitempty"`
-	triggerValue []byte      `json:"-"`
-	normalizer   INormalizer `json:"-"`
+	Normalizer          Config      `json:"normalizer"`
+	ConditionEventField string      `json:"conditionEventField,omitempty"`
+	ConditionValue      interface{} `json:"conditionValue,omitempty"`
+	SourceEventField    string      `json:"sourceEventField,omitempty"`
+	normalizer          INormalizer `json:"-"`
 }
 
 func (r *ExtraConfig) Validate() error {
-	if r.TriggerValue != "" && r.TriggerField == "" {
-		return errors.New("extra: trigger field required")
+	if !helpers.EventFieldHasGetter(r.ConditionEventField) {
+		return fmt.Errorf("extra: invalid condition event field %s", r.ConditionEventField)
 	}
-	return r.Normalizer.Validate()
-}
 
-type extraMarker struct {
-	extPtr *ExtraConfig
-	value  []byte
+	if !helpers.EventFieldHasGetter(r.SourceEventField) {
+		return fmt.Errorf("extra: invalid source event field %s", r.SourceEventField)
+	}
+
+	if r.ConditionValue == nil {
+		return fmt.Errorf("extra: condition value required")
+	}
+
+	r.ConditionValue = normalization.ToFieldType(r.ConditionEventField, r.ConditionValue)
+	if r.ConditionValue == nil {
+		return fmt.Errorf("extra: condition value must be convertable to field type")
+	}
+
+	if err := r.Normalizer.Validate(); err != nil {
+		return err
+	}
+
+	extNorm, err := New(r.Normalizer)
+	if err != nil {
+		return err
+	}
+
+	r.normalizer = extNorm
+
+	return nil
 }

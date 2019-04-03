@@ -22,46 +22,51 @@ const (
 )
 
 func TestParser(t *testing.T) {
-	var res map[string][]byte
-	var success bool
+	res := make(map[string][]byte)
+	success := false
+	callback := func(key string, value []byte) {
+		res[key] = value
+	}
 
-	res, success = Parse(semicolonEqualInput, semicolon, equal)
+	success = Parse(semicolonEqualInput, semicolon, equal, callback)
 	assert.DeepEqual(t, success, true)
 	assert.DeepEqual(t, res["key1"], []byte("value1"))
 	assert.DeepEqual(t, res["key2"], []byte("value2"))
 
-	res, success = Parse(colonEqualInput, colon, equal)
+	success = Parse(colonEqualInput, colon, equal, callback)
 	assert.Assert(t, success, true)
 	assert.DeepEqual(t, res["key1"], []byte("value1"))
 	assert.DeepEqual(t, res["key2"], []byte("value2;"))
 
-	res, success = Parse(minusCommaInput, minus, comma)
+	success = Parse(minusCommaInput, minus, comma, callback)
 	assert.Assert(t, success, true)
 	assert.DeepEqual(t, res["key1"], []byte("value1"))
 	assert.DeepEqual(t, res["key2"], []byte("value2"))
 
-	res, success = Parse(spacedInput, comma, equal)
+	success = Parse(spacedInput, comma, equal, callback)
 	assert.Assert(t, success, true)
 	assert.DeepEqual(t, res["first key"], []byte("value1"))
 	assert.DeepEqual(t, res["second key"], []byte("value2"))
 
-	res, success = Parse(escapedInput, comma, equal)
+	success = Parse(escapedInput, comma, equal, callback)
 	assert.Assert(t, success, true)
 	assert.DeepEqual(t, res["key1\\=key2"], []byte("value1\\,value2"))
 	assert.DeepEqual(t, res["second key"], []byte("value2"))
 
-	res, success = Parse(commonInput, space, equal)
+	success = Parse(commonInput, space, equal, callback)
 	assert.Assert(t, success, true)
 	assert.DeepEqual(t, res["key1"], []byte("value1"))
 	assert.DeepEqual(t, res["key2"], []byte("value2"))
 
-	res, success = Parse([]byte(""), space, equal)
+	success = Parse([]byte(""), space, equal, callback)
 	assert.Assert(t, success, false)
 }
 
 func BenchmarkParser(b *testing.B) {
+	cb := func(key string, value []byte) {}
 	b.ReportAllocs()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		Parse(benchmarkInput, semicolon, equal)
+		Parse(benchmarkInput, semicolon, equal, cb)
 	}
 }

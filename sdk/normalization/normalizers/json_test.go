@@ -1,11 +1,11 @@
 package normalizers
 
 import (
-	"log"
+	"gotest.tools/assert"
 	"testing"
 )
 
-var sampleLarge = []byte(`{
+var jsonSample = []byte(`{
   "@timestamp": "2019-03-29T10:46:08.122Z",
   "@metadata": {
     "beat": "winlogbeat",
@@ -71,6 +71,7 @@ var sampleLarge = []byte(`{
   "keywords": [
     "Audit Success"
   ],
+  "extra_test": "key1=value1 key2=value2"
   "beat": {
     "hostname": "WIN-VF9S2B8SGV6",
     "version": "6.7.0",
@@ -78,17 +79,29 @@ var sampleLarge = []byte(`{
   }
 }`)
 
+func TestJSON(t *testing.T) {
+	n, err := getJSONNormalizer()
+	assert.Equal(t, err, nil)
+	event := n.Normalize(jsonSample, nil)
+	assert.Equal(t, event.OriginEventID, "4624")
+	assert.Equal(t, event.DestinationDNSName, "WORKSTATION")
+	assert.Equal(t, event.UserString1, "value1")
+	assert.Equal(t, event.UserString2, "value2")
+}
+
 func BenchmarkJSON(b *testing.B) {
-	n := testJSONCreateNormalizer()
+	n, _ := getJSONNormalizer()
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		n.Normalize(sampleLarge, nil)
+		n.Normalize(jsonSample, nil)
 	}
 }
 
-func testJSONCreateNormalizer() *jsonNormalizer {
-	n, err := newJSONNormalizer(Config{
+func getJSONNormalizer() (INormalizer, error) {
+	cfg := Config{
+		Name: "test",
+		Kind: KindJSON,
 		Mapping: []MappingConfig{
 			{SourceField: "@timestamp", EventField: "OriginTimestamp"},
 			{SourceField: "log_name", EventField: "OriginFileName"},
@@ -102,12 +115,30 @@ func testJSONCreateNormalizer() *jsonNormalizer {
 			{SourceField: "event_data.WorkstationName", EventField: "DestinationDNSName"},
 			{SourceField: "event_data.IpAddress", EventField: "SourceIPAddress"},
 			{SourceField: "event_data.LogonProcessName", EventField: "RequestUserAgent"},
+			{SourceField: "extra_test", EventField: "Details"},
 		},
-	})
-
-	if err != nil {
-		log.Fatal(err)
+		Extra: []ExtraConfig{
+			{
+				ConditionEventField: "OriginEventID",
+				ConditionValue:      "4624",
+				SourceEventField:    "Details",
+				Normalizer: Config{
+					Name:          "testExtra",
+					Kind:          "kv",
+					PairDelimiter: " ",
+					KVDelimiter:   "=",
+					Mapping: []MappingConfig{
+						{SourceField: "key1", EventField: "UserString1"},
+						{SourceField: "key2", EventField: "UserString2"},
+					},
+				},
+			},
+		},
 	}
 
-	return n
+	if err := cfg.Validate(); err != nil {
+		return nil, err
+	}
+
+	return New(cfg)
 }

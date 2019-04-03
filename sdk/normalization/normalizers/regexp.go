@@ -10,7 +10,8 @@ import (
 type regexpNormalizer struct {
 	name        string
 	expressions []*regexp.Regexp
-	mapping     []MappingConfig
+	mapping     map[string]MappingConfig
+	extra       []ExtraConfig
 }
 
 func (r *regexpNormalizer) ID() string {
@@ -18,15 +19,19 @@ func (r *regexpNormalizer) ID() string {
 }
 
 func (r *regexpNormalizer) Normalize(data []byte, event *normalization.Event) *normalization.Event {
-	parsingResult, ok := parser.Parse(data, r.expressions)
-	if !ok || len(parsingResult) == 0 {
-		return event
+	event, created := createEventIfNil(event)
+	if !parser.Parse(data, r.expressions, parserCallbackGenerator(r.mapping, event)) {
+		return eventOrNil(event, created)
 	}
-	return normalize(parsingResult, r.mapping, event)
+	return extraNormalize(event, r.extra)
 }
 
 func newRegexpNormalizer(cfg Config) (*regexpNormalizer, error) {
-	n := &regexpNormalizer{name: cfg.Name, mapping: cfg.Mapping}
+	n := &regexpNormalizer{
+		name:    cfg.Name,
+		mapping: groupMappingBySourceField(cfg.Mapping),
+		extra:   cfg.Extra,
+	}
 
 	for _, e := range cfg.Expressions {
 		compiledExpr, err := regexp.Compile(e)

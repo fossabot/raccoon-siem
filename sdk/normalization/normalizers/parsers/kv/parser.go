@@ -1,13 +1,13 @@
 package kv
 
+import "github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers/parsers"
+
 const (
 	space = byte(' ')
 	bs    = '\\'
 )
 
-func Parse(data []byte, pairDelimiter, kvDelimiter byte) (map[string][]byte, bool) {
-	result := make(map[string][]byte)
-
+func Parse(data []byte, pairDelimiter, kvDelimiter byte, callback parsers.Callback) bool {
 	var key []byte
 	var start = 0
 	var end = 0
@@ -33,7 +33,7 @@ func Parse(data []byte, pairDelimiter, kvDelimiter byte) (map[string][]byte, boo
 		// Separator between pairs of "key-value" was met
 		if data[i] == pairDelimiter && lookForValue && data[i-1] != bs {
 			// Save current value to map with early saved key
-			result[string(key)] = data[start:end]
+			callback(string(key), data[start:end])
 			// Wait for next key now
 			lookForValue = false
 			// Key will start with next char
@@ -60,8 +60,8 @@ func Parse(data []byte, pairDelimiter, kvDelimiter byte) (map[string][]byte, boo
 
 	// Input ends. If we still waiting for value, save value
 	if lookForValue {
-		result[string(key)] = data[start:end]
+		callback(string(key), data[start:end])
 	}
 
-	return result, true
+	return true
 }

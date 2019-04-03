@@ -11,7 +11,8 @@ type kvNormalizer struct {
 	name          string
 	pairDelimiter byte
 	kvDelimiter   byte
-	mapping       []MappingConfig
+	mapping       map[string]MappingConfig
+	extra         []ExtraConfig
 }
 
 func (r *kvNormalizer) ID() string {
@@ -19,11 +20,11 @@ func (r *kvNormalizer) ID() string {
 }
 
 func (r *kvNormalizer) Normalize(data []byte, event *normalization.Event) *normalization.Event {
-	parsingResult, ok := kv.Parse(data, r.pairDelimiter, r.kvDelimiter)
-	if !ok || len(parsingResult) == 0 {
-		return event
+	event, created := createEventIfNil(event)
+	if !kv.Parse(data, r.pairDelimiter, r.kvDelimiter, parserCallbackGenerator(r.mapping, event)) {
+		return eventOrNil(event, created)
 	}
-	return normalize(parsingResult, r.mapping, event)
+	return extraNormalize(event, r.extra)
 }
 
 func newKVNormalizer(cfg Config) (*kvNormalizer, error) {
@@ -45,6 +46,7 @@ func newKVNormalizer(cfg Config) (*kvNormalizer, error) {
 		name:          cfg.Name,
 		pairDelimiter: pairDelimiter,
 		kvDelimiter:   kvDelimiter,
-		mapping:       cfg.Mapping,
+		mapping:       groupMappingBySourceField(cfg.Mapping),
+		extra:         cfg.Extra,
 	}, nil
 }

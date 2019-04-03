@@ -58,7 +58,7 @@ func newKafkaConnector(cfg Config, channel OutputChannel) (*kafkaConnector, erro
 		GroupID:        cfg.Queue,
 		Partition:      cfg.Partition,
 		CommitInterval: time.Second,
-		MinBytes:       10e3,
+		MinBytes:       4096,
 		MaxBytes:       10e6,
 	})
 

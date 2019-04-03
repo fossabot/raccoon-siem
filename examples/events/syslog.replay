@@ -38,5 +38,3 @@
 <8>Mar 23 15:46:04 srv-example-01 rest: { "version": "v1.0.0", "request": { "proto": "http", "method": "GET", "url": "/admin", "status": 503 }, "session": { "user": "example admin", "org": "example org" }}
 <11>Mar 23 15:46:03 srv-example-01 rest: { "version": "v1.0.0", "request": { "proto": "http", "method": "POST", "url": "/session", "status": 200 }}
 <11>Mar 23 15:46:03 srv-example-01 rest: { "version": "v1.0.0", "request": { "proto": "http", "method": "POST", "url": "/session", "status": 200 }}
-<11>Mar 23 15:46:03 srv-example-01 netflow: { "version": "9", "request": { "port": 22, "packets": 12, "srcIP": "192.168.2.2", "dstIP": "192.168.2.100" }}
-<11>Mar 23 15:46:03 srv-example-01 netflow: { "version": "9", "request": { "port": 22, "packets": 44, "srcIP": "192.168.2.3", "dstIP": "192.168.2.100" }}
