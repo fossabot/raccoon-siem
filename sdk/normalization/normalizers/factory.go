@@ -12,6 +12,7 @@ const (
 	KindRegexp = "regexp"
 	KindSyslog = "syslog"
 	KindKV     = "kv"
+	KindCSV    = "csv"
 )
 
 type INormalizer interface {
@@ -31,6 +32,8 @@ func New(cfg Config) (INormalizer, error) {
 		return newRegexpNormalizer(cfg)
 	case KindKV:
 		return newKVNormalizer(cfg)
+	case KindCSV:
+		return newCSVNormalizer(cfg)
 	}
 
 	panic(fmt.Errorf("unknown normalizer kind: %s", cfg.Kind))

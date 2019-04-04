@@ -14,6 +14,7 @@ type Config struct {
 	Expressions   []string        `json:"expressions,omitempty"`
 	PairDelimiter string          `json:"pairDelimiter,omitempty"`
 	KVDelimiter   string          `json:"kvDelimiter,omitempty"`
+	Delimiter     string          `json:"delimiter,omitempty"`
 	Mapping       []MappingConfig `json:"mapping,omitempty"`
 	Extra         []ExtraConfig   `json:"extra,omitempty"`
 }
@@ -35,7 +36,11 @@ func (r *Config) Validate() error {
 		}
 	case KindKV:
 		if r.KVDelimiter == "" || r.PairDelimiter == "" {
-			return errors.New("normalizer: delimiters required")
+			return errors.New("normalizer: kv and pair delimiters required")
+		}
+	case KindCSV:
+		if r.Delimiter == "" {
+			return errors.New("normalizer: delimiter required")
 		}
 	default:
 		return fmt.Errorf("normalizer: unknown kind %s", r.Kind)

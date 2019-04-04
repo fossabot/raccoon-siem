@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var sample = []byte(`CEF:0|енот|threatmanager|1.0|100|detected a \| in message|10|src=10.0.0.1 act=blocked message dst=1.1.1.1`)
+var sample = []byte(`CEF:0|енот|threatmanager|1.0|100|detected a \, in message|10|src=10.0.0.1 act=blocked message dst=1.1.1.1`)
 
 func TestCEF(t *testing.T) {
 	result := make(map[string][]byte)
@@ -22,7 +22,7 @@ func TestCEF(t *testing.T) {
 	assert.DeepEqual(t, result["deviceProduct"], []byte("threatmanager"))
 	assert.DeepEqual(t, result["deviceVersion"], []byte("1.0"))
 	assert.DeepEqual(t, result["deviceEventClassId"], []byte("100"))
-	assert.DeepEqual(t, result["name"], []byte(`detected a \| in message`))
+	assert.DeepEqual(t, result["name"], []byte(`detected a \, in message`))
 	assert.DeepEqual(t, result["severity"], []byte("10"))
 	assert.DeepEqual(t, result["sourceAddress"], []byte("10.0.0.1"))
 	assert.DeepEqual(t, result["deviceAction"], []byte("blocked message"))
