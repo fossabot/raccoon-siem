@@ -1,12 +1,16 @@
 package filters
 
+import "net"
+
 const (
-	OpEQ     = "="
-	OpNEQ    = "!="
-	OpGTorEQ = ">="
-	OpGT     = ">"
-	OpLTorEQ = "<="
-	OpLT     = "<"
+	OpEQ          = "="
+	OpNEQ         = "!="
+	OpGTorEQ      = ">="
+	OpGT          = ">"
+	OpLTorEQ      = "<="
+	OpLT          = "<"
+	OpInSubnet    = "inSubnet"
+	OpNotInSubnet = "!inSubnet"
 )
 
 type comparator struct{}
@@ -87,7 +91,25 @@ func (r *comparator) compareString(src string, dst interface{}, op string) bool 
 		return src < dstVal
 	case OpLTorEQ:
 		return src <= dstVal
+	case OpInSubnet:
+		return r.inSubnet(src, dstVal)
+	case OpNotInSubnet:
+		return !r.inSubnet(src, dstVal)
 	}
 
 	return false
+}
+
+func (r *comparator) inSubnet(ip, cidr string) bool {
+	parsedIP := net.ParseIP(ip)
+	if parsedIP == nil {
+		return false
+	}
+
+	_, network, err := net.ParseCIDR(cidr)
+	if err != nil {
+		return false
+	}
+
+	return network.Contains(parsedIP)
 }

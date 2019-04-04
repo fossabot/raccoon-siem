@@ -7,7 +7,8 @@ import (
 
 type jsonNormalizer struct {
 	name    string
-	mapping []MappingConfig
+	mapping map[string]MappingConfig
+	extra   []ExtraConfig
 }
 
 func (r *jsonNormalizer) ID() string {
@@ -15,16 +16,17 @@ func (r *jsonNormalizer) ID() string {
 }
 
 func (r *jsonNormalizer) Normalize(data []byte, event *normalization.Event) *normalization.Event {
-	parsingResult, ok := json.Parse(data)
-	if !ok || len(parsingResult) == 0 {
-		return event
+	event, created := createEventIfNil(event)
+	if !json.Parse(data, parserCallbackGenerator(r.mapping, event)) {
+		return eventOrNil(event, created)
 	}
-	return normalize(parsingResult, r.mapping, event)
+	return extraNormalize(event, r.extra)
 }
 
 func newJSONNormalizer(cfg Config) (*jsonNormalizer, error) {
 	return &jsonNormalizer{
 		name:    cfg.Name,
-		mapping: cfg.Mapping,
+		mapping: groupMappingBySourceField(cfg.Mapping),
+		extra:   cfg.Extra,
 	}, nil
 }

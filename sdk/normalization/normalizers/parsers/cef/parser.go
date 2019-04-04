@@ -1,5 +1,7 @@
 package cef
 
+import "github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers/parsers"
+
 const (
 	space = ' '
 	pipe  = '|'
@@ -186,9 +188,9 @@ var (
 
 // Sample:
 // CEF:0|security|threatmanager|1.0|100|detected a \| in message|10|src=10.0.0.1 act=blocked a | dst=1.1.1.1
-func Parse(data []byte) (map[string][]byte, bool) {
+func Parse(data []byte, callback parsers.Callback) bool {
 	if len(data) < len(entrySequence) {
-		return nil, false
+		return false
 	}
 
 	//
@@ -198,7 +200,7 @@ func Parse(data []byte) (map[string][]byte, bool) {
 	pos := 0
 	for ; pos < len(entrySequence); pos++ {
 		if data[pos] != entrySequence[pos] {
-			return nil, false
+			return false
 		}
 	}
 
@@ -206,13 +208,12 @@ func Parse(data []byte) (map[string][]byte, bool) {
 	// Match header: "Device Vendor|Device Product|Device Version|Device Event Class ID|Name|Severity|"
 	//
 
-	out := make(map[string][]byte)
 	valueStart := pos
 	headerFieldsIdx := 0
 	headerOK := false
 	for ; pos < len(data); pos++ {
 		if data[pos] == pipe && data[pos-1] != bs {
-			out[headerFields[headerFieldsIdx]] = data[valueStart:pos]
+			callback(headerFields[headerFieldsIdx], data[valueStart:pos])
 
 			headerFieldsIdx++
 			if headerFieldsIdx == len(headerFields) {
@@ -225,7 +226,7 @@ func Parse(data []byte) (map[string][]byte, bool) {
 	}
 
 	if !headerOK {
-		return nil, false
+		return false
 	}
 
 	//
@@ -243,7 +244,7 @@ func Parse(data []byte) (map[string][]byte, bool) {
 
 		if data[pos] == eq && data[pos-1] != bs {
 			if valueStart != -1 {
-				out[key] = data[valueStart:prevSpacePos]
+				callback(key, data[valueStart:prevSpacePos])
 			}
 			key = dict[string(data[prevSpacePos+1:pos])]
 			valueStart = pos + 1
@@ -252,8 +253,8 @@ func Parse(data []byte) (map[string][]byte, bool) {
 	}
 
 	if valueStart != -1 {
-		out[key] = data[valueStart:pos]
+		callback(key, data[valueStart:pos])
 	}
 
-	return out, len(out) > 0
+	return true
 }

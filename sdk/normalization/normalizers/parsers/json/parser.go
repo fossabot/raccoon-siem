@@ -2,6 +2,7 @@ package json
 
 import (
 	"bytes"
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers/parsers"
 )
 
 const (
@@ -31,14 +32,12 @@ const (
 
 type valueKind uint8
 
-func Parse(data []byte) (map[string][]byte, bool) {
-	result := make(map[string][]byte)
+func Parse(data []byte, callback parsers.Callback) bool {
 	offset := 0
-	success := getValue(bytes.Buffer{}, &offset, data, result)
-	return result, success
+	return getValue(bytes.Buffer{}, &offset, data, callback)
 }
 
-func getValue(b bytes.Buffer, dataOffset *int, data []byte, result map[string][]byte) bool {
+func getValue(b bytes.Buffer, dataOffset *int, data []byte, callback parsers.Callback) bool {
 	if !validJson(data) {
 		return false
 	}
@@ -62,7 +61,7 @@ func getValue(b bytes.Buffer, dataOffset *int, data []byte, result map[string][]
 		if kind == valueKindObject {
 			b.Write(key)
 			b.Write([]byte{'.'})
-			getValue(b, dataOffset, data, result)
+			getValue(b, dataOffset, data, callback)
 			b.Truncate(b.Len() - len(key) - 1)
 			continue
 		}
@@ -70,10 +69,10 @@ func getValue(b bytes.Buffer, dataOffset *int, data []byte, result map[string][]
 		value := extractValue(kind, data, dataOffset, valueStart)
 		if b.Len() > 0 {
 			b.Write(key)
-			result[b.String()] = value
+			callback(b.String(), value)
 			b.Truncate(b.Len() - len(key))
 		} else {
-			result[string(key)] = value
+			callback(string(key), value)
 		}
 
 		if determineIfObjectEnds(data, dataOffset) {
@@ -147,6 +146,8 @@ func extractValue(kind valueKind, data []byte, offset *int, start int) []byte {
 		skipString(data, offset)
 	case valueKindNumberBoolNull:
 		skipNumberBoolNull(data, offset)
+	case valueKindObject:
+		skipComplex(data, offset)
 	default:
 		return nil
 	}

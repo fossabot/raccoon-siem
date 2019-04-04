@@ -1,20 +1,20 @@
 package regexp
 
 import (
+	"github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers/parsers"
 	"regexp"
 )
 
-func Parse(data []byte, expressions []*regexp.Regexp) (map[string][]byte, bool) {
+func Parse(data []byte, expressions []*regexp.Regexp, callback parsers.Callback) bool {
 	for _, e := range expressions {
 		if match := e.FindSubmatch(data); match != nil {
-			output := make(map[string][]byte)
 			for i, field := range e.SubexpNames() {
 				if i > 0 {
-					output[field] = match[i]
+					callback(field, match[i])
 				}
 			}
-			return output, true
+			return true
 		}
 	}
-	return nil, false
+	return false
 }

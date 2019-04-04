@@ -12,6 +12,7 @@ const (
 	KindRegexp = "regexp"
 	KindSyslog = "syslog"
 	KindKV     = "kv"
+	KindCSV    = "csv"
 )
 
 type INormalizer interface {
@@ -20,10 +21,6 @@ type INormalizer interface {
 }
 
 func New(cfg Config) (INormalizer, error) {
-	if err := initExtraNormalizers(cfg.Mapping); err != nil {
-		return nil, err
-	}
-
 	switch cfg.Kind {
 	case KindSyslog:
 		return newSyslogNormalizer(cfg)
@@ -35,20 +32,9 @@ func New(cfg Config) (INormalizer, error) {
 		return newRegexpNormalizer(cfg)
 	case KindKV:
 		return newKVNormalizer(cfg)
+	case KindCSV:
+		return newCSVNormalizer(cfg)
 	}
 
 	panic(fmt.Errorf("unknown normalizer kind: %s", cfg.Kind))
-}
-
-func initExtraNormalizers(mapping []MappingConfig) (err error) {
-	for m := range mapping {
-		for e := range mapping[m].Extra {
-			mapping[m].Extra[e].triggerValue = []byte(mapping[m].Extra[e].TriggerValue)
-			mapping[m].Extra[e].normalizer, err = New(mapping[m].Extra[e].Normalizer)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return err
 }

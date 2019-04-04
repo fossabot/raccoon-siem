@@ -36,6 +36,8 @@ func (r *Event) GetAnyField(field string) interface{} {
 		return r.CorrelatorDNSName
 	case "SourceID":
 		return r.SourceID
+	case "FieldsNormalized":
+		return r.FieldsNormalized
 	case "BaseEventIDs":
 		return r.BaseEventIDs
 	case "Incident":
@@ -249,6 +251,8 @@ func (r *Event) GetIntField(field string) int64 {
 	switch field {
 	case "Timestamp":
 		return r.Timestamp
+	case "FieldsNormalized":
+		return r.FieldsNormalized
 	case "Score":
 		return r.Score
 	case "Severity":
@@ -660,6 +664,10 @@ func (r *Event) EncodeMsgpack(enc *msgpack.Encoder) error {
 	}
 
 	if err := enc.EncodeString(r.SourceID); err != nil {
+		return err
+	}
+
+	if err := enc.EncodeInt64(r.FieldsNormalized); err != nil {
 		return err
 	}
 
@@ -1133,6 +1141,10 @@ func (r *Event) DecodeMsgpack(dec *msgpack.Decoder) (err error) {
 		return err
 	}
 
+	if r.FieldsNormalized, err = dec.DecodeInt64(); err != nil {
+		return err
+	}
+
 	l, err := dec.DecodeArrayLen()
 	if err != nil {
 		return err
@@ -1566,6 +1578,7 @@ func (r *Event) MarshalJSONObject(enc *gojay.Encoder) {
 	enc.StringKeyOmitEmpty("CorrelatorIPAddress", r.CorrelatorIPAddress)
 	enc.StringKeyOmitEmpty("CorrelatorDNSName", r.CorrelatorDNSName)
 	enc.StringKeyOmitEmpty("SourceID", r.SourceID)
+	enc.Int64KeyOmitEmpty("FieldsNormalized", r.FieldsNormalized)
 	enc.ArrayKeyOmitEmpty("BaseEventIDs", r.BaseEventIDs)
 	enc.BoolKeyOmitEmpty("Incident", r.Incident)
 	enc.BoolKeyOmitEmpty("Correlated", r.Correlated)
@@ -1696,6 +1709,8 @@ func (r *Event) UnmarshalJSONObject(dec *gojay.Decoder, k string) error {
 		return dec.String(&r.CorrelatorDNSName)
 	case "SourceID":
 		return dec.String(&r.SourceID)
+	case "FieldsNormalized":
+		return dec.Int64(&r.FieldsNormalized)
 	case "BaseEventIDs":
 		return dec.Array(&r.BaseEventIDs)
 	case "Incident":

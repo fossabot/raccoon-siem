@@ -47,7 +47,6 @@ mainLoop:
 		for _, filter := range r.filters {
 			if !filter.Pass(event) {
 				r.metrics.eventFiltered(filter.ID())
-				r.metrics.eventProcessed()
 				continue mainLoop
 			}
 		}
@@ -65,15 +64,16 @@ mainLoop:
 		for _, rule := range r.aggregationRules {
 			if rule.Feed(event) {
 				r.metrics.eventAggregated(rule.ID())
-				r.metrics.eventProcessed()
 				r.metrics.processingTook(time.Since(processingBegan))
 				continue mainLoop
 			}
 		}
 
-		r.output(event)
-		r.metrics.eventProcessed()
 		r.metrics.processingTook(time.Since(processingBegan))
+
+		outputBegan := time.Now()
+		r.output(event)
+		r.metrics.outputTook(time.Since(outputBegan))
 	}
 }
 

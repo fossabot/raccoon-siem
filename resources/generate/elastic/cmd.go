@@ -1,4 +1,4 @@
-package resources
+package elastic
 
 import (
 	"github.com/spf13/cobra"
@@ -8,28 +8,14 @@ import (
 	"text/template"
 )
 
-var generateCmd = &cobra.Command{
-	Use:       "generate <resource kind>",
-	Short:     "generate resource configuration",
-	Args:      cobra.ExactArgs(1),
-	ValidArgs: validGenerateSubjects,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := cobra.OnlyValidArgs(cmd, args); err != nil {
-			return err
-		}
-		return generate(args[0])
-	},
+var Cmd = &cobra.Command{
+	Use:   "elasticsearch",
+	Short: "generate elasticsearch index template",
+	Args:  cobra.ExactArgs(0),
+	RunE:  run,
 }
 
-func generate(resourceKind string) error {
-	switch resourceKind {
-	case "elasticsearch":
-		return generateElasticsearchTemplate()
-	}
-	return nil
-}
-
-func generateElasticsearchTemplate() error {
+func run(_ *cobra.Command, _ []string) error {
 	tpl, err := template.New("elasticsearch").Parse(elasticsearchTemplate)
 	if err != nil {
 		return err

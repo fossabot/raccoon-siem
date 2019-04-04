@@ -4,10 +4,11 @@ package rfc5424
 
 import (
     "strconv"
+    "github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers/parsers"
 )
 
 
-//line parser.go:11
+//line parser.go:12
 const syslog_start int = 1
 const syslog_first_final int = 510
 const syslog_error int = 0
@@ -15,16 +16,15 @@ const syslog_error int = 0
 const syslog_en_main int = 1
 
 
-//line parser.rl:10
+//line parser.rl:11
 
 
-func Parse(data []byte) (map[string][]byte, bool) {
+func Parse(data []byte, callback parsers.Callback) bool {
     var cs, p, pe, eof, priNum, facilityNum, valueOffset int
     var recentSDKey string
     var priErr error
 	pe = len(data)
 	success := true
-	output := make(map[string][]byte)
 
     
 //line parser.go:31
@@ -1352,8 +1352,8 @@ tr5:
              priNum, priErr = strconv.Atoi(string(data[valueOffset:p]))
              if priErr == nil {
                  facilityNum = priNum / 8
-                 output["facility"] = []byte(strconv.Itoa(facilityNum))
-                 output["severity"] = []byte(strconv.Itoa(priNum - (facilityNum * 8)))
+                 callback("facility", []byte(strconv.Itoa(facilityNum)))
+                 callback("severity", []byte(strconv.Itoa(priNum - (facilityNum * 8))))
              }
          
 	goto st6
@@ -1409,7 +1409,7 @@ tr9:
 tr11:
 //line parser.rl:34
 
-            output["time"] = data[valueOffset:p]
+            callback("time", data[valueOffset:p])
         
 	goto st9
 	st9:
@@ -1449,7 +1449,7 @@ tr12:
 tr13:
 //line parser.rl:38
 
-            output["host"] = data[valueOffset:p]
+            callback("host", data[valueOffset:p])
         
 	goto st11
 	st11:
@@ -1489,7 +1489,7 @@ tr15:
 tr16:
 //line parser.rl:42
 
-            output["app"] = data[valueOffset:p]
+            callback("app", data[valueOffset:p])
         
 	goto st13
 	st13:
@@ -1529,7 +1529,7 @@ tr18:
 tr19:
 //line parser.rl:46
 
-            output["pid"] = data[valueOffset:p]
+            callback("pid", data[valueOffset:p])
         
 	goto st15
 	st15:
@@ -1569,7 +1569,7 @@ tr21:
 tr22:
 //line parser.rl:50
 
-            output["mid"] = data[valueOffset:p]
+            callback("mid", data[valueOffset:p])
         
 	goto st17
 	st17:
@@ -1592,7 +1592,7 @@ tr24:
         
 //line parser.rl:54
 
-            output["msg"] = data[valueOffset:pe]
+            callback("msg", data[valueOffset:pe])
         
 	goto st510
 	st510:
@@ -1609,7 +1609,7 @@ tr25:
         
 //line parser.rl:54
 
-            output["msg"] = data[valueOffset:pe]
+            callback("msg", data[valueOffset:pe])
         
 	goto st511
 	st511:
@@ -1638,7 +1638,7 @@ tr26:
         
 //line parser.rl:54
 
-            output["msg"] = data[valueOffset:pe]
+            callback("msg", data[valueOffset:pe])
         
 	goto st513
 	st513:
@@ -2384,7 +2384,7 @@ tr596:
         
 //line parser.rl:54
 
-            output["msg"] = data[valueOffset:pe]
+            callback("msg", data[valueOffset:pe])
         
 	goto st550
 	st550:
@@ -2400,7 +2400,7 @@ tr596:
 tr555:
 //line parser.rl:62
 
-            output[recentSDKey] = data[valueOffset:p]
+            callback(recentSDKey, data[valueOffset:p])
         
 	goto st551
 tr593:
@@ -2410,13 +2410,13 @@ tr593:
         
 //line parser.rl:62
 
-            output[recentSDKey] = data[valueOffset:p]
+            callback(recentSDKey, data[valueOffset:p])
         
 	goto st551
 tr597:
 //line parser.rl:62
 
-            output[recentSDKey] = data[valueOffset:p]
+            callback(recentSDKey, data[valueOffset:p])
         
 //line parser.rl:21
 
@@ -2424,7 +2424,7 @@ tr597:
         
 //line parser.rl:54
 
-            output["msg"] = data[valueOffset:pe]
+            callback("msg", data[valueOffset:pe])
         
 	goto st551
 	st551:
@@ -3139,7 +3139,7 @@ tr560:
 tr591:
 //line parser.rl:62
 
-            output[recentSDKey] = data[valueOffset:p]
+            callback(recentSDKey, data[valueOffset:p])
         
 	goto st586
 	st586:
@@ -12871,5 +12871,5 @@ tr10:
 //line parser.rl:75
 
 
-    return output, success
+    return success
 }

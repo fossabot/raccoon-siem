@@ -14,8 +14,8 @@ type metrics struct {
 	eventsFiltered    *prometheus.CounterVec
 	eventsAggregated  *prometheus.CounterVec
 	eventsSent        *prometheus.CounterVec
-	eventsProcessed   prometheus.Counter
 	processingLatency prometheus.Histogram
+	outputLatency     prometheus.Histogram
 	port              string
 }
 
@@ -35,12 +35,12 @@ func (r *metrics) eventAggregated(rule string) {
 	r.eventsAggregated.WithLabelValues(rule).Inc()
 }
 
-func (r *metrics) eventProcessed() {
-	r.eventsProcessed.Inc()
-}
-
 func (r *metrics) processingTook(took time.Duration) {
 	r.processingLatency.Observe(float64(took.Nanoseconds()))
+}
+
+func (r *metrics) outputTook(took time.Duration) {
+	r.outputLatency.Observe(float64(took.Nanoseconds()))
 }
 
 func newMetrics(port string) *metrics {
@@ -51,12 +51,6 @@ func newMetrics(port string) *metrics {
 				Namespace: sdk.MetricsNamespace,
 				Subsystem: sdk.MetricsSubsystemCollector,
 				Name:      "eventsReceived",
-			}),
-		eventsProcessed: prometheus.NewCounter(
-			prometheus.CounterOpts{
-				Namespace: sdk.MetricsNamespace,
-				Subsystem: sdk.MetricsSubsystemCollector,
-				Name:      "eventsProcessed",
 			}),
 		eventsFiltered: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
@@ -83,15 +77,22 @@ func newMetrics(port string) *metrics {
 				Name:      "processingLatency",
 				Buckets:   prometheus.DefBuckets,
 			}),
+		outputLatency: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Namespace: sdk.MetricsNamespace,
+				Subsystem: sdk.MetricsSubsystemCollector,
+				Name:      "outputLatency",
+				Buckets:   prometheus.DefBuckets,
+			}),
 	}
 
 	prometheus.MustRegister(
 		m.eventsReceived,
-		m.eventsProcessed,
 		m.eventsFiltered,
 		m.eventsAggregated,
 		m.eventsSent,
-		m.processingLatency)
+		m.processingLatency,
+		m.outputLatency)
 
 	go func() {
 		http.Handle("/metrics", promhttp.Handler())

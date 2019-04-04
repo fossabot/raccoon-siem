@@ -2,6 +2,7 @@ package rfc3164
 
 import (
    "strconv"
+   "github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers/parsers"
 )
 
 %%{
@@ -9,12 +10,11 @@ import (
     write data;
 }%%
 
-func Parse(data []byte) (map[string][]byte, bool) {
+func Parse(data []byte, callback parsers.Callback) bool {
     var cs, p, pe, eof, valueOffset, priNum, facilityNum int
     var priErr error
 	pe = len(data)
 	success := true
-	output := make(map[string][]byte)
 
     %%{
         action mark {
@@ -25,33 +25,33 @@ func Parse(data []byte) (map[string][]byte, bool) {
             priNum, priErr = strconv.Atoi(string(data[valueOffset:p]))
             if priErr == nil {
                 facilityNum = priNum / 8
-                output["facility"] = []byte(strconv.Itoa(facilityNum))
-                output["severity"] = []byte(strconv.Itoa(priNum - (facilityNum * 8)))
+                callback("facility", []byte(strconv.Itoa(facilityNum)))
+                callback("severity", []byte(strconv.Itoa(priNum - (facilityNum * 8))))
             }
         }
 
         action setTimestamp {
-            output["time"] = data[valueOffset:p]
+            callback("time", data[valueOffset:p])
         }
 
         action setHostname {
-            output["host"] = data[valueOffset:p]
+            callback("host", data[valueOffset:p])
         }
 
         action setAppName {
-            output["app"] = data[valueOffset:p]
+            callback("app", data[valueOffset:p])
         }
 
         action setProcID {
-            output["pid"] = data[valueOffset:p]
+            callback("pid", data[valueOffset:p])
         }
 
         action setMsgID {
-            output["mid"] = data[valueOffset:p]
+            callback("mid", data[valueOffset:p])
         }
 
         action setMsg {
-            output["msg"] = data[valueOffset:pe]
+            callback("msg", data[valueOffset:pe])
         }
 
         action fail {
@@ -65,6 +65,6 @@ func Parse(data []byte) (map[string][]byte, bool) {
         write exec;
     }%%
 
-    return output, success
+    return success
 }
 

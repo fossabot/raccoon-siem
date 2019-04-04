@@ -42,6 +42,7 @@ type Event struct {
 	CorrelatorIPAddress        string   `storage_type:"ip"`
 	CorrelatorDNSName          string   `storage_type:"keyword"`
 	SourceID                   string   `storage_type:"keyword"`
+	FieldsNormalized           int64    `storage_type:"long"`
 	BaseEventIDs               strSlice `storage_type:"keyword"`
 	Incident                   bool     `storage_type:"boolean" set:"y"`
 	Correlated                 bool     `storage_type:"boolean" set:"y"`

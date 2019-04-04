@@ -104,7 +104,7 @@ func (r *ConditionConfig) Validate() error {
 	}
 
 	switch r.Op {
-	case OpEQ, OpNEQ, OpGT, OpGTorEQ, OpLT, OpLTorEQ:
+	case OpEQ, OpNEQ, OpGT, OpGTorEQ, OpLT, OpLTorEQ, OpInSubnet, OpNotInSubnet:
 	default:
 		return fmt.Errorf("condition: unknown operator %s", r.Op)
 	}
@@ -207,7 +207,7 @@ func (r *JoinConditionConfig) Validate() error {
 	}
 
 	switch r.Op {
-	case OpEQ, OpNEQ, OpGT, OpGTorEQ, OpLT, OpLTorEQ:
+	case OpEQ, OpNEQ, OpGT, OpGTorEQ, OpLT, OpLTorEQ, OpInSubnet, OpNotInSubnet:
 	default:
 		return fmt.Errorf("condition: unknown operator %s", r.Op)
 	}

@@ -4,10 +4,11 @@ package rfc3164
 
 import (
    "strconv"
+   "github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers/parsers"
 )
 
 
-//line parser.go:11
+//line parser.go:12
 const syslog_start int = 0
 const syslog_first_final int = 1
 const syslog_error int = -1
@@ -15,15 +16,14 @@ const syslog_error int = -1
 const syslog_en_main int = 0
 
 
-//line parser.rl:10
+//line parser.rl:11
 
 
-func Parse(data []byte) (map[string][]byte, bool) {
+func Parse(data []byte, callback parsers.Callback) bool {
     var cs, p, pe, eof, valueOffset, priNum, facilityNum int
     var priErr error
 	pe = len(data)
 	success := true
-	output := make(map[string][]byte)
 
     
 //line parser.go:30
@@ -309,7 +309,7 @@ tr37:
         
 //line parser.rl:53
 
-            output["msg"] = data[valueOffset:pe]
+            callback("msg", data[valueOffset:pe])
         
 	goto st1
 	st1:
@@ -542,7 +542,7 @@ tr1:
 tr32:
 //line parser.rl:33
 
-            output["time"] = data[valueOffset:p]
+            callback("time", data[valueOffset:p])
         
 	goto st21
 	st21:
@@ -582,7 +582,7 @@ tr38:
         
 //line parser.rl:53
 
-            output["msg"] = data[valueOffset:pe]
+            callback("msg", data[valueOffset:pe])
         
 	goto st22
 	st22:
@@ -622,7 +622,7 @@ tr39:
         
 //line parser.rl:53
 
-            output["msg"] = data[valueOffset:pe]
+            callback("msg", data[valueOffset:pe])
         
 	goto st23
 	st23:
@@ -665,7 +665,7 @@ tr39:
 tr44:
 //line parser.rl:37
 
-            output["host"] = data[valueOffset:p]
+            callback("host", data[valueOffset:p])
         
 	goto st24
 	st24:
@@ -693,7 +693,7 @@ tr46:
         
 //line parser.rl:53
 
-            output["msg"] = data[valueOffset:pe]
+            callback("msg", data[valueOffset:pe])
         
 	goto st25
 	st25:
@@ -719,7 +719,7 @@ tr46:
 tr49:
 //line parser.rl:41
 
-            output["app"] = data[valueOffset:p]
+            callback("app", data[valueOffset:p])
         
 	goto st26
 	st26:
@@ -749,7 +749,7 @@ tr47:
         
 //line parser.rl:53
 
-            output["msg"] = data[valueOffset:pe]
+            callback("msg", data[valueOffset:pe])
         
 	goto st27
 	st27:
@@ -762,7 +762,7 @@ tr47:
 tr50:
 //line parser.rl:41
 
-            output["app"] = data[valueOffset:p]
+            callback("app", data[valueOffset:p])
         
 	goto st28
 	st28:
@@ -797,7 +797,7 @@ tr52:
 tr54:
 //line parser.rl:45
 
-            output["pid"] = data[valueOffset:p]
+            callback("pid", data[valueOffset:p])
         
 	goto st30
 	st30:
@@ -825,7 +825,7 @@ tr54:
 tr45:
 //line parser.rl:37
 
-            output["host"] = data[valueOffset:p]
+            callback("host", data[valueOffset:p])
         
 	goto st32
 	st32:
@@ -868,7 +868,7 @@ tr45:
 tr58:
 //line parser.rl:37
 
-            output["host"] = data[valueOffset:p]
+            callback("host", data[valueOffset:p])
         
 	goto st33
 	st33:
@@ -915,7 +915,7 @@ tr40:
         
 //line parser.rl:53
 
-            output["msg"] = data[valueOffset:pe]
+            callback("msg", data[valueOffset:pe])
         
 	goto st34
 	st34:
@@ -1013,7 +1013,7 @@ tr40:
 tr35:
 //line parser.rl:33
 
-            output["time"] = data[valueOffset:p]
+            callback("time", data[valueOffset:p])
         
 	goto st40
 	st40:
@@ -1032,7 +1032,7 @@ tr35:
 tr62:
 //line parser.rl:33
 
-            output["time"] = data[valueOffset:p]
+            callback("time", data[valueOffset:p])
         
 	goto st41
 	st41:
@@ -2014,8 +2014,8 @@ tr124:
             priNum, priErr = strconv.Atoi(string(data[valueOffset:p]))
             if priErr == nil {
                 facilityNum = priNum / 8
-                output["facility"] = []byte(strconv.Itoa(facilityNum))
-                output["severity"] = []byte(strconv.Itoa(priNum - (facilityNum * 8)))
+                callback("facility", []byte(strconv.Itoa(facilityNum)))
+                callback("severity", []byte(strconv.Itoa(priNum - (facilityNum * 8))))
             }
         
 	goto st118
@@ -2186,6 +2186,6 @@ tr124:
 //line parser.rl:66
 
 
-    return output, success
+    return success
 }
 
