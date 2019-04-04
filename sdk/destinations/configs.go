@@ -13,13 +13,14 @@ const (
 type InputChannel chan *normalization.Event
 
 type Config struct {
-	Name        string `json:"name,omitempty"`
-	Kind        string `json:"kind,omitempty"`
-	URL         string `json:"url,omitempty"`
-	Subject     string `json:"subject,omitempty"`
-	Index       string `json:"index,omitempty"`
-	StaticIndex bool   `json:"staticIndex,omitempty"`
-	BatchSize   int    `json:"batchSize,omitempty"`
+	Id          string `json:"id,omitempty" db:"id,omitempty"`
+	Name        string `json:"name,omitempty" db:"name,omitempty"`
+	Kind        string `json:"kind,omitempty" db:"kind,omitempty"`
+	URL         string `json:"url,omitempty" db:"url,omitempty"`
+	Subject     string `json:"subject,omitempty" db:"subject"`
+	Index       string `json:"index,omitempty" db:"index_name"`
+	StaticIndex bool   `json:"staticIndex,omitempty" db:"static_index"`
+	BatchSize   int    `json:"batchSize,omitempty" db:"batch_size"`
 }
 
 func (r *Config) Validate() error {

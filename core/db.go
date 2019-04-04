@@ -2,13 +2,14 @@ package core
 
 import (
 	"database/sql"
-	"github.com/boltdb/bolt"
+	"github.com/tephrocactus/raccoon-siem/core/db"
 	_ "github.com/tephrocactus/raccoon-siem/core/migrator"
-	"gopkg.in/yaml.v2"
+	"upper.io/db.v3/lib/sqlbuilder"
 )
 
 var (
 	DBConn                  *sql.DB
+	UDBConn                 sqlbuilder.Database
 	dbBucketCorrelationRule = []byte("correlationRule")
 	dbBucketAggregationRule = []byte("aggregationRule")
 	dbBucketFilter          = []byte("filter")
@@ -21,58 +22,12 @@ var (
 	dbBucketDictionary      = []byte("dictionary")
 )
 
-var bucketNames = [][]byte{
-	dbBucketCorrelationRule, dbBucketFilter, dbBucketNormalizer, dbBucketCollector,
-	dbBucketCorrelator, dbBucketActiveList, dbBucketConnector, dbBucketAggregationRule,
-	dbBucketDestination, dbBucketDictionary,
-}
-
-func NewDB(path string) *DB {
-	db := new(DB)
-
-	//descriptor, err := bolt.Open(path, 0600, &bolt.Options{Timeout: 5 * time.Second})
-	//sdk.PanicOnError(err)
-	//
-	//db.h = descriptor
-	//
-	//err = db.createBuckets()
-	//sdk.PanicOnError(err)
-
-	return db
-}
-
-type DB struct {
-	h *bolt.DB
-}
-
-func (db *DB) ListKeys(bucket []byte) ([]byte, error) {
-	result := make([]string, 0)
-
-	err := db.h.View(func(tx *bolt.Tx) error {
-		c := tx.Bucket(bucket).Cursor()
-
-		for k, _ := c.First(); k != nil; k, _ = c.Next() {
-			result = append(result, string(k))
-		}
-
-		return nil
-	})
-
+func NewUdbConnection() error {
+	var err error
+	UDBConn, err = db.ConnectUdb(dbHost, dbPort, dbScheme)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return yaml.Marshal(result)
-}
-
-func (db *DB) createBuckets() error {
-	return db.h.Update(func(tx *bolt.Tx) error {
-		for _, name := range bucketNames {
-			_, err := tx.CreateBucketIfNotExists(name)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	})
+	return nil
 }

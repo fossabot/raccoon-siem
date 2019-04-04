@@ -3,7 +3,6 @@ package core
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
-	"github.com/tephrocactus/raccoon-siem/core/db"
 	"github.com/tephrocactus/raccoon-siem/core/migrator"
 )
 
@@ -56,9 +55,7 @@ func init() {
 
 func run(_ *cobra.Command, _ []string) error {
 	// Open database
-	var err error
-	DBConn, err = db.Connect(dbHost, dbPort, dbScheme)
-	if err != nil {
+	if err := NewUdbConnection(); err != nil {
 		return err
 	}
 
@@ -116,11 +113,15 @@ func run(_ *cobra.Command, _ []string) error {
 	//router.DELETE("/connector/:id", ConnectorDELETE)
 	//
 	// destinations
+	router.Use(txMiddleware())
+
 	destinationGroup := config.Group("/destination")
-	destinationGroup.GET("/", Destinations)
-	destinationGroup.GET("/destination/:id", DestinationGET)
-	destinationGroup.PUT("/destination", DestinationPUT)
-	destinationGroup.DELETE("/destination/:id", DestinationDELETE)
+	destinationGroup.GET("/", readDestinations)
+	destinationGroup.POST("/", createDestination)
+	destinationGroup.GET("/:id", readDestination)
+	destinationGroup.PUT("/:id", updateDestination)
+	destinationGroup.DELETE("/:id", deleteDestination)
+
 	//
 	//// Dictionaries
 	//router.GET("/dictionary", Dictionaries)

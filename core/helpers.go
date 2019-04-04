@@ -1,18 +1,104 @@
 package core
 
 import (
+	"encoding/json"
+	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/tephrocactus/raccoon-siem/core/db"
 	"net/http"
+	"strconv"
+	"strings"
+	"upper.io/db.v3/lib/sqlbuilder"
 )
 
 func reply(ctx *gin.Context, err error, results ...[]byte) {
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.String(http.StatusInternalServerError, "%v", ctx.Errors)
 		ctx.Abort()
 	} else if len(results) > 0 {
 		ctx.String(http.StatusOK, "%s", results[0])
 	}
+}
+
+func replyJson(ctx *gin.Context, data interface{}) {
+	ctx.JSON(http.StatusOK, data)
+}
+
+func replyError(ctx *gin.Context, code int, err error) {
+	ctx.String(http.StatusInternalServerError, "")
+	_ = ctx.Error(err)
+	ctx.Abort()
+}
+
+func getPageParam(ctx *gin.Context) uint {
+	page := ctx.Query("page")
+	result, err := strconv.Atoi(page)
+	if err != nil {
+		return 0
+	}
+	return uint(result)
+}
+
+func getOrderByParam(ctx *gin.Context) []interface{} {
+	orderParam := ctx.GetString("order")
+	if orderParam == "" {
+		return nil
+	}
+
+	parts := strings.Split(orderParam, ",")
+	orderBy := make([]interface{}, len(parts), len(parts))
+	for i := range parts {
+		orderBy[i] = parts[i]
+	}
+
+	return orderBy
+}
+
+func getQc(ctx *gin.Context) (db.QueryConfig, error) {
+	tx, err := getTx(ctx)
+	if err != nil {
+		return db.QueryConfig{}, err
+	}
+
+	return db.QueryConfig{
+		Tx: tx,
+		Page: getPageParam(ctx),
+		OrderBy: getOrderByParam(ctx),
+	}, nil
+}
+
+func setTx(ctx *gin.Context, tx sqlbuilder.Tx) {
+	ctx.Set("tx", tx)
+}
+
+func getTx(ctx *gin.Context) (sqlbuilder.Tx, error) {
+	value, found := ctx.Get("tx")
+	if !found {
+		return nil, errors.New("transaction not found in context")
+	}
+
+	tx, success := value.(sqlbuilder.Tx)
+	if !success {
+		return nil, errors.New("wrong value for transaction in context")
+	}
+	return tx, nil
+}
+
+func unmarshalFromRawData(ctx *gin.Context, dest interface{}) error {
+	data, err := ctx.GetRawData()
+	if err != nil {
+		replyError(ctx, http.StatusInternalServerError, err)
+		return err
+	}
+
+	err = json.Unmarshal(data, dest)
+	if err != nil {
+		replyError(ctx, http.StatusInternalServerError, err)
+		return err
+	}
+
+	return nil
 }
 
 //func readNormalizersByIDs(ids []string, root bool, uniqueIDs map[string]bool, tx *bolt.Tx) ([]normalizers.Config, error) {

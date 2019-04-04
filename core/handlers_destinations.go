@@ -1,57 +1,134 @@
 package core
 
 import (
+	"errors"
 	"fmt"
-	"github.com/boltdb/bolt"
 	"github.com/gin-gonic/gin"
+	"github.com/tephrocactus/raccoon-siem/core/db"
+	"github.com/tephrocactus/raccoon-siem/sdk/destinations"
+	"net/http"
 )
 
-func Destinations(ctx *gin.Context) {
+var (
+	df = db.DestinationFunctions{}
+)
+
+func readDestinations(ctx *gin.Context) {
+	qc, err := getQc(ctx)
+	if err != nil {
+		replyError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	configs, err := df.List(ctx.Query("query"), qc)
+	if err != nil {
+		replyError(ctx, http.StatusInternalServerError, err)
+	}
+
+	replyJson(ctx, configs)
 }
 
-func DestinationGET(ctx *gin.Context) {
-	var replyData []byte
+func readDestination(ctx *gin.Context) {
+	qc, err := getQc(ctx)
+	if err != nil {
+		replyError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 
-	err := DBConn.h.View(func(tx *bolt.Tx) error {
-		id := ctx.Param("id")
+	config, err := df.ById(ctx.Param("id"), qc)
+	if err != nil {
+		replyError(ctx, http.StatusInternalServerError, err)
+	}
+	if config == nil {
+		replyError(ctx, http.StatusNotFound, err)
+	}
 
-		value := tx.Bucket(dbBucketDestination).Get([]byte(id))
-
-		if value == nil {
-			return fmt.Errorf("destination '%s' does not exist", id)
-		}
-
-		replyData = value
-		return nil
-	})
-
-	reply(ctx, err, replyData)
+	replyJson(ctx, config)
 }
 
-func DestinationPUT(ctx *gin.Context) {
-	//body, err := ctx.GetRawData()
-	//
-	//if err != nil {
-	//	reply(ctx, err)
-	//	return
-	//}
-	//
-	//s := new(destinations.Config)
-	//id, err := unmarshalAndGetID(s, body)
-	//
-	//if err != nil {
-	//	reply(ctx, err)
-	//	return
-	//}
-	//
-	//reply(ctx, DBConn.h.Update(func(tx *bolt.Tx) error {
-	//	return tx.Bucket(dbBucketDestination).Put([]byte(id), body)
-	//}))
+func createDestination(ctx *gin.Context) {
+	destination := new(destinations.Config)
+	err := unmarshalFromRawData(ctx, destination)
+	if err != nil {
+		replyError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	qc, err := getQc(ctx)
+	if err != nil {
+		replyError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	if err := validateDestination(destination, "", qc); err != nil {
+		replyError(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	err = df.Create(destination, qc)
+	if err != nil {
+		replyError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	replyJson(ctx, destination)
 }
 
-func DestinationDELETE(ctx *gin.Context) {
-	reply(ctx, DBConn.h.Update(func(tx *bolt.Tx) error {
-		id := ctx.Param("id")
-		return tx.Bucket(dbBucketDestination).Delete([]byte(id))
-	}))
+func updateDestination(ctx *gin.Context) {
+	destination := new(destinations.Config)
+	err := unmarshalFromRawData(ctx, destination)
+	if err != nil {
+		replyError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	qc, err := getQc(ctx)
+	if err != nil {
+		replyError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	id := ctx.Param("id")
+	existingDestination, err := df.ById(id, qc)
+	if err != nil {
+		replyError(ctx, http.StatusNotFound, err)
+		return
+	}
+
+	if err := validateDestination(destination, existingDestination.Id, qc); err != nil {
+		replyError(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	err = df.Update(id, destination, qc)
+	if err != nil {
+		replyError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	replyJson(ctx, destination)
+}
+
+func deleteDestination(ctx *gin.Context) {
+
+}
+
+func validateDestination(destination *destinations.Config, id string, qc db.QueryConfig) error {
+	err := destination.Validate()
+	if err != nil {
+		return err
+	}
+
+	df := db.DestinationFunctions{}
+	found, err := df.Exists(destination, id, qc)
+
+	if err != nil {
+		return err
+	}
+
+	if found {
+		return errors.New(fmt.Sprintf("destination '%s' already exists", destination.Name))
+	}
+
+	return nil
 }
