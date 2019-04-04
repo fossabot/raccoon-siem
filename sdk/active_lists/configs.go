@@ -10,7 +10,7 @@ const (
 	OpGet        = "get"
 	OpSet        = "set"
 	OpDel        = "del"
-	alNamePrefix = "raccoon-al-"
+	AlNamePrefix = "raccoon-al-"
 )
 
 type Config struct {

@@ -2,58 +2,28 @@ package resources
 
 import (
 	"github.com/spf13/cobra"
-	"net/http"
-	"time"
+	"github.com/tephrocactus/raccoon-siem/resources/create"
+	"github.com/tephrocactus/raccoon-siem/resources/delete"
+	"github.com/tephrocactus/raccoon-siem/resources/generate"
+	"github.com/tephrocactus/raccoon-siem/resources/get"
+	"github.com/tephrocactus/raccoon-siem/resources/list"
 )
 
 var (
 	Cmd = &cobra.Command{
-		Use:       "resources",
-		Short:     "manage raccoon resources",
-		Args:      cobra.ExactArgs(1),
-		ValidArgs: []string{"create", "delete", "get", "list", "generate"},
-		RunE:      cobra.OnlyValidArgs,
+		Use:   "resources",
+		Short: "manage raccoon resources",
+		Args:  cobra.ExactArgs(1),
 	}
-
-	validResourceKinds = []string{
-		"collector",
-		"correlator",
-		"connector",
-		"destination",
-		"filter",
-		"parser",
-		"aggregationRule",
-		"correlationRule",
-		"dictionary",
-		"activeList",
-	}
-
-	validGenerateSubjects = []string{"elasticsearch"}
-
-	// String flags variables
-	coreURL, sourcePath string
-
-	// Other variables
-	httpClient = http.Client{Timeout: 16 * time.Second}
 )
 
 func init() {
 	// Sub commands
-	Cmd.AddCommand(createCmd, deleteCmd, getCmd, listCmd, generateCmd)
-
-	// Raccoon core URL
-	Cmd.PersistentFlags().StringVarP(
-		&coreURL,
-		"core",
-		"c",
-		"http://localhost:7220",
-		"raccoon core URL")
-
-	// Source directory or file
-	Cmd.PersistentFlags().StringVarP(
-		&sourcePath,
-		"from",
-		"f",
-		"",
-		"source directory or file")
+	Cmd.AddCommand(
+		create.Cmd,
+		get.Cmd,
+		list.Cmd,
+		delete.Cmd,
+		generate.Cmd,
+	)
 }

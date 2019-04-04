@@ -22,6 +22,10 @@ func Parse(data []byte, delimiter byte, callback parsers.Callback) bool {
 		}
 	}
 
-	callback(strconv.Itoa(delimitersFound), data[valueStart:pos])
-	return true
+	if delimitersFound > 0 {
+		callback(strconv.Itoa(delimitersFound), data[valueStart:pos])
+		return true
+	}
+
+	return false
 }

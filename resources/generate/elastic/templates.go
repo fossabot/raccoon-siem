@@ -1,4 +1,4 @@
-package resources
+package elastic
 
 type elasticsearchMappingProperty struct {
 	Name string
@@ -11,7 +11,7 @@ var elasticsearchTemplate = `
   "version": 1,
   "index_patterns": ["raccoon-events*"],
   "settings": {
-    "number_of_shards": 1
+    "number_of_shards": 5
   },
   "mappings": {
     "_doc": {

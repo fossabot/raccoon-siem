@@ -1,22 +1,31 @@
-package resources
+package helpers
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
-type resource struct {
-	fileName string
-	kind     string
-	data     []byte
+func CheckArgsAndExec(callee func(args []string) error) func(cmd *cobra.Command, args []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		if err := cobra.OnlyValidArgs(cmd, args); err != nil {
+			return ShowValidArgument(cmd.ValidArgs)
+		}
+		return callee(args)
+	}
 }
 
-func readResourcesFromInputFile(absPath string) ([]resource, error) {
-	resources := make([]resource, 0)
+func ShowValidArgument(validArgs []string) error {
+	return fmt.Errorf("valid arguments are: %v", validArgs)
+}
+
+func ReadResourcesFromInputFile(absPath string) ([]Resource, error) {
+	resources := make([]Resource, 0)
 
 	fileInfo, err := os.Stat(absPath)
 	if err != nil {
@@ -60,7 +69,7 @@ func listFilesInDir(dirPath string, result ...os.FileInfo) ([]os.FileInfo, error
 	return result, nil
 }
 
-func appendResource(resources *[]resource, fileAbsPath string) error {
+func appendResource(resources *[]Resource, fileAbsPath string) error {
 	data, err := ioutil.ReadFile(fileAbsPath)
 	if err != nil {
 		return err
@@ -71,10 +80,10 @@ func appendResource(resources *[]resource, fileAbsPath string) error {
 		return err
 	}
 
-	*resources = append(*resources, resource{
-		fileName: path.Base(fileAbsPath),
-		kind:     kind,
-		data:     data,
+	*resources = append(*resources, Resource{
+		FileName: path.Base(fileAbsPath),
+		Kind:     kind,
+		Data:     data,
 	})
 
 	return nil
@@ -89,7 +98,7 @@ func determineResourceKind(fileAbsPath string) (string, error) {
 
 	kind := parts[len(parts)-2]
 	kindIsValid := false
-	for _, validKind := range validResourceKinds {
+	for _, validKind := range ValidResourceKinds {
 		if kind == validKind {
 			kindIsValid = true
 			break
@@ -103,8 +112,10 @@ func determineResourceKind(fileAbsPath string) (string, error) {
 	return kind, nil
 }
 
-func sendRequest(req *http.Request) ([]byte, error) {
-	response, err := httpClient.Do(req)
+func SendCoreRequest(req *http.Request) ([]byte, error) {
+	cli := http.Client{Timeout: 10 * time.Second}
+
+	response, err := cli.Do(req)
 	if err != nil {
 		return nil, err
 	}
