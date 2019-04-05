@@ -83,11 +83,13 @@ type Event struct {
 	SourceMACAddress           string   `storage_type:"keyword" set:"y"`
 	SourceDomain               string   `storage_type:"keyword" set:"y"`
 	SourceDNSName              string   `storage_type:"keyword" set:"y"`
+	SourceUserName             string   `storage_type:"keyword" set:"y"`
 	SourcePort                 string   `storage_type:"keyword" set:"y"`
 	DestinationIPAddress       string   `storage_type:"ip" set:"y"`
 	DestinationMACAddress      string   `storage_type:"keyword" set:"y"`
 	DestinationDomain          string   `storage_type:"keyword" set:"y"`
 	DestinationDNSName         string   `storage_type:"keyword" set:"y"`
+	DestinationUserName        string   `storage_type:"keyword" set:"y"`
 	DestinationPort            string   `storage_type:"keyword" set:"y"`
 	UserString1                string   `storage_type:"keyword" set:"y"`
 	UserString1Label           string   `storage_type:"keyword" set:"y"`

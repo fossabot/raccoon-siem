@@ -118,6 +118,8 @@ func (r *Event) GetAnyField(field string) interface{} {
 		return r.SourceDomain
 	case "SourceDNSName":
 		return r.SourceDNSName
+	case "SourceUserName":
+		return r.SourceUserName
 	case "SourcePort":
 		return r.SourcePort
 	case "DestinationIPAddress":
@@ -128,6 +130,8 @@ func (r *Event) GetAnyField(field string) interface{} {
 		return r.DestinationDomain
 	case "DestinationDNSName":
 		return r.DestinationDNSName
+	case "DestinationUserName":
+		return r.DestinationUserName
 	case "DestinationPort":
 		return r.DestinationPort
 	case "UserString1":
@@ -414,6 +418,8 @@ func (r *Event) SetAnyField(field string, value string) bool {
 		r.SourceDomain = strings.TrimSpace(value)
 	case "SourceDNSName":
 		r.SourceDNSName = strings.TrimSpace(value)
+	case "SourceUserName":
+		r.SourceUserName = strings.TrimSpace(value)
 	case "SourcePort":
 		r.SourcePort = strings.TrimSpace(value)
 	case "DestinationIPAddress":
@@ -424,6 +430,8 @@ func (r *Event) SetAnyField(field string, value string) bool {
 		r.DestinationDomain = strings.TrimSpace(value)
 	case "DestinationDNSName":
 		r.DestinationDNSName = strings.TrimSpace(value)
+	case "DestinationUserName":
+		r.DestinationUserName = strings.TrimSpace(value)
 	case "DestinationPort":
 		r.DestinationPort = strings.TrimSpace(value)
 	case "UserString1":
@@ -837,6 +845,10 @@ func (r *Event) EncodeMsgpack(enc *msgpack.Encoder) error {
 		return err
 	}
 
+	if err := enc.EncodeString(r.SourceUserName); err != nil {
+		return err
+	}
+
 	if err := enc.EncodeString(r.SourcePort); err != nil {
 		return err
 	}
@@ -854,6 +866,10 @@ func (r *Event) EncodeMsgpack(enc *msgpack.Encoder) error {
 	}
 
 	if err := enc.EncodeString(r.DestinationDNSName); err != nil {
+		return err
+	}
+
+	if err := enc.EncodeString(r.DestinationUserName); err != nil {
 		return err
 	}
 
@@ -1314,6 +1330,10 @@ func (r *Event) DecodeMsgpack(dec *msgpack.Decoder) (err error) {
 		return err
 	}
 
+	if r.SourceUserName, err = dec.DecodeString(); err != nil {
+		return err
+	}
+
 	if r.SourcePort, err = dec.DecodeString(); err != nil {
 		return err
 	}
@@ -1331,6 +1351,10 @@ func (r *Event) DecodeMsgpack(dec *msgpack.Decoder) (err error) {
 	}
 
 	if r.DestinationDNSName, err = dec.DecodeString(); err != nil {
+		return err
+	}
+
+	if r.DestinationUserName, err = dec.DecodeString(); err != nil {
 		return err
 	}
 
@@ -1619,11 +1643,13 @@ func (r *Event) MarshalJSONObject(enc *gojay.Encoder) {
 	enc.StringKeyOmitEmpty("SourceMACAddress", r.SourceMACAddress)
 	enc.StringKeyOmitEmpty("SourceDomain", r.SourceDomain)
 	enc.StringKeyOmitEmpty("SourceDNSName", r.SourceDNSName)
+	enc.StringKeyOmitEmpty("SourceUserName", r.SourceUserName)
 	enc.StringKeyOmitEmpty("SourcePort", r.SourcePort)
 	enc.StringKeyOmitEmpty("DestinationIPAddress", r.DestinationIPAddress)
 	enc.StringKeyOmitEmpty("DestinationMACAddress", r.DestinationMACAddress)
 	enc.StringKeyOmitEmpty("DestinationDomain", r.DestinationDomain)
 	enc.StringKeyOmitEmpty("DestinationDNSName", r.DestinationDNSName)
+	enc.StringKeyOmitEmpty("DestinationUserName", r.DestinationUserName)
 	enc.StringKeyOmitEmpty("DestinationPort", r.DestinationPort)
 	enc.StringKeyOmitEmpty("UserString1", r.UserString1)
 	enc.StringKeyOmitEmpty("UserString1Label", r.UserString1Label)
@@ -1791,6 +1817,8 @@ func (r *Event) UnmarshalJSONObject(dec *gojay.Decoder, k string) error {
 		return dec.String(&r.SourceDomain)
 	case "SourceDNSName":
 		return dec.String(&r.SourceDNSName)
+	case "SourceUserName":
+		return dec.String(&r.SourceUserName)
 	case "SourcePort":
 		return dec.String(&r.SourcePort)
 	case "DestinationIPAddress":
@@ -1801,6 +1829,8 @@ func (r *Event) UnmarshalJSONObject(dec *gojay.Decoder, k string) error {
 		return dec.String(&r.DestinationDomain)
 	case "DestinationDNSName":
 		return dec.String(&r.DestinationDNSName)
+	case "DestinationUserName":
+		return dec.String(&r.DestinationUserName)
 	case "DestinationPort":
 		return dec.String(&r.DestinationPort)
 	case "UserString1":
