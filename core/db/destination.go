@@ -1,18 +1,25 @@
 package db
 
 import (
+	"encoding/json"
 	"github.com/tephrocactus/raccoon-siem/sdk/destinations"
-	"upper.io/db.v3/lib/sqlbuilder"
 )
 
-type DestinationFunctions struct {}
+type DestinationModel struct {
+	Id      string               `json:"id,omitempty" db:"id,omitempty"`
+	Name    string               `json:"name,omitempty" db:"name,omitempty"`
+	Config  *destinations.Config `json:"config,omitempty" db:"-"`
+	Payload string               `json:"-" db:"payload,omitempty"`
+}
 
-func (r DestinationFunctions) List(query string, qc QueryConfig) ([]destinations.Config, error) {
-	destinationEntries := make([]destinations.Config, 0, 0)
+type DestinationFunctions struct{}
+
+func (r DestinationFunctions) List(query string, qc QueryConfig) ([]DestinationModel, error) {
+	destinationEntries := make([]DestinationModel, 0, 0)
 	selector := qc.Tx.SelectFrom(destinationTable).OrderBy("name")
 
 	if query != "" {
-		selector = selector.Where("name ilike", query + "%")
+		selector = selector.Where("name ilike", query+"%")
 	}
 
 	var err error
@@ -22,11 +29,18 @@ func (r DestinationFunctions) List(query string, qc QueryConfig) ([]destinations
 		err = selector.All(&destinationEntries)
 	}
 
+	for i := range destinationEntries {
+		destinationModel := &destinationEntries[i]
+		if err := destinationModel.loadConfig(); err != nil {
+			return nil, err
+		}
+	}
+
 	return destinationEntries, err
 }
 
-func (r DestinationFunctions) ById(id string, qc QueryConfig) (*destinations.Config, error) {
-	configs := make([]destinations.Config, 0, 1)
+func (r *DestinationFunctions) ById(id string, qc QueryConfig) (*DestinationModel, error) {
+	configs := make([]DestinationModel, 0, 1)
 	selector := qc.Tx.SelectFrom(destinationTable).
 		Where("id", id)
 
@@ -40,11 +54,16 @@ func (r DestinationFunctions) ById(id string, qc QueryConfig) (*destinations.Con
 		return nil, nil
 	}
 
-	return &configs[0], nil
+	config := &configs[0]
+	if err := config.loadConfig(); err != nil {
+		return nil, err
+	}
+
+	return config, nil
 }
 
-func (r DestinationFunctions) Exists(config *destinations.Config, id string, qc QueryConfig) (bool, error) {
-	configs := make([]destinations.Config, 0, 1)
+func (r DestinationFunctions) Exists(config *DestinationModel, id string, qc QueryConfig) (bool, error) {
+	configs := make([]DestinationModel, 0, 1)
 	selector := qc.Tx.SelectFrom(destinationTable).
 		Where("name", config.Name)
 
@@ -65,27 +84,54 @@ func (r DestinationFunctions) Exists(config *destinations.Config, id string, qc 
 	return true, nil
 }
 
-func (r DestinationFunctions) Create(config *destinations.Config, qc QueryConfig) error {
-	inserter := qc.Tx.InsertInto(destinationTable).Values(config)
+func (r *DestinationModel) Create(qc QueryConfig) error {
+	if err := r.dumpConfig(); err != nil {
+		return err
+	}
+
+	inserter := qc.Tx.InsertInto(destinationTable).Values(r)
 
 	var id string
 	it := inserter.Returning("id").Iterator()
 	if err := it.ScanOne(&id); err != nil {
 		return err
 	}
-	config.Id = id
+	r.Id = id
 	return nil
 }
 
-func (r DestinationFunctions) Update(id string, config *destinations.Config, qc QueryConfig) error {
+func (r *DestinationModel) Update(id string, qc QueryConfig) error {
+	if err := r.dumpConfig(); err != nil {
+		return err
+	}
+
 	updater := qc.Tx.Update(destinationTable).
-		Set(config).
+		Set(r).
 		Where("id", id)
 
 	_, err := updater.Exec()
 	return err
 }
 
-func (r DestinationFunctions) Delete(name string, tx sqlbuilder.Tx) error {
+func (r *DestinationModel) Delete(qc QueryConfig) error {
+	deleter := qc.Tx.DeleteFrom(destinationTable).Where("id", r.Id)
+	_, err := deleter.Exec()
+	return err
+}
+
+func (r *DestinationModel) dumpConfig() error {
+	bytes, err := json.Marshal(r.Config)
+
+	if err != nil {
+		return err
+	}
+
+	r.Payload = string(bytes)
+
 	return nil
+}
+
+func (r *DestinationModel) loadConfig() error {
+	r.Config = new(destinations.Config)
+	return json.Unmarshal([]byte(r.Payload), r.Config)
 }

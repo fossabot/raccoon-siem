@@ -26,8 +26,10 @@ func replyJson(ctx *gin.Context, data interface{}) {
 }
 
 func replyError(ctx *gin.Context, code int, err error) {
-	ctx.String(http.StatusInternalServerError, "")
-	_ = ctx.Error(err)
+	if err != nil {
+		_ = ctx.Error(err)
+	}
+	ctx.String(code, "%s", err)
 	ctx.Abort()
 }
 
@@ -62,8 +64,8 @@ func getQc(ctx *gin.Context) (db.QueryConfig, error) {
 	}
 
 	return db.QueryConfig{
-		Tx: tx,
-		Page: getPageParam(ctx),
+		Tx:      tx,
+		Page:    getPageParam(ctx),
 		OrderBy: getOrderByParam(ctx),
 	}, nil
 }

@@ -61,6 +61,7 @@ func run(_ *cobra.Command, _ []string) error {
 
 	// Register http endpoints
 	router := gin.Default()
+	router.Use(txMiddleware())
 
 	config := router.Group("/config")
 
@@ -113,7 +114,6 @@ func run(_ *cobra.Command, _ []string) error {
 	//router.DELETE("/connector/:id", ConnectorDELETE)
 	//
 	// destinations
-	router.Use(txMiddleware())
 
 	destinationGroup := config.Group("/destination")
 	destinationGroup.GET("/", readDestinations)
