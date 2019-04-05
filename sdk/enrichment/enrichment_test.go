@@ -63,7 +63,7 @@ func TestEnrichment(t *testing.T) {
 
 func TestMutation(t *testing.T) {
 	event := &normalization.Event{
-		RequestUser: "tephro@gmail.com",
+		RequestUser: "Tephro@gmail.com",
 	}
 
 	configs := []Config{
@@ -74,10 +74,14 @@ func TestMutation(t *testing.T) {
 			Mutation:         []mutation.Config{{Kind: mutation.KindRegexp, Expression: "([^@]+)@.+"}},
 		},
 		{
-			Field:            "DestinationDomain",
-			ValueSourceKind:  ValueSourceKindEvent,
-			ValueSourceField: "RequestUser",
-			Mutation:         []mutation.Config{{Kind: mutation.KindRegexp, Expression: "[^@]+@(.+)"}},
+			Field:           "RequestReferrer",
+			ValueSourceKind: ValueSourceKindEvent,
+			Mutation:        []mutation.Config{{Kind: mutation.KindLower}},
+		},
+		{
+			Field:           "RequestReferrer",
+			ValueSourceKind: ValueSourceKindEvent,
+			Mutation:        []mutation.Config{{Kind: mutation.KindSubstring, Start: 0, End: 3}},
 		},
 	}
 
@@ -88,8 +92,7 @@ func TestMutation(t *testing.T) {
 		Enrich(configs[i], event)
 	}
 
-	assert.Equal(t, event.RequestReferrer, "tephro")
-	assert.Equal(t, event.DestinationDomain, "gmail.com")
+	assert.Equal(t, event.RequestReferrer, "tep")
 }
 
 func BenchmarkEnrich(b *testing.B) {

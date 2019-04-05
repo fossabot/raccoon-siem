@@ -105,7 +105,7 @@ func (r *Config) validateDict() error {
 }
 
 func (r *Config) validateEvent() error {
-	if !helpers.EventFieldHasGetter(r.ValueSourceField) {
+	if r.ValueSourceField != "" && !helpers.EventFieldHasGetter(r.ValueSourceField) {
 		return fmt.Errorf("enrichment: invalid event field %s", r.ValueSourceField)
 	}
 
