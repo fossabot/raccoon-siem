@@ -1,6 +1,6 @@
 ---
 title: Raccoon SIEM
-layout: post
+layout: page
 ---
 
 ## Raccoon
