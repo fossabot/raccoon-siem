@@ -16,7 +16,7 @@ type DestinationFunctions struct{}
 
 func (r DestinationFunctions) List(query string, qc QueryConfig) ([]DestinationModel, error) {
 	destinationEntries := make([]DestinationModel, 0, 0)
-	selector := qc.Tx.SelectFrom(destinationTable).OrderBy("name")
+	selector := qc.Tx.SelectFrom(destinationConfigTable).OrderBy("name")
 
 	if query != "" {
 		selector = selector.Where("name ilike", query+"%")
@@ -41,7 +41,7 @@ func (r DestinationFunctions) List(query string, qc QueryConfig) ([]DestinationM
 
 func (r *DestinationFunctions) ById(id string, qc QueryConfig) (*DestinationModel, error) {
 	configs := make([]DestinationModel, 0, 1)
-	selector := qc.Tx.SelectFrom(destinationTable).
+	selector := qc.Tx.SelectFrom(destinationConfigTable).
 		Where("id", id)
 
 	err := selector.All(&configs)
@@ -64,7 +64,7 @@ func (r *DestinationFunctions) ById(id string, qc QueryConfig) (*DestinationMode
 
 func (r DestinationFunctions) Exists(config *DestinationModel, id string, qc QueryConfig) (bool, error) {
 	configs := make([]DestinationModel, 0, 1)
-	selector := qc.Tx.SelectFrom(destinationTable).
+	selector := qc.Tx.SelectFrom(destinationConfigTable).
 		Where("name", config.Name)
 
 	if !IDEmpty(id) {
@@ -89,7 +89,7 @@ func (r *DestinationModel) Create(qc QueryConfig) error {
 		return err
 	}
 
-	inserter := qc.Tx.InsertInto(destinationTable).Values(r)
+	inserter := qc.Tx.InsertInto(destinationConfigTable).Values(r)
 
 	var id string
 	it := inserter.Returning("id").Iterator()
@@ -105,7 +105,7 @@ func (r *DestinationModel) Update(id string, qc QueryConfig) error {
 		return err
 	}
 
-	updater := qc.Tx.Update(destinationTable).
+	updater := qc.Tx.Update(destinationConfigTable).
 		Set(r).
 		Where("id", id)
 
@@ -114,7 +114,7 @@ func (r *DestinationModel) Update(id string, qc QueryConfig) error {
 }
 
 func (r *DestinationModel) Delete(qc QueryConfig) error {
-	deleter := qc.Tx.DeleteFrom(destinationTable).Where("id", r.Id)
+	deleter := qc.Tx.DeleteFrom(destinationConfigTable).Where("id", r.Id)
 	_, err := deleter.Exec()
 	return err
 }
