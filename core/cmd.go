@@ -112,11 +112,6 @@ func run(_ *cobra.Command, _ []string) error {
 	//
 
 	//
-	//// Dictionaries
-	//router.GET("/dictionary", Dictionaries)
-	//router.GET("/dictionary/:id", DictionaryGET)
-	//router.PUT("/dictionary", DictionaryPUT)
-	//router.DELETE("/dictionary/:id", DictionaryDELETE)
 	//
 	//// Component registration
 	//router.GET("/register/collector/:id", CollectorRegister)
@@ -131,6 +126,13 @@ func getRouter() *gin.Engine {
 	router.Use(txMiddleware())
 
 	config := router.Group("/config")
+	// Dictionaries
+	dictionaryGroup := config.Group("/dictionary")
+	dictionaryGroup.GET("/", readDictionaries)
+	dictionaryGroup.GET("/:id", readDictionary)
+	dictionaryGroup.POST("/", createDictionary)
+	dictionaryGroup.PUT("/:id", updateDictionary)
+	dictionaryGroup.DELETE("/:id", deleteDictionary)
 
 	// Destination configs
 	destinationGroup := config.Group("/destination")
