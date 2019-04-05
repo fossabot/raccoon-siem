@@ -12,6 +12,12 @@ Collector is an executable which is responsibe for:
 * Parsing
 * Normalization
 * Filtration
-* Enrichment
+* Enrichment (active lists / dictionaries)
 * Aggregation
-* Sending logs to various destinations, like storage and correlators
+* Sending normalized events to various destinations, like storage and correlators
+
+#### Correlator
+Correlator is an executable which is responsible for:
+* Real time correlation of normalized events (security incidents detection)
+* Executing various user-defined actions, like active lists interactions, notifications, external processes
+* Sending correlated events to various destinations, like storage and correlators
