@@ -55,15 +55,12 @@ func init() {
 
 func run(_ *cobra.Command, _ []string) error {
 	// Open database
-	if err := NewUdbConnection(); err != nil {
+	if err := NewUdbConnection(dbHost, dbPort, dbScheme); err != nil {
 		return err
 	}
 
 	// Register http endpoints
-	router := gin.Default()
-	router.Use(txMiddleware())
-
-	config := router.Group("/config")
+	router := getRouter()
 
 	//// normalizer
 	//router.GET("/parser", Normalizers)
@@ -113,14 +110,6 @@ func run(_ *cobra.Command, _ []string) error {
 	//router.PUT("/connector", ConnectorPUT)
 	//router.DELETE("/connector/:id", ConnectorDELETE)
 	//
-	// destinations
-
-	destinationGroup := config.Group("/destination")
-	destinationGroup.GET("/", readDestinations)
-	destinationGroup.POST("/", createDestination)
-	destinationGroup.GET("/:id", readDestination)
-	destinationGroup.PUT("/:id", updateDestination)
-	destinationGroup.DELETE("/:id", deleteDestination)
 
 	//
 	//// Dictionaries
@@ -135,4 +124,21 @@ func run(_ *cobra.Command, _ []string) error {
 
 	// Run http server
 	return router.Run(listen)
+}
+
+func getRouter() *gin.Engine {
+	router := gin.Default()
+	router.Use(txMiddleware())
+
+	config := router.Group("/config")
+
+	// Destination configs
+	destinationGroup := config.Group("/destination")
+	destinationGroup.GET("/", readDestinations)
+	destinationGroup.POST("/", createDestination)
+	destinationGroup.GET("/:id", readDestination)
+	destinationGroup.PUT("/:id", updateDestination)
+	destinationGroup.DELETE("/:id", deleteDestination)
+
+	return router
 }

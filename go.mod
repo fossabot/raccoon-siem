@@ -42,6 +42,7 @@ require (
 	github.com/sirupsen/logrus v1.4.0 // indirect
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/pflag v1.0.3 // indirect
+	github.com/stretchr/testify v1.2.2
 	github.com/ugorji/go/codec v0.0.0-20181022190402-e5e69e061d4f // indirect
 	github.com/vmihailenco/msgpack v4.0.1+incompatible // indirect
 	golang.org/x/sync v0.0.0-20181108010431-42b317875d0f // indirect

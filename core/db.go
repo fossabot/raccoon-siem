@@ -22,7 +22,7 @@ var (
 	dbBucketDictionary      = []byte("dictionary")
 )
 
-func NewUdbConnection() error {
+func NewUdbConnection(dbHost, dbPort, dbScheme string) error {
 	var err error
 	UDBConn, err = db.ConnectUdb(dbHost, dbPort, dbScheme)
 	if err != nil {
