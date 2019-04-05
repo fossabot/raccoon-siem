@@ -3,6 +3,7 @@ package enrichment
 import (
 	"fmt"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
+	"github.com/tephrocactus/raccoon-siem/sdk/mutation"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
@@ -14,14 +15,15 @@ const (
 )
 
 type Config struct {
-	Field            string      `json:"field,omitempty"`
-	Constant         interface{} `json:"constant,omitempty"`
-	KeyFields        []string    `json:"keyFields,omitempty"`
-	ValueSourceKind  string      `json:"valueSourceKind,omitempty"`
-	ValueSourceName  string      `json:"valueSourceName,omitempty"`
-	ValueSourceField string      `json:"valueSourceField,omitempty"`
-	TriggerField     string      `json:"triggerField,omitempty"`
-	TriggerValue     interface{} `json:"triggerValue,omitempty"`
+	Field            string            `json:"field,omitempty"`
+	Constant         interface{}       `json:"constant,omitempty"`
+	KeyFields        []string          `json:"keyFields,omitempty"`
+	ValueSourceKind  string            `json:"valueSourceKind,omitempty"`
+	ValueSourceName  string            `json:"valueSourceName,omitempty"`
+	ValueSourceField string            `json:"valueSourceField,omitempty"`
+	TriggerField     string            `json:"triggerField,omitempty"`
+	TriggerValue     interface{}       `json:"triggerValue,omitempty"`
+	Mutation         []mutation.Config `json:"mutation,omitempty"`
 }
 
 func (r *Config) Validate() error {
@@ -33,6 +35,12 @@ func (r *Config) Validate() error {
 		r.TriggerValue = normalization.ToFieldType(r.TriggerField, r.TriggerValue)
 		if r.TriggerValue == nil {
 			return fmt.Errorf("enrichment: trigger value type must be convertable to field type")
+		}
+	}
+
+	for i := range r.Mutation {
+		if err := r.Mutation[i].Validate(); err != nil {
+			return err
 		}
 	}
 
@@ -97,10 +105,6 @@ func (r *Config) validateDict() error {
 }
 
 func (r *Config) validateEvent() error {
-	if r.ValueSourceName == "" {
-		return fmt.Errorf("enrichment: source event tag required")
-	}
-
 	if !helpers.EventFieldHasGetter(r.ValueSourceField) {
 		return fmt.Errorf("enrichment: invalid event field %s", r.ValueSourceField)
 	}

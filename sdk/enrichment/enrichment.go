@@ -3,6 +3,7 @@ package enrichment
 import (
 	"github.com/tephrocactus/raccoon-siem/sdk/globals"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
+	"github.com/tephrocactus/raccoon-siem/sdk/mutation"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 )
 
@@ -25,7 +26,13 @@ func Enrich(cfg Config, targetEvent *normalization.Event, sourceEvents ...*norma
 
 func fromDict(cfg Config, targetEvent *normalization.Event) {
 	key := helpers.MakeKey(cfg.KeyFields, targetEvent)
-	targetEvent.SetAnyField(cfg.Field, globals.Dictionaries.Get(cfg.ValueSourceName, key))
+
+	value := globals.Dictionaries.Get(cfg.ValueSourceName, key)
+	if cfg.Mutation != nil {
+		value = mutation.Mutate(cfg.Mutation, value)
+	}
+
+	targetEvent.SetAnyField(cfg.Field, value)
 }
 
 func fromEvent(cfg Config, targetEvent *normalization.Event, sourceEvents []*normalization.Event) {
@@ -37,17 +44,28 @@ func fromEvent(cfg Config, targetEvent *normalization.Event, sourceEvents []*nor
 		}
 	}
 
+	if sourceEvent == nil {
+		sourceEvent = targetEvent
+	}
+
 	sourceField := cfg.ValueSourceField
 	if sourceField == "" {
 		sourceField = cfg.Field
 	}
 
-	setValueFromInterface(sourceField, sourceEvent.GetAnyField(sourceField), targetEvent)
+	value := normalization.ToString(sourceEvent.GetAnyField(sourceField))
+	if cfg.Mutation != nil {
+		value = mutation.Mutate(cfg.Mutation, value)
+	}
+	targetEvent.SetAnyField(cfg.Field, value)
 }
 
 func fromAL(cfg Config, targetEvent *normalization.Event) {
-	alValue := globals.ActiveLists.Get(cfg.ValueSourceName, cfg.ValueSourceField, cfg.KeyFields, targetEvent)
-	targetEvent.SetAnyField(cfg.Field, alValue)
+	value := globals.ActiveLists.Get(cfg.ValueSourceName, cfg.ValueSourceField, cfg.KeyFields, targetEvent)
+	if cfg.Mutation != nil {
+		value = mutation.Mutate(cfg.Mutation, value)
+	}
+	targetEvent.SetAnyField(cfg.Field, value)
 }
 
 func setValueFromInterface(field string, value interface{}, targetEvent *normalization.Event) {
