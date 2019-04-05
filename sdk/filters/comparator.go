@@ -1,6 +1,9 @@
 package filters
 
-import "net"
+import (
+	"net"
+	"strings"
+)
 
 const (
 	OpEQ          = "="
@@ -11,6 +14,8 @@ const (
 	OpLT          = "<"
 	OpInSubnet    = "inSubnet"
 	OpNotInSubnet = "!inSubnet"
+	OpContains    = "contains"
+	OpNotContains = "!contains"
 )
 
 type comparator struct{}
@@ -95,9 +100,17 @@ func (r *comparator) compareString(src string, dst interface{}, op string) bool 
 		return r.inSubnet(src, dstVal)
 	case OpNotInSubnet:
 		return !r.inSubnet(src, dstVal)
+	case OpContains:
+		return r.contains(src, dstVal)
+	case OpNotContains:
+		return !r.contains(src, dstVal)
 	}
 
 	return false
+}
+
+func (r *comparator) contains(stack, needle string) bool {
+	return strings.Contains(stack, needle)
 }
 
 func (r *comparator) inSubnet(ip, cidr string) bool {

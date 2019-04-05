@@ -11,6 +11,12 @@ func TestInSubnet(t *testing.T) {
 	assert.Equal(t, comp.inSubnet("10.10.14.2", "10.10.10.0/24"), false)
 }
 
+func TestContains(t *testing.T) {
+	comp := comparator{}
+	assert.Equal(t, comp.contains("123needle321", "needle"), true)
+	assert.Equal(t, comp.contains("123needle321", "stack"), false)
+}
+
 func BenchmarkInSubnet(b *testing.B) {
 	comp := comparator{}
 	b.ReportAllocs()

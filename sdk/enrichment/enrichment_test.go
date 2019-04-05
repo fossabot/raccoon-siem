@@ -3,8 +3,10 @@ package enrichment
 import (
 	"github.com/tephrocactus/raccoon-siem/sdk/dictionaries"
 	"github.com/tephrocactus/raccoon-siem/sdk/globals"
+	"github.com/tephrocactus/raccoon-siem/sdk/mutation"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
 	"gotest.tools/assert"
+	"log"
 	"testing"
 )
 
@@ -57,6 +59,40 @@ func TestEnrichment(t *testing.T) {
 
 	Enrich(cfg, &event)
 	assert.Equal(t, event.RequestResults, int64(1081))
+}
+
+func TestMutation(t *testing.T) {
+	event := &normalization.Event{
+		RequestUser: "Tephro@gmail.com",
+	}
+
+	configs := []Config{
+		{
+			Field:            "RequestReferrer",
+			ValueSourceKind:  ValueSourceKindEvent,
+			ValueSourceField: "RequestUser",
+			Mutation:         []mutation.Config{{Kind: mutation.KindRegexp, Expression: "([^@]+)@.+"}},
+		},
+		{
+			Field:           "RequestReferrer",
+			ValueSourceKind: ValueSourceKindEvent,
+			Mutation:        []mutation.Config{{Kind: mutation.KindLower}},
+		},
+		{
+			Field:           "RequestReferrer",
+			ValueSourceKind: ValueSourceKindEvent,
+			Mutation:        []mutation.Config{{Kind: mutation.KindSubstring, Start: 0, End: 3}},
+		},
+	}
+
+	for i := range configs {
+		if err := configs[i].Validate(); err != nil {
+			log.Fatal(err)
+		}
+		Enrich(configs[i], event)
+	}
+
+	assert.Equal(t, event.RequestReferrer, "tep")
 }
 
 func BenchmarkEnrich(b *testing.B) {

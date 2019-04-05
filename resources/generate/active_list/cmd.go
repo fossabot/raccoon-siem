@@ -21,7 +21,7 @@ var flags cmdFlags
 
 func init() {
 	// Source file path
-	Cmd.Flags().StringVar(&flags.SourcePath, "from", "", "source file path")
+	Cmd.Flags().StringVar(&flags.SourceURL, "from", "", "source file path")
 	// Active list storage URL
 	Cmd.Flags().StringVar(&flags.ALStorage, "storage", "localhost:6379", "active list storage URL")
 	// Active list name
@@ -44,7 +44,7 @@ func run(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("delimiter must be single byte ASCII character")
 	}
 
-	file, err := os.Open(flags.SourcePath)
+	file, err := os.Open(flags.SourceURL)
 	if err != nil {
 		return err
 	}
