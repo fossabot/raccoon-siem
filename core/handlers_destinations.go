@@ -138,10 +138,6 @@ func validateDestination(destination *db.DestinationModel, id string, qc db.Quer
 		return errors.New("destination config : empty config body")
 	}
 
-	if destination.Name != destination.Config.Name {
-		return errors.New("destination config : different names in body")
-	}
-
 	err := destination.Config.Validate()
 	if err != nil {
 		return err

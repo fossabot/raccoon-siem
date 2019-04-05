@@ -7,7 +7,7 @@ import (
 
 type DestinationModel struct {
 	Id      string               `json:"id,omitempty" db:"id,omitempty"`
-	Name    string               `json:"name,omitempty" db:"name,omitempty"`
+	Name    string               `json:"-" db:"name,omitempty"`
 	Config  *destinations.Config `json:"config,omitempty" db:"-"`
 	Payload string               `json:"-" db:"payload,omitempty"`
 }
@@ -126,6 +126,7 @@ func (r *DestinationModel) dumpConfig() error {
 		return err
 	}
 
+	r.Name = r.Config.Name
 	r.Payload = string(bytes)
 
 	return nil
