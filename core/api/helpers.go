@@ -1,4 +1,4 @@
-package core
+package api
 
 import (
 	"encoding/json"
@@ -10,16 +10,6 @@ import (
 	"strings"
 	"upper.io/db.v3/lib/sqlbuilder"
 )
-
-func reply(ctx *gin.Context, err error, results ...[]byte) {
-	if err != nil {
-		_ = ctx.Error(err)
-		ctx.String(http.StatusInternalServerError, "%v", ctx.Errors)
-		ctx.Abort()
-	} else if len(results) > 0 {
-		ctx.String(http.StatusOK, "%s", results[0])
-	}
-}
 
 func replyJson(ctx *gin.Context, data interface{}) {
 	ctx.JSON(http.StatusOK, data)
@@ -71,7 +61,7 @@ func getQc(ctx *gin.Context) (db.QueryConfig, error) {
 }
 
 func setTx(ctx *gin.Context, tx sqlbuilder.Tx) {
-	ctx.Set("tx", tx)
+
 }
 
 func getTx(ctx *gin.Context) (sqlbuilder.Tx, error) {

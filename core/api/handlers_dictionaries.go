@@ -1,4 +1,4 @@
-package core
+package api
 
 import (
 	"errors"
@@ -8,14 +8,14 @@ import (
 	"net/http"
 )
 
-func readConnectors(ctx *gin.Context) {
+func readDictionaries(ctx *gin.Context) {
 	qc, err := getQc(ctx)
 	if err != nil {
 		replyError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
-	df := db.ConnectorFunctions{}
+	df := db.DictionaryFunctions{}
 	configs, err := df.List(ctx.Query("query"), qc)
 	if err != nil {
 		replyError(ctx, http.StatusInternalServerError, err)
@@ -24,14 +24,14 @@ func readConnectors(ctx *gin.Context) {
 	replyJson(ctx, configs)
 }
 
-func readConnector(ctx *gin.Context) {
+func readDictionary(ctx *gin.Context) {
 	qc, err := getQc(ctx)
 	if err != nil {
 		replyError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
-	df := db.ConnectorFunctions{}
+	df := db.DictionaryFunctions{}
 	config, err := df.ById(ctx.Param("id"), qc)
 	if err != nil {
 		replyError(ctx, http.StatusInternalServerError, err)
@@ -45,9 +45,9 @@ func readConnector(ctx *gin.Context) {
 	replyJson(ctx, config)
 }
 
-func createConnector(ctx *gin.Context) {
-	connectorConfig := new(db.ConnectorModel)
-	err := unmarshalFromRawData(ctx, connectorConfig)
+func createDictionary(ctx *gin.Context) {
+	dictionaryConfig := new(db.DictionaryModel)
+	err := unmarshalFromRawData(ctx, dictionaryConfig)
 	if err != nil {
 		replyError(ctx, http.StatusInternalServerError, err)
 		return
@@ -59,23 +59,23 @@ func createConnector(ctx *gin.Context) {
 		return
 	}
 
-	if err := validateConnector(connectorConfig, "", qc); err != nil {
+	if err := validateDictionary(dictionaryConfig, "", qc); err != nil {
 		replyError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	err = connectorConfig.Create(qc)
+	err = dictionaryConfig.Create(qc)
 	if err != nil {
 		replyError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
-	replyJson(ctx, connectorConfig)
+	replyJson(ctx, dictionaryConfig)
 }
 
-func updateConnector(ctx *gin.Context) {
-	connectorConfig := new(db.ConnectorModel)
-	err := unmarshalFromRawData(ctx, connectorConfig)
+func updateDictionary(ctx *gin.Context) {
+	dictionaryConfig := new(db.DictionaryModel)
+	err := unmarshalFromRawData(ctx, dictionaryConfig)
 	if err != nil {
 		replyError(ctx, http.StatusInternalServerError, err)
 		return
@@ -88,28 +88,28 @@ func updateConnector(ctx *gin.Context) {
 	}
 
 	id := ctx.Param("id")
-	df := db.ConnectorFunctions{}
-	existingConnector, err := df.ById(id, qc)
+	df := db.DictionaryFunctions{}
+	existingDictionary, err := df.ById(id, qc)
 	if err != nil {
 		replyError(ctx, http.StatusNotFound, err)
 		return
 	}
 
-	if err := validateConnector(connectorConfig, existingConnector.Id, qc); err != nil {
+	if err := validateDictionary(dictionaryConfig, existingDictionary.Id, qc); err != nil {
 		replyError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	err = connectorConfig.Update(id, qc)
+	err = dictionaryConfig.Update(id, qc)
 	if err != nil {
 		replyError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
-	replyJson(ctx, connectorConfig)
+	replyJson(ctx, dictionaryConfig)
 }
 
-func deleteConnector(ctx *gin.Context) {
+func deleteDictionary(ctx *gin.Context) {
 	qc, err := getQc(ctx)
 	if err != nil {
 		replyError(ctx, http.StatusInternalServerError, err)
@@ -117,14 +117,14 @@ func deleteConnector(ctx *gin.Context) {
 	}
 
 	id := ctx.Param("id")
-	df := db.ConnectorFunctions{}
-	connectorConfig, err := df.ById(id, qc)
+	df := db.DictionaryFunctions{}
+	dictionaryConfig, err := df.ById(id, qc)
 	if err != nil {
 		replyError(ctx, http.StatusNotFound, err)
 		return
 	}
 
-	err = connectorConfig.Delete(qc)
+	err = dictionaryConfig.Delete(qc)
 	if err != nil {
 		replyError(ctx, http.StatusInternalServerError, err)
 		return
@@ -133,25 +133,25 @@ func deleteConnector(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
-func validateConnector(connectorConfig *db.ConnectorModel, id string, qc db.QueryConfig) error {
-	if connectorConfig.Config == nil {
-		return errors.New("connectorConfig config : empty config body")
+func validateDictionary(dictionaryConfig *db.DictionaryModel, id string, qc db.QueryConfig) error {
+	if dictionaryConfig.Config == nil {
+		return errors.New("dictionaryConfig config : empty config body")
 	}
 
-	err := connectorConfig.Config.Validate()
+	err := dictionaryConfig.Config.Validate()
 	if err != nil {
 		return err
 	}
 
-	df := db.ConnectorFunctions{}
-	found, err := df.Exists(connectorConfig, id, qc)
+	df := db.DictionaryFunctions{}
+	found, err := df.Exists(dictionaryConfig, id, qc)
 
 	if err != nil {
 		return err
 	}
 
 	if found {
-		return errors.New(fmt.Sprintf("connectorConfig config : '%s' already exists", connectorConfig.Name))
+		return errors.New(fmt.Sprintf("dictionaryConfig config : '%s' already exists", dictionaryConfig.Name))
 	}
 
 	return nil

@@ -1,9 +1,10 @@
-package core
+package api
 
 import (
 	"bytes"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"github.com/tephrocactus/raccoon-siem/core/globals"
 	"github.com/tephrocactus/raccoon-siem/core/migrator/assets"
 	"github.com/tephrocactus/raccoon-siem/core/migrator/migration"
 	"io"
@@ -22,11 +23,11 @@ type RestClient struct {
 // Function creates new test database. If it already exists we drop it before creation
 // Every time all migrations are applied
 func prepareTestDatabase(dbHost, dbPort string) error {
-	if err := NewUdbConnection(dbHost, dbPort, ""); err != nil {
+	if err := globals.NewUdbConnection(dbHost, dbPort, ""); err != nil {
 		return err
 	}
 
-	_, err := UDBConn.Exec("drop database if exists raccoon_test; create database raccoon_test;")
+	_, err := globals.UDBConn.Exec("drop database if exists raccoon_test; create database raccoon_test;")
 
 	cockroachMigration := migration.CockroachMigration{}
 	cockroachMigrationFiles := assets.GetMigrationFiles()
@@ -35,7 +36,7 @@ func prepareTestDatabase(dbHost, dbPort string) error {
 		return err
 	}
 
-	if err := NewUdbConnection(dbHost, dbPort, "raccoon_test"); err != nil {
+	if err := globals.NewUdbConnection(dbHost, dbPort, "raccoon_test"); err != nil {
 		return err
 	}
 
@@ -83,7 +84,7 @@ func TestMain(m *testing.M) {
 	}
 
 	client = &RestClient{
-		getRouter(),
+		GetRouter(),
 	}
 
 	os.Exit(m.Run())

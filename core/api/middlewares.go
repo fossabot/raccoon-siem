@@ -1,14 +1,17 @@
-package core
+package api
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/tephrocactus/raccoon-siem/core/globals"
+)
 
 func txMiddleware() func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
-		tx, err := UDBConn.NewTx(ctx)
+		tx, err := globals.UDBConn.NewTx(ctx)
 		if err != nil {
 			return
 		}
-		setTx(ctx, tx)
+		ctx.Set("tx", tx)
 
 		ctx.Next()
 
