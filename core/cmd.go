@@ -126,6 +126,15 @@ func getRouter() *gin.Engine {
 	router.Use(txMiddleware())
 
 	config := router.Group("/config")
+
+	// Connectors
+	connectorGroup := config.Group("/connector")
+	connectorGroup.GET("/", readConnectors)
+	connectorGroup.GET("/:id", readConnector)
+	connectorGroup.POST("/", createConnector)
+	connectorGroup.PUT("/:id", updateConnector)
+	connectorGroup.DELETE("/:id", deleteConnector)
+
 	// Dictionaries
 	dictionaryGroup := config.Group("/dictionary")
 	dictionaryGroup.GET("/", readDictionaries)
