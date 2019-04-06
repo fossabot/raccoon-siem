@@ -34,6 +34,7 @@ since master branch is unstable.
 * [Architecture overview](#architecture-overview)
 * [Collector processing flow](#collector-processing-flow)
 * [Correlator processing flow](#correlator-processing-flow)
+* [Configuration](#configuration)
 
 ## Components overview
 
