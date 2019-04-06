@@ -28,7 +28,7 @@ Collector is an executable which is responsible for:
 * Aggregation
 * Sending normalized events to various destinations, like storage and correlators
 
-*Development status: complete. Additional functionality may be added.*
+*Development status: mostly complete. Additional functionality may be added.*
 
 ### Correlator
 Correlator is an executable which is responsible for:
@@ -36,7 +36,7 @@ Correlator is an executable which is responsible for:
 * Executing user-defined actions, like active lists operations, notifications, calling external processes
 * Sending correlated events to various destinations, like storage and correlators
 
-*Development status: complete. Additional functionality may be added.*
+*Development status: mostly complete. Additional functionality may be added.*
 
 ### Core
 Core is an executable which is responsible for:
