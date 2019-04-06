@@ -263,4 +263,5 @@ Otherwise it will be sent after the aggregation timeout or threshold exceeded.
 
 ![Correlator processing flow](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/correlator_processing_flow.png)
 
-
+## Configuration
+> Comming soon...
