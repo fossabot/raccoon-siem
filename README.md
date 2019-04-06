@@ -31,8 +31,7 @@ since master branch is unstable.
   * [Active list](#active-list)
   * [Destination](#destination)
 * [Architecture overview](#architecture-overview)
-* [Processing flow](#processing-flow)
-  * [Collector](#collector-processing-flow)
+* [Collector processing flow](#collector-processing-flow)
 
 ## Components overview
 
@@ -234,8 +233,7 @@ One common setup example might look like this:
 
 ![Architecture overview](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/architecture_overview.png)
 
-## Processing flow
-### Collector processing flow
+## Collector processing flow
 1. First of all, [collector](#collector) needs to actively fetch or passively receive raw logs. For that purpose various [connectors](#connector) are used. 
 1. After log record was grabbed by a connector, it is passed to one of the processing workers in a round-robin fashion. 
 1. Inside processing worker a log record is passed to a [normalizer](#normalizer), which parses and converts it to a [normalized event](#normalized-event) according to the user-defined [mapping rules](#mapping-rule). 
