@@ -1,9 +1,10 @@
-![Raccoon logo](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/logo.png)
 # Raccoon SIEM
 Raccoon is an open source SIEM designed for high traffic volume environments.
 
 The project is in active development stage. If you want to give it a try - do not use master branch since it is unstable. 
 Use [releases](https://github.com/tephrocactus/raccoon-siem/releases) instead.
+
+![Raccoon logo](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/logo.png)
 
 ## Table of contents
 * [Components overview](#components-overview)
