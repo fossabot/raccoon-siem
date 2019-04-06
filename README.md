@@ -109,7 +109,7 @@ Currently, Raccoon is using [Elasticsearch](https://www.elastic.co/products/elas
 Connector's goal is to actively fetch or passively receive raw log records or [normalized events](#normalized-event). It can be used whithin [collector](#collector) and [correlator](#correlator).
 
 > Currently implemented connectors: 
-> * tcp/udp listener
+> * TCP/UDP listener
 > * Netflow v9
 > * [NATS](https://nats.io/) ([bus](#bus))
 > * [Kafka](https://kafka.apache.org/)
@@ -175,6 +175,10 @@ Enrichment rule can be used whithin [collector](#collector) and [correlator](#co
 > * [Normalized event's](#normalized-event) fields
 > * Constant
 
+> TODO:
+> * Vulners.com
+> * Custom HTTP/HTTPS API's
+
 ### Mutation rule
 Mutation rule can be used within [enrichment rules](#enrichment-rule) to alter values of event fields in a various ways.
 
@@ -197,6 +201,11 @@ Action allow user to define reactions to [correlation rule](#correlation-rule) t
 > * [Correlated event](#normalization-event) [enrichment](#enrichment-rule)
 > * Set/Del operations with [active lists](#active list)
 
+> TODO:
+> * Notifications
+> * External process calls
+> * Custom HTTP/HTTPS API's interaction 
+
 ### Dictionary
 Dictionary is a component's local static data source filled by user which can be used within [enrichment rules](#enrichment-rule) to alter the values of [normalized event](#normalized-event) fields.
 
@@ -211,6 +220,11 @@ It can be used whithin [collector](#collector) and [correlator](#correlator).
 > Currently implemented destinations:
 > * Elasticsearch ([event storage](#event-storage))
 > * NATS ([bus](#bus))
+
+> TODO:
+> * [Kafka](https://kafka.apache.org/)
+> * [RabbitMQ](https://www.rabbitmq.com/)
+> * TCP/UDP socket
 
 ## Architecture overview
 Raccoon SIEM has quite flexible architecture which can be simplified or extended to meet your needs. For example, if you don't need correlation, you can skip [correlator](#correlator) deployment. Or, in case you need some extra processing, you can attach your services to [bus](#bus) or configure [collector](#collector)/[correlator](#correlator) to output events to your service or just fetch [normalized events](#normalized-event) from [event storage](#event-storage).
