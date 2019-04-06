@@ -30,7 +30,7 @@ Collector is an executable which is responsible for:
 ### Correlator
 Correlator is an executable which is responsible for:
 * Real time correlation of normalized events (security incidents detection)
-* Executing various user-defined actions, like active lists interactions, notifications, external processes
+* Executing user-defined actions, like active lists operations, notifications, calling external processes
 * Sending correlated events to various destinations, like storage and correlators
 
 ### Core
@@ -45,21 +45,21 @@ Bus is an executable which is responsible for:
 * Distributing configuration changes
 * Other IPC tasks
 
-Currently, we are using [NATS](https://nats.io/) to provide bus functionality. 
+Currently, Raccoon is using [NATS](https://nats.io/) to provide bus functionality. 
 
 ### Active lists storage
 Active lists storage is an executable which is responsible for:
 * Providing active lists operations
 * Persisting and expiration of active list records
 
-Currently, we are using [Redis](https://redis.io/) to provide active lists functionality..
+Currently, Raccoon is using [Redis](https://redis.io/) to provide active lists functionality..
 
 ### Event storage
 Event storage is an executable which is responsible for:
 * Storing normalized events (base and correlated)
 * Providing search functionality for [Raccoon console](https://github.com/tephrocactus/raccoon-console)
 
-Currently, we are using [Elasticsearch](https://www.elastic.co/products/elasticsearch) to provide event storage functionality.
+Currently, Raccoon is using [Elasticsearch](https://www.elastic.co/products/elasticsearch) to provide event storage functionality.
 
 ### Console
 Console is a GUI tool which allows:
@@ -71,7 +71,7 @@ Console is a GUI tool which allows:
 Currently, [console](https://github.com/tephrocactus/raccoon-console) is in early development stage.
 
 ## Architecture overview
-Raccoon SIEM has quite flexible architecture which can be simplified or extended to meet user's needs.
+Raccoon SIEM has quite flexible architecture which can be simplified or extended to meet your needs. It means that if you don't need correlation, you can ommit correlator deployment. Or, in case you need some extra processing, you can attach your own services to Raccoon Bus or configure our service endpoint as a destination of collector or correlator.
 One common example might look like this:
 
 ![Architecture overview](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/example_arch.png)
