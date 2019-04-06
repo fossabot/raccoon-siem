@@ -13,7 +13,6 @@ Use [releases](https://github.com/tephrocactus/raccoon-siem/releases) instead.
   * [Bus](#bus)
   * [Active lists storage](#active-lists-storage)
   * [Event storage](#event-storage)
-* [Architecture overview](#architecture-overview)
 * [Entities overview](#entities-overview)
   * [Connector](#connector)
   * [Normalizer](#normalizer)
@@ -28,6 +27,7 @@ Use [releases](https://github.com/tephrocactus/raccoon-siem/releases) instead.
   * [Dictionary](#dictionary)
   * [Active list](#active-list)
   * [Destination](#destination)
+* [Architecture overview](#architecture-overview)
 
 ## Components overview
 
@@ -100,13 +100,6 @@ Currently, Raccoon is using [Elasticsearch](https://www.elastic.co/products/elas
 
 *Development status: third-party product.*
 
-## Architecture overview
-Raccoon SIEM has quite flexible architecture which can be simplified or extended to meet your needs. For example, if you don't need correlation, you can skip [correlator](#correlator) deployment. Or, in case you need some extra processing, you can attach your services to [bus](#bus) or configure [collector](#collector)/[correlator](#correlator) to output events to your service or just fetch [normalized events](#normalized-event) from [event storage](#event-storage).
-
-One common setup example might look like this:
-
-![Architecture overview](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/example_arch.png)
-
 ## Entities overview
 
 ### Connector
@@ -160,3 +153,10 @@ Active list is a remote dynamic data source filled by user or correlation rule w
 Destination's goal is to send [normalized events](#normalized-event) to various endpoints. 
 For example, to [event storage](#event-storage) or [correlators](#correlator).
 It can be used whithin [collector](#collector) and [correlator](#correlator).
+
+## Architecture overview
+Raccoon SIEM has quite flexible architecture which can be simplified or extended to meet your needs. For example, if you don't need correlation, you can skip [correlator](#correlator) deployment. Or, in case you need some extra processing, you can attach your services to [bus](#bus) or configure [collector](#collector)/[correlator](#correlator) to output events to your service or just fetch [normalized events](#normalized-event) from [event storage](#event-storage).
+
+One common setup example might look like this:
+
+![Architecture overview](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/example_arch.png)
