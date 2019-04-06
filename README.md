@@ -53,7 +53,7 @@ Console is a GUI tool which allows you to:
 * Manage searches, users, assets, active lists and dictionaries
 * Create reports
 
-*Development status: Alpha stage. [Project](https://github.com/tephrocactus/raccoon-console)*
+*Development status: Alpha stage. [Github project](https://github.com/tephrocactus/raccoon-console).*
 
 ### Bus
 Bus is an executable which is responsible for:
