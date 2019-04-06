@@ -19,7 +19,7 @@ Use [releases](https://github.com/tephrocactus/raccoon-siem/releases) instead.
 
 ### Collector
 Collector is an executable which is responsible for:
-* Collecting logs from various systems
+* [Collecting logs](#connector) from various systems
 * [Parsing and normalization](#normalizer)
 * [Filtration](#filter)
 * [Enrichment](#enrichment-rule) and [mutation](#mutation-rule) of normalized event fields
