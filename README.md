@@ -72,7 +72,7 @@ Currently, [console](https://github.com/tephrocactus/raccoon-console) is in earl
 
 ## Architecture overview
 
-![Architecture overview](https://github.com/tephrocactus/raccoon-siem/raw/master/docs/architecture.png)
+![Architecture overview](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/example_arch.png)
 
 ## Entities overview
 
