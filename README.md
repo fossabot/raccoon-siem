@@ -12,6 +12,7 @@ Use [releases](https://github.com/tephrocactus/raccoon-siem/releases) instead.
   * [Bus](#bus)
   * [Active lists storage](#active-lists-storage)
   * [Event storage](#event-storage)
+  * [Console](#console)
 
 ## Components overview
 
