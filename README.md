@@ -59,3 +59,8 @@ Event storage is an executable which is responsible for:
 * Providing search functionality for [Raccoon console](https://github.com/tephrocactus/raccoon-console)
 
 Currently, we are using [Elasticsearch](https://www.elastic.co/products/elasticsearch) to provide event storage functionality.
+
+## Modules overview
+
+### Connector
+Connector's goal is to actively fetch or passively receive log records. It can be used with [collector](#collector) or [correlator](#correlator).
