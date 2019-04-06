@@ -73,6 +73,9 @@ Filter can be used whithin [collector](#collector) and [correlator](#correlator)
 * Drop undesired (noisy) events
 * Provide event selection mechanism for enrichment, aggregation and correlation rules.
 
+### Enrichment
+Enrichment can be used whithin [collector](#collector) and [correlator](#correlator) to fill normalized events with additional data: constants, active list and dictionary records, event fields.
+
 ### Destination
 Destination's goal is to send normalized events to various endpoints. For example, to event storage or correlators.
 It can be used whithin [collector](#collector) and [correlator](#correlator).
