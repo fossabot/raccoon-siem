@@ -71,7 +71,7 @@ Console is a GUI tool which allows:
 Currently, [console](https://github.com/tephrocactus/raccoon-console) is in early development stage.
 
 ## Architecture overview
-Raccoon SIEM has quite flexible architecture which can be simplified or extended to meet your needs. It means that if you don't need correlation, you can ommit correlator deployment. Or, in case you need some extra processing, you can attach your own services to Raccoon Bus or configure our service endpoint as a destination of collector or correlator.
+Raccoon SIEM has quite flexible architecture which can be simplified or extended to meet your needs. It means that if you don't need correlation, you can skip correlator deployment. Or, in case you need some extra processing, you can attach your  services to Raccoon Bus or configure collector/correlator to output events to your service.
 One common example might look like this:
 
 ![Architecture overview](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/example_arch.png)
