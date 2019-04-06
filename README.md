@@ -171,7 +171,7 @@ One common setup example might look like this:
 1. Next, a [normalized event](#normalized-event) is passed through the [filters](#filter), if any defined. If an event did not pass all the [filters](#filter), it is dropped. 
 1. An [event](#normalization-event) is passed through the [enrichment rules](#enrichment-rule), if any defined. 
 Every [enrichment rule](#enrichment-rule) can have a [filter](#filter) in front of it. 
-1. An [event](#normalization-event) is passed [aggregation rules](#aggregation-rule), if any defined.
+1. An [event](#normalization-event) is passed through the [aggregation rules](#aggregation-rule), if any defined.
 Every [aggregation rule](#aggregation-rule) can have a [filter](#filter) in front of it. 
 1. Finally, if an event wasn't aggregated, it is sent to each [destination](#destination) defined by user immediately. 
 Otherwise it will be sent after the aggregation timeout or threshold exceeded. 
