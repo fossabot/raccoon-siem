@@ -263,6 +263,11 @@ Otherwise it will be sent after the aggregation timeout or threshold exceeded.
 1. If [correlated event](#normalized-event) was created by any of [correlation rules](#correlation-rule), it is linked with [base events](#normalized-event) and sent to each [destination](#destination) defined by user immediately. [Base events](#normalized-event) itself are dropped.
 
 ![Correlator processing flow](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/correlator_processing_flow.png)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftephrocactus%2Fraccoon-siem.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftephrocactus%2Fraccoon-siem?ref=badge_shield)
 
 ## Configuration
 > Comming soon...
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftephrocactus%2Fraccoon-siem.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftephrocactus%2Fraccoon-siem?ref=badge_large)
