@@ -96,7 +96,7 @@ One common setup example might look like this:
 ## Entities overview
 
 ### Connector
-Connector's goal is to actively fetch or passively receive log records. It can be used whithin [collector](#collector) and [correlator](#correlator).
+Connector's goal is to actively fetch or passively receive raw log records or normalized events. It can be used whithin [collector](#collector) and [correlator](#correlator).
 
 ### Normalizer
 Normalier's goal is to parse and convert raw log records to normalized event according to mapping rules provided by user. It can be used within [collector](#collector) only.
