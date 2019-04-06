@@ -29,7 +29,7 @@ const (
 	DefaultEventFieldsHash = "_"
 )
 
-// Normalized event.
+// Normalized event structure, inspired by Arcsight Common Event Format (CEF).
 // Tag "storage_type" represents field's type in elasticsearch.
 // Tag "set" indicates that field can be set by user.
 type Event struct {
