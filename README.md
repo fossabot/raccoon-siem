@@ -27,11 +27,15 @@ Collector is an executable which is responsible for:
 * Aggregation
 * Sending normalized events to various destinations, like storage and correlators
 
+*Development status: Complete. Additional functionality may be added.*
+
 ### Correlator
 Correlator is an executable which is responsible for:
 * Real time correlation of normalized events (security incidents detection)
 * Executing user-defined actions, like active lists operations, notifications, calling external processes
 * Sending correlated events to various destinations, like storage and correlators
+
+*Development status: Complete. Additional functionality may be added.*
 
 ### Core
 Core is an executable which is responsible for:
@@ -40,7 +44,17 @@ Core is an executable which is responsible for:
 * Event and active lists storage housekeeping
 * Providing REST API for [Raccoon console](https://github.com/tephrocactus/raccoon-console) and your custom services
 
-Currently, core is in early development stage.
+*Development status: Alpha stage.*
+
+### Console
+Console is a GUI tool which allows you to:
+* Compose and deploy configuration
+* Search for events
+* Manage searches, users, assets, active lists and dictionaries
+* Create reports
+
+[Project link](https://github.com/tephrocactus/raccoon-console)
+*Development status: Alpha stage.*
 
 ### Bus
 Bus is an executable which is responsible for:
@@ -64,15 +78,6 @@ Event storage is an executable which is responsible for:
 via [Raccoon Core](#core)
 
 Currently, Raccoon is using [Elasticsearch](https://www.elastic.co/products/elasticsearch) to provide event storage functionality.
-
-### Console
-Console is a GUI tool which allows you to:
-* Compose and deploy configuration
-* Search for events
-* Manage searches, users, assets, active lists and dictionaries
-* Create reports
-
-Currently, [console](https://github.com/tephrocactus/raccoon-console) is in early development stage.
 
 ## Architecture overview
 Raccoon SIEM has quite flexible architecture which can be simplified or extended to meet your needs. For example, if you don't need correlation, you can skip [correlator](#correlator) deployment. Or, in case you need some extra processing, you can attach your services to [Bus](#bus) or configure [collector](#collector)/[correlator](#correlator) to output events to your service or just fetch normalized events from [event storage](#event-storage).
