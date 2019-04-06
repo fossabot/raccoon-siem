@@ -68,8 +68,11 @@ Connector's goal is to actively fetch or passively receive log records. It can b
 ### Normalizer
 Normalier's goal is to parse and convert raw log records to normalized event according to mapping rules provided by user. It can be used within [collector](#collector) only.
 
+### Filter
+Filter can be used whithin [collector](#collector) and [correlator](#correlator) to:
+* Drop undesired (noisy) events
+* Provide event selection mechanism for enrichment, aggregation and correlation rules.
+
 ### Destination
 Destination's goal is to send normalized events to various endpoints. For example, to event storage or correlators.
 It can be used whithin [collector](#collector) and [correlator](#correlator).
-
-### 
