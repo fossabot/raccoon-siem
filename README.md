@@ -37,7 +37,7 @@ Correlator is an executable which is responsible for:
 Core is an executable which is responsible for:
 * Configuration management and deployment
 * Event and active lists storage housekeeping
-* Providing REST API for [Raccoon console](https://github.com/tephrocactus/raccoon-console)
+* Providing REST API for [Raccoon console](https://github.com/tephrocactus/raccoon-console) and your custom services
 
 ### Bus
 Bus is an executable which is responsible for:
