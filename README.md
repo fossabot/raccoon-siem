@@ -60,18 +60,21 @@ Event storage is an executable which is responsible for:
 
 Currently, we are using [Elasticsearch](https://www.elastic.co/products/elasticsearch) to provide event storage functionality.
 
-## Modules overview
+## Entities overview
 
 ### Connector
 Connector's goal is to actively fetch or passively receive log records. It can be used whithin [collector](#collector) and [correlator](#correlator).
 
 ### Normalizer
-Normalier's goal is to parse and convert raw log records to normalized event according to mapping provided by user. It can be used within [collector](#collector) only.
+Normalier's goal is to parse and convert raw log records to normalized event according to mapping rules provided by user. It can be used within [collector](#collector) only.
 
 ### Filter
 Filter can be used whithin [collector](#collector) and [correlator](#correlator) to:
 * Drop undesired (noisy) events
 * Provide event selection mechanism for enrichment, aggregation and correlation rules.
+
+### Mapping rule
+Mapping rule is used to tie up raw log field or active list record field with normalized event field.
 
 ### Enrichment rule
 Enrichment rule can be used whithin [collector](#collector) and [correlator](#correlator) to fill normalized events with additional data which can be taken from: constants, active list and dictionary records, event fields and third-party systems.
