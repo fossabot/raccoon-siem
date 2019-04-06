@@ -141,6 +141,11 @@ Filter can be used whithin [collector](#collector) and [correlator](#correlator)
 > * **inSubnet** , **!inSubnet**
 > * **contains** , **!contains**
 
+> Currently implemented comparission sources: 
+> * [Active lists](#active-list)
+> * [Normalization event's](#normalization-event) fields
+> * Constant
+
 ### Mapping rule
 Mapping rule is used to describe a relation between raw log field (or [active list](#active-list) record field) and [normalized event](#normalized-event) field.
 
