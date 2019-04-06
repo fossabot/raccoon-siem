@@ -139,6 +139,9 @@ Normalier's goal is to parse and convert raw log records to [normalized event](#
 > * Regexp
 > * Syslog (RFC3164 & RFC5424)
 
+> TODO:
+> * XML
+
 ### Normalized event
 Normalized event is a special structure wich defines a static [set of fields](https://github.com/tephrocactus/raccoon-siem/blob/master/sdk/normalization/event.go#L32) available for mapping, comparission, e.t.c. It is passed over the network (between Raccoon components) in JSON format. Normalized event can represent *base*, *aggregated* or *correlated* information security event.
 
