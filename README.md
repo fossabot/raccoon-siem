@@ -4,9 +4,9 @@ Raccoon is an open source SIEM designed for high traffic volume environments.
 The project is in active development stage. If you want to give it a try - do not use master branch since it is unstable. 
 Use [releases](https://github.com/tephrocactus/raccoon-siem/releases) instead.
 
-### Components overview
+## Components overview
 
-#### Collector
+### Collector
 Collector is an executable which is responsible for:
 * Collecting logs from various systems
 * Parsing
@@ -17,19 +17,19 @@ Collector is an executable which is responsible for:
 * Aggregation
 * Sending normalized events to various destinations, like storage and correlators
 
-#### Correlator
+### Correlator
 Correlator is an executable which is responsible for:
 * Real time correlation of normalized events (security incidents detection)
 * Executing various user-defined actions, like active lists interactions, notifications, external processes
 * Sending correlated events to various destinations, like storage and correlators
 
-#### Core
+### Core
 Core is an executable which is responsible for:
 * Configuration management and deployment
 * Event and active lists storage housekeeping
 * Providing REST API for [Raccoon console](https://github.com/tephrocactus/raccoon-console)
 
-#### Bus
+### Bus
 Bus is an executable which is responsible for:
 * Passing normalized events from collectors to correlators
 * Distributing configuration changes
@@ -37,14 +37,14 @@ Bus is an executable which is responsible for:
 
 Currently, we are using [NATS](https://nats.io/) to provide bus functionality. 
 
-#### Active lists storage
+### Active lists storage
 Active lists storage is an executable which is responsible for:
 * Providing active lists operations
 * Persisting and expiration of active list records
 
 Currently, we are using [Redis](https://redis.io/) to provide active lists functionality.
 
-#### Event storage
+### Event storage
 Event storage is an executable which is responsible for:
 * Storing normalized events (base and correlated)
 * Providing search functionality for [Raccoon console](https://github.com/tephrocactus/raccoon-console)
