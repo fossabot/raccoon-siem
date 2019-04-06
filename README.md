@@ -5,8 +5,13 @@ The project is in active development stage. If you want to give it a try - do no
 Use [releases](https://github.com/tephrocactus/raccoon-siem/releases) instead.
 
 ## Table of contents
-1. [Components overview](#components-overview)
-
+* [Components overview](#components-overview)
+  * [Collector](#collector)
+  * [Correlator](#correlator)
+  * [Core](#core)
+  * [Bus](#bus)
+  * [Active lists storage](#active-lists-storage)
+  * [Event storage](#event-storage)
 
 ## Components overview
 
@@ -46,7 +51,7 @@ Active lists storage is an executable which is responsible for:
 * Providing active lists operations
 * Persisting and expiration of active list records
 
-Currently, we are using [Redis](https://redis.io/) to provide active lists functionality.
+Currently, we are using [Redis](https://redis.io/) to provide active lists functionality..
 
 ### Event storage
 Event storage is an executable which is responsible for:
