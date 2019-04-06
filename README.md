@@ -168,12 +168,12 @@ One common setup example might look like this:
 1. First of all, [collector](#collector) needs to actively fetch or passively receive raw logs. For that purpose various [connectors](#connector) are used. 
 1. After log record was grabbed by a connector, it is passed to one of the processing workers in a round-robin fashion. 
 1. Inside processing worker a log record is passed to a [normalizer](#normalizer), which parses and converts it to a [normalized event](#normalized-event) according to the user-defined [mapping rules](#mapping-rule). 
-1. Next, a [normalized event](#normalized-event) is passed through the [filters](#filter), if any defined. If an event did not pass all the [filters](#filter), it is dropped. 
+1. Next, a [normalized event](#normalized-event) is passed through the [filters](#filter), if any defined. If an [event](#normalization-event) did not pass all the [filters](#filter), it is dropped. 
 1. An [event](#normalization-event) is passed through the [enrichment rules](#enrichment-rule), if any defined. 
 Every [enrichment rule](#enrichment-rule) can have a [filter](#filter) in front of it. 
 1. An [event](#normalization-event) is passed through the [aggregation rules](#aggregation-rule), if any defined.
 Every [aggregation rule](#aggregation-rule) can have a [filter](#filter) in front of it. 
-1. Finally, if an event wasn't aggregated, it is sent to each [destination](#destination) defined by user immediately. 
+1. Finally, if an [event](#normalization-event) wasn't aggregated, it is sent to each [destination](#destination) defined by user immediately. 
 Otherwise it will be sent after the aggregation timeout or threshold exceeded. 
 
 ![Collector processing flow](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/collector_processing_flow.png)
