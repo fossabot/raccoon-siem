@@ -134,3 +134,6 @@ Active list is a remote dynamic data source filled by user or correlation rule w
 ### Destination
 Destination's goal is to send normalized events to various endpoints. For example, to event storage or correlators.
 It can be used whithin [collector](#collector) and [correlator](#correlator).
+
+### Normalized event
+Normalized event is a special structure wich defines a static set of fields available for mapping, comparission, e.t.c. It is passed over the network (between Raccoon components) in JSON format. Full list of available fields can be found [here](https://github.com/tephrocactus/raccoon-siem/blob/master/sdk/normalization/event.go#L32).
