@@ -1,31 +1,27 @@
 package csv
 
 import (
+	"bytes"
+	"encoding/csv"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization/normalizers/parsers"
 	"strconv"
 )
 
-const (
-	bs = '\\'
-)
-
 func Parse(data []byte, delimiter byte, callback parsers.Callback) bool {
-	delimitersFound := 0
-	pos := 0
-	valueStart := pos
+	reader := csv.NewReader(bytes.NewReader(data))
+	reader.Comma = rune(delimiter)
+	reader.TrimLeadingSpace = true
+	reader.LazyQuotes = true
+	reader.ReuseRecord = true
 
-	for ; pos < len(data); pos++ {
-		if data[pos] == delimiter && data[pos-1] != bs {
-			callback(strconv.Itoa(delimitersFound), data[valueStart:pos])
-			delimitersFound++
-			valueStart = pos + 1
-		}
+	rec, err := reader.Read()
+	if err != nil {
+		return false
 	}
 
-	if delimitersFound > 0 {
-		callback(strconv.Itoa(delimitersFound), data[valueStart:pos])
-		return true
+	for i := range rec {
+		callback(strconv.Itoa(i), []byte(rec[i]))
 	}
 
-	return false
+	return true
 }

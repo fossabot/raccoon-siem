@@ -5,7 +5,8 @@ import (
 	"testing"
 )
 
-var sample = []byte(`CEF:0,енот,threatmanager,1.0,100,detected,10,10.0.0.1,blocked message,1.1.1.1`)
+var unquotedSample = []byte(`CEF:0,енот,threatmanager,1.0,100,detected,10,10.0.0.1,blocked message,1.1.1.1`)
+var quotedSample = []byte(`"value1","value,2","value3"`)
 
 func TestCSV(t *testing.T) {
 	result := make(map[string][]byte)
@@ -13,7 +14,7 @@ func TestCSV(t *testing.T) {
 		result[key] = value
 	}
 
-	ok := Parse(sample, ',', callback)
+	ok := Parse(unquotedSample, ',', callback)
 	assert.Equal(t, ok, true)
 	assert.DeepEqual(t, result["0"], []byte("CEF:0"))
 	assert.DeepEqual(t, result["1"], []byte("енот"))
@@ -25,6 +26,12 @@ func TestCSV(t *testing.T) {
 	assert.DeepEqual(t, result["7"], []byte("10.0.0.1"))
 	assert.DeepEqual(t, result["8"], []byte("blocked message"))
 	assert.DeepEqual(t, result["9"], []byte("1.1.1.1"))
+
+	ok = Parse(quotedSample, ',', callback)
+	assert.Equal(t, ok, true)
+	assert.DeepEqual(t, result["0"], []byte("value1"))
+	assert.DeepEqual(t, result["1"], []byte("value,2"))
+	assert.DeepEqual(t, result["2"], []byte("value3"))
 }
 
 func BenchmarkCEF(b *testing.B) {
@@ -32,6 +39,6 @@ func BenchmarkCEF(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		Parse(sample, ',', cb)
+		Parse(unquotedSample, ',', cb)
 	}
 }
