@@ -117,6 +117,14 @@ Connector's goal is to actively fetch or passively receive raw log records or [n
 ### Normalizer
 Normalier's goal is to parse and convert raw log records to [normalized event](#normalized-event) according to [mapping rules](#mapping-rule) provided by user. It can be used within [collector](#collector) only.
 
+> Currently implemented normalizers: 
+> * JSON
+> * CEF
+> * CSV/TSV (with configurable delimiter)
+> * Key/Value (with configurable delimiter)
+> * Regexp
+> * Syslog (RFC3164 & RFC5424)
+
 ### Normalized event
 Normalized event is a special structure wich defines a static [set of fields](https://github.com/tephrocactus/raccoon-siem/blob/master/sdk/normalization/event.go#L32) available for mapping, comparission, e.t.c. It is passed over the network (between Raccoon components) in JSON format. Normalized event can represent *base*, *aggregated* or *correlated* information security event.
 
@@ -132,15 +140,21 @@ Filter can be used whithin [collector](#collector) and [correlator](#correlator)
 Mapping rule is used to describe a relation between raw log field (or [active list](#active-list) record field) and [normalized event](#normalized-event) field.
 
 ### Enrichment rule
-Enrichment rule can be used whithin [collector](#collector) and [correlator](#correlator) to fill [normalized events](#normalized-event) with additional data which can be taken from: 
-constants, 
-[active list](#active-list) and
-[dictionary](#dictionary) records, 
-[normalized event](#normalized-event) fields and 
-third-party systems.
+Enrichment rule can be used whithin [collector](#collector) and [correlator](#correlator) to fill [normalized events](#normalized-event) with additional data which can be taken from various sources.
+
+> Currently implemented enrichment sources: 
+> * [Dictionaries](#dictionary)
+> * [Active lists](#active-list)
+> * [Normalized event's](#normalized-event) fields
+> * Constant
 
 ### Mutation rule
 Mutation rule can be used within [enrichment rules](#enrichment-rule) to alter values of event fields in a various ways.
+
+> Currently implemented mutators:
+> * Regexp
+> * Substring
+> * Lowercase
 
 ### Aggregation rule
 Aggregation rule can be used whithin [collector](#collector) to represent multiple identical or similar [normalized events](#normalized-event) as single event with abillity to sum or concatenate values of original event fields. This technique may drammaticaly minimize [collector](#collector) output. 
