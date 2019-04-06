@@ -20,13 +20,11 @@ Use [releases](https://github.com/tephrocactus/raccoon-siem/releases) instead.
 ### Collector
 Collector is an executable which is responsible for:
 * Collecting logs from various systems
-* Parsing
-* Normalization
-* Filtration
-* Enrichment (from constants, [active lists](#active-list), [dictionaries](#dictionary), event fields)
-* Mutation of normalized event fields
-* Aggregation
-* Sending normalized events to various [destinations](#destination), like [event storage](#event-storage) and [correlators](#correlator)
+* [Parsing and normalization](#normalizer)
+* [Filtration](#filter)
+* [Enrichment](#enrichment-rule) and [mutation](#mutation-rule) of normalized event fields
+* [Aggregation](#aggregation-rule)
+* Sending normalized events to various [destinations](#destination)
 
 *Development status: beta.*
 
@@ -37,7 +35,7 @@ Correlator is an executable which is responsible for:
 [active lists](#active-list) operations, 
 [notifications](#notification),
 third-party process calls
-* Sending correlated events to various destinations, like [event storage](#event-storage) and [correlators](#correlator)
+* Sending correlated events to various [destinations](#destination)
 
 *Development status: beta.*
 
