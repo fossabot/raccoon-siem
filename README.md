@@ -43,7 +43,7 @@ Collector is an executable which is responsible for:
 * [Aggregation](#aggregation-rule)
 * Sending [normalized events](#normalized-event) to various [destinations](#destination)
 
-*Development status: beta.*
+> Development status: beta.
 
 ### Correlator
 Correlator is an executable which is responsible for:
@@ -54,7 +54,7 @@ Correlator is an executable which is responsible for:
 third-party process calls
 * Sending [correlated events](#normalized-event) to various [destinations](#destination)
 
-*Development status: beta.*
+> Development status: beta.
 
 ### Core
 Core is an executable which is responsible for:
@@ -63,7 +63,7 @@ Core is an executable which is responsible for:
 * Event storage and active lists storage housekeeping
 * Providing REST API for [console](#console) and your custom services
 
-*Development status: alpha.*
+> Development status: alpha.
 
 ### Console
 Console is a GUI tool which allows you to:
@@ -72,7 +72,7 @@ Console is a GUI tool which allows you to:
 * Manage searches, users, assets, [active lists](#active-list) and [dictionaries](#dictionary)
 * Create reports
 
-*Development status: alpha. [Github project](https://github.com/tephrocactus/raccoon-console).*
+> Development status: alpha. [Github project](https://github.com/tephrocactus/raccoon-console).
 
 ### Bus
 Bus is an executable which is responsible for:
@@ -82,7 +82,7 @@ Bus is an executable which is responsible for:
 
 Currently, Raccoon is using [NATS](https://nats.io/) to provide bus functionality.
 
-*Development status: third-party product.*
+> Development status: third-party product.
 
 ### Active lists storage
 Active lists storage is an executable which is responsible for:
@@ -91,7 +91,7 @@ Active lists storage is an executable which is responsible for:
 
 Currently, Raccoon is using [Redis](https://redis.io/) to provide active lists functionality.
 
-*Development status: third-party product.*
+> Development status: third-party product.
 
 ### Event storage
 Event storage is an executable which is responsible for:
@@ -101,7 +101,7 @@ via [core](#core)
 
 Currently, Raccoon is using [Elasticsearch](https://www.elastic.co/products/elasticsearch) to provide event storage functionality.
 
-*Development status: third-party product.*
+> Development status: third-party product.
 
 ## Entities overview
 
