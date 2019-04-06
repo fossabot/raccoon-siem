@@ -70,6 +70,10 @@ Console is a GUI tool which allows:
 
 Currently, [console](https://github.com/tephrocactus/raccoon-console) is in early development stage.
 
+## Architecture overview
+
+![Architecture overview](https://github.com/tephrocactus/raccoon-siem/raw/master/docs/architecture.png)
+
 ## Entities overview
 
 ### Connector
