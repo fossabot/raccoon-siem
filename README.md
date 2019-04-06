@@ -174,7 +174,11 @@ Correlation rule can be used whithin [correlator](#correlator) to describe the s
 That signature can be based on single or multiple [normalized events](#normalized-event).
 
 ### Action
-Action allow user to react to [correlation rule](#correlation-rule) triggers: enrich [correlated events](#normalized-event), interact with [active lists](#active-list) and third-party systems, send notifications, call third-party executables, e.t.c.
+Action allow user to define reactions to [correlation rule](#correlation-rule) triggers.
+
+> Currently implemented actions:
+> * [Correlated event](#normalization-event) [enrichment](#enrichment-rule)
+> * Set/Del operations with [active lists](#active list)
 
 ### Dictionary
 Dictionary is a component's local static data source filled by user which can be used within [enrichment rules](#enrichment-rule) to alter the values of [normalized event](#normalized-event) fields.
@@ -186,6 +190,10 @@ Active list is a remote dynamic data source filled by user or [correlation rule]
 Destination's goal is to send [normalized events](#normalized-event) to various endpoints. 
 For example, to [event storage](#event-storage) or [correlators](#correlator).
 It can be used whithin [collector](#collector) and [correlator](#correlator).
+
+> Currently implemented destinations:
+> * Elasticsearch ([event storage](#event-storage))
+> * NATS ([bus](#bus))
 
 ## Architecture overview
 Raccoon SIEM has quite flexible architecture which can be simplified or extended to meet your needs. For example, if you don't need correlation, you can skip [correlator](#correlator) deployment. Or, in case you need some extra processing, you can attach your services to [bus](#bus) or configure [collector](#collector)/[correlator](#correlator) to output events to your service or just fetch [normalized events](#normalized-event) from [event storage](#event-storage).
