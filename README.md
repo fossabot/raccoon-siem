@@ -133,8 +133,8 @@ Filter can be used whithin [collector](#collector) and [correlator](#correlator)
 * Drop undesired (noisy) events
 * Provide event selection mechanism for 
 [enrichment](#enrichment-rule),
-[aggregation rules](#aggregation-rule) and 
-[correlation rules](#correlation-rule).
+[aggregation](#aggregation-rule) and 
+[correlation](#correlation-rule) rules.
 
 ### Mapping rule
 Mapping rule is used to describe a relation between raw log field (or [active list](#active-list) record field) and [normalized event](#normalized-event) field.
