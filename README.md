@@ -111,8 +111,22 @@ Connector's goal is to actively fetch or passively receive raw log records or [n
 > Currently implemented connectors: 
 > * tcp/udp listener
 > * Netflow v9
-> * NATS ([bus](#bus))
-> * Apache Kafka
+> * [NATS](https://nats.io/) ([bus](#bus))
+> * [Kafka](https://kafka.apache.org/)
+
+> TODO:
+> * Windows event log (currently, [Beats](https://www.elastic.co/products/beats) + [Kafka](https://kafka.apache.org/) can be used)
+> * Text files
+> * [MSSQL](https://www.microsoft.com/en-us/sql-server/)
+> * [MySQL](https://www.mysql.com/)
+> * [PostgreSQL](https://www.postgresql.org/)
+> * [CockroachDB](https://www.cockroachlabs.com/)
+> * [Elasticsearch](https://www.elastic.co/products/elasticsearch)
+> * [Cassandra](http://cassandra.apache.org/)
+> * [ScyllaDB](https://www.scylladb.com/)
+> * [Redis](https://redis.io/)
+> * [Tarantool](https://www.tarantool.io/ru/)
+> * [RabbitMQ](https://www.rabbitmq.com/)
 
 ### Normalizer
 Normalier's goal is to parse and convert raw log records to [normalized event](#normalized-event) according to [mapping rules](#mapping-rule) provided by user. It can be used within [collector](#collector) only.
