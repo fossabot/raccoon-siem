@@ -136,4 +136,4 @@ Destination's goal is to send normalized events to various endpoints. For exampl
 It can be used whithin [collector](#collector) and [correlator](#correlator).
 
 ### Normalized event
-Normalized event is a special structure wich defines a static set of fields available for mapping, comparission, e.t.c. It is passed over the network (between Raccoon components) in JSON format. Full list of available fields can be found [here](https://github.com/tephrocactus/raccoon-siem/blob/master/sdk/normalization/event.go#L32).
+Normalized event is a special structure wich defines a static [set of fields](https://github.com/tephrocactus/raccoon-siem/blob/master/sdk/normalization/event.go#L32) available for mapping, comparission, e.t.c. It is passed over the network (between Raccoon components) in JSON format.
