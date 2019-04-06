@@ -143,13 +143,12 @@ Correlation rule can be used whithin [correlator](#correlator) to describe the s
 That signature can be based on single or multiple [normalized events](#normalized-event).
 
 ### Action
-Action allow user to react to [correlation rule](#correlation-rule) triggers: enrich [correlated events](#normalized-event), interact with [active lists](#active-list) and third-party systems, send notifications, call executables and so on.
-
+Action allow user to react to [correlation rule](#correlation-rule) triggers: enrich [correlated events](#normalized-event), interact with [active lists](#active-list) and third-party systems, send notifications, call third-party executables, e.t.c.
 ### Dictionary
 Dictionary is a component's local static data source filled by user which can be used within [enrichment rules](#enrichment-rule) to alter the values of [normalized event](#normalized-event) fields.
 
 ### Active list
-Active list is a remote dynamic data source filled by user or correlation rule which can be used to represent some state (session tracking, host or user status and so on) or a as remote dictionary. Active list operations can take place within filters and actions.
+Active list is a remote dynamic data source filled by user or correlation rule which can be used to represent some state (session tracking, host or user status, e.t.c) or a as remote dictionary. Active list operations can take place within filters and actions.
 
 ### Destination
 Destination's goal is to send [normalized events](#normalized-event) to various endpoints. 
