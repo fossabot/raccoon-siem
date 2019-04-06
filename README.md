@@ -136,6 +136,11 @@ Filter can be used whithin [collector](#collector) and [correlator](#correlator)
 [aggregation](#aggregation-rule) and 
 [correlation](#correlation-rule) rules.
 
+> Currently implemented comparission operators: 
+> * **=** , **!=** , **>** , **>=**, **<** , **<=**
+> * **inSubnet** , **!inSubnet**
+> * **contains** , **!contains**
+
 ### Mapping rule
 Mapping rule is used to describe a relation between raw log field (or [active list](#active-list) record field) and [normalized event](#normalized-event) field.
 
