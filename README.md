@@ -112,7 +112,7 @@ Connector's goal is to actively fetch or passively receive raw log records or [n
 Normalier's goal is to parse and convert raw log records to [normalized event](#normalized-event) according to [mapping rules](#mapping-rule) provided by user. It can be used within [collector](#collector) only.
 
 ### Normalized event
-Normalized event is a special structure wich defines a static [set of fields](https://github.com/tephrocactus/raccoon-siem/blob/master/sdk/normalization/event.go#L32) available for mapping, comparission, e.t.c. It is passed over the network (between Raccoon components) in JSON format.
+Normalized event is a special structure wich defines a static [set of fields](https://github.com/tephrocactus/raccoon-siem/blob/master/sdk/normalization/event.go#L32) available for mapping, comparission, e.t.c. It is passed over the network (between Raccoon components) in JSON format. Normalized event can represent *base*, *aggregated* or *correlated* information security event.
 
 ### Filter
 Filter can be used whithin [collector](#collector) and [correlator](#correlator) to:
