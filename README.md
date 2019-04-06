@@ -13,7 +13,21 @@ Use [releases](https://github.com/tephrocactus/raccoon-siem/releases) instead.
   * [Bus](#bus)
   * [Active lists storage](#active-lists-storage)
   * [Event storage](#event-storage)
- *  [Architecture overview](#architecture-overview)
+ * [Architecture overview](#architecture-overview)
+ * [Entities overview](#entities-overview)
+  * [Normalized event](#normalized-event)
+  * [Connector](#connector)
+  * [Normalizer](#normalizer)
+  * [Filter](#filter)
+  * [Mapping rule](#mapping-rule)
+  * [Enrichment rule](#enrichment-rule)
+  * [Mutation rule](#mutation-rule)
+  * [Aggregation rule](#aggregation-rule)
+  * [Correlation rule](#correlation-rule)
+  * [Action](#action)
+  * [Dictionary](#dictionary)
+  * [Active list](#active-list)
+  * [Destination](#destination)
 
 ## Components overview
 
@@ -101,6 +115,9 @@ Connector's goal is to actively fetch or passively receive raw log records or no
 ### Normalizer
 Normalier's goal is to parse and convert raw log records to normalized event according to mapping rules provided by user. It can be used within [collector](#collector) only.
 
+### Normalized event
+Normalized event is a special structure wich defines a static [set of fields](https://github.com/tephrocactus/raccoon-siem/blob/master/sdk/normalization/event.go#L32) available for mapping, comparission, e.t.c. It is passed over the network (between Raccoon components) in JSON format.
+
 ### Filter
 Filter can be used whithin [collector](#collector) and [correlator](#correlator) to:
 * Drop undesired (noisy) events
@@ -134,6 +151,3 @@ Active list is a remote dynamic data source filled by user or correlation rule w
 ### Destination
 Destination's goal is to send normalized events to various endpoints. For example, to event storage or correlators.
 It can be used whithin [collector](#collector) and [correlator](#correlator).
-
-### Normalized event
-Normalized event is a special structure wich defines a static [set of fields](https://github.com/tephrocactus/raccoon-siem/blob/master/sdk/normalization/event.go#L32) available for mapping, comparission, e.t.c. It is passed over the network (between Raccoon components) in JSON format.
