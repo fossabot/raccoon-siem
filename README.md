@@ -9,10 +9,11 @@ Use [releases](https://github.com/tephrocactus/raccoon-siem/releases) instead.
   * [Collector](#collector)
   * [Correlator](#correlator)
   * [Core](#core)
+  * [Console](#console)
   * [Bus](#bus)
   * [Active lists storage](#active-lists-storage)
   * [Event storage](#event-storage)
-  * [Console](#console)
+ *  [SIEM architecture overview](#siem-architecture-overview)
 
 ## Components overview
 
@@ -78,7 +79,7 @@ via [Core](#core)
 
 Currently, Raccoon is using [Elasticsearch](https://www.elastic.co/products/elasticsearch) to provide event storage functionality.
 
-## Architecture overview
+## SIEM architecture overview
 Raccoon SIEM has quite flexible architecture which can be simplified or extended to meet your needs. For example, if you don't need correlation, you can skip [correlator](#correlator) deployment. Or, in case you need some extra processing, you can attach your services to [Bus](#bus) or configure [collector](#collector)/[correlator](#correlator) to output events to your service or just fetch normalized events from [event storage](#event-storage).
 
 One common setup example might look like this:
