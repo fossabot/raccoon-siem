@@ -28,7 +28,7 @@ Collector is an executable which is responsible for:
 * Aggregation
 * Sending normalized events to various destinations, like storage and correlators
 
-*Development status: mostly complete. Additional functionality may be added.*
+*Development status: beta.*
 
 ### Correlator
 Correlator is an executable which is responsible for:
@@ -36,7 +36,7 @@ Correlator is an executable which is responsible for:
 * Executing user-defined actions, like active lists operations, notifications, calling external processes
 * Sending correlated events to various destinations, like storage and correlators
 
-*Development status: mostly complete. Additional functionality may be added.*
+*Development status: beta.*
 
 ### Core
 Core is an executable which is responsible for:
@@ -45,7 +45,7 @@ Core is an executable which is responsible for:
 * Event and active lists storage housekeeping
 * Providing REST API for [Console](#console) and your custom services
 
-*Development status: alpha stage.*
+*Development status: alpha.*
 
 ### Console
 Console is a GUI tool which allows you to:
@@ -54,7 +54,7 @@ Console is a GUI tool which allows you to:
 * Manage searches, users, assets, active lists and dictionaries
 * Create reports
 
-*Development status: alpha stage. [Github project](https://github.com/tephrocactus/raccoon-console).*
+*Development status: alpha. [Github project](https://github.com/tephrocactus/raccoon-console).*
 
 ### Bus
 Bus is an executable which is responsible for:
@@ -129,7 +129,6 @@ Dictionary is a component's local static data source filled by user which can be
 
 ### Active list
 Active list is a remote dynamic data source filled by user or correlation rule which can be used to represent some state (session tracking, host or user status and so on) or a as remote dictionary. Active list operations can take place within filters and actions.
-
 
 ### Destination
 Destination's goal is to send normalized events to various endpoints. For example, to event storage or correlators.
