@@ -42,7 +42,7 @@ Core is an executable which is responsible for:
 * Configuration management and deployment
 * Asset management
 * Event and active lists storage housekeeping
-* Providing REST API for [Raccoon console](https://github.com/tephrocactus/raccoon-console) and your custom services
+* Providing REST API for [Console](#console) and your custom services
 
 *Development status: Alpha stage.*
 
@@ -73,8 +73,8 @@ Currently, Raccoon is using [Redis](https://redis.io/) to provide active lists f
 ### Event storage
 Event storage is an executable which is responsible for:
 * Storing normalized events (base and correlated)
-* Providing search functionality for [Raccoon console](https://github.com/tephrocactus/raccoon-console)
-via [Raccoon Core](#core)
+* Providing search functionality for [Console](#console)
+via [Core](#core)
 
 Currently, Raccoon is using [Elasticsearch](https://www.elastic.co/products/elasticsearch) to provide event storage functionality.
 
