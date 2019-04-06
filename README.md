@@ -58,6 +58,7 @@ Currently, Raccoon is using [Redis](https://redis.io/) to provide active lists f
 Event storage is an executable which is responsible for:
 * Storing normalized events (base and correlated)
 * Providing search functionality for [Raccoon console](https://github.com/tephrocactus/raccoon-console)
+via [Raccoon Core](#core)
 
 Currently, Raccoon is using [Elasticsearch](https://www.elastic.co/products/elasticsearch) to provide event storage functionality.
 
