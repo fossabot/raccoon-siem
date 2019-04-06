@@ -220,8 +220,8 @@ For example, to [event storage](#event-storage) or [correlators](#correlator).
 It can be used whithin [collector](#collector) and [correlator](#correlator).
 
 > Currently implemented destinations:
-> * Elasticsearch ([event storage](#event-storage))
-> * NATS ([bus](#bus))
+> * [Elasticsearch](https://www.elastic.co/products/elasticsearch) ([event storage](#event-storage))
+> * [NATS](https://nats.io) ([bus](#bus))
 
 > TODO:
 > * [Kafka](https://kafka.apache.org/)
