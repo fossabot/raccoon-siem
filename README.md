@@ -33,7 +33,7 @@ Collector is an executable which is responsible for:
 ### Correlator
 Correlator is an executable which is responsible for:
 * Real time correlation of normalized events (security incidents detection)
-* Executing user-defined actions, like active lists operations, notifications, calling external processes
+* Executing user-defined actions: active lists operations, notifications, external process calls
 * Sending correlated events to various destinations, like storage and correlators
 
 *Development status: beta.*
