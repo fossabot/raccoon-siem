@@ -71,6 +71,8 @@ Console is a GUI tool which allows:
 Currently, [console](https://github.com/tephrocactus/raccoon-console) is in early development stage.
 
 ## Architecture overview
+Raccoon SIEM has quite flexible architecture which can be simplified or extended to meet user's needs.
+One common example might look like this:
 
 ![Architecture overview](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/example_arch.png)
 
