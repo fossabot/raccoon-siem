@@ -73,8 +73,28 @@ Filter can be used whithin [collector](#collector) and [correlator](#correlator)
 * Drop undesired (noisy) events
 * Provide event selection mechanism for enrichment, aggregation and correlation rules.
 
-### Enrichment
-Enrichment can be used whithin [collector](#collector) and [correlator](#correlator) to fill normalized events with additional data: constants, active list and dictionary records, event fields.
+### Enrichment rule
+Enrichment rule can be used whithin [collector](#collector) and [correlator](#correlator) to fill normalized events with additional data which can be taken from: constants, active list and dictionary records, event fields and third-party systems.
+
+### Mutation rule
+Mutation rule can be used within enrichment rules to alter values of event fields in a various ways.
+
+### Aggregation rule
+Aggregation rule can be used whithin [collector](#collector) to represent multiple identical or similar normalized events as single event with abillity to sum or concatenate values of original event fields. This technique may drammaticaly minimize collector output. 
+
+### Correlation rule
+Correlation rule can be used whithin [correlator](#correlator) to describe the signature of information security incidents.
+That signature can be based on single or multiple normalized events.
+
+### Action
+Action allow user to react to correlation rule triggers: enrich correlated events, interact with active lists and third-party systems, send notifications, call executables and so on.
+
+### Dictionary
+Dictionary is a component's local static data source filled by user which can be used within enrichment rules to alter the values of event fields.
+
+### Active list
+Active list is a remote dynamic data source filled by user or correlation rule which can be used to represent some state (session tracking, host or user status and so on) or a as remote dictionary. Active list operations can take place within filters and actions.
+
 
 ### Destination
 Destination's goal is to send normalized events to various endpoints. For example, to event storage or correlators.
