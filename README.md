@@ -128,7 +128,7 @@ Mapping rule is used to describe a relation between raw log field (or [active li
 ### Enrichment rule
 Enrichment rule can be used whithin [collector](#collector) and [correlator](#correlator) to fill [normalized events](#normalized-event) with additional data which can be taken from: 
 constants, 
-[active list](#active-list) and [
+[active list](#active-list) and
 [dictionary](#dictionary) records, 
 [normalized event](#normalized-event) fields and 
 third-party systems.
