@@ -63,10 +63,10 @@ via [Raccoon Core](#core)
 Currently, Raccoon is using [Elasticsearch](https://www.elastic.co/products/elasticsearch) to provide event storage functionality.
 
 ### Console
-Console is a GUI tool which allows:
+Console is a GUI tool which allows you to:
 * Compose and deploy configuration
 * Search for events
-* Manage users, assets, active lists and dictionaries
+* Manage searches, users, assets, active lists and dictionaries
 * Create reports
 
 Currently, [console](https://github.com/tephrocactus/raccoon-console) is in early development stage.
