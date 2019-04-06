@@ -32,6 +32,7 @@ since master branch is unstable.
   * [Destination](#destination)
 * [Architecture overview](#architecture-overview)
 * [Collector processing flow](#collector-processing-flow)
+* [Correlator processing flow](#correlator-processing-flow)
 
 ## Components overview
 
@@ -248,3 +249,13 @@ Every [aggregation rule](#aggregation-rule) can have a [filter](#filter) in fron
 Otherwise it will be sent after the aggregation timeout or threshold exceeded. 
 
 ![Collector processing flow](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/collector_processing_flow.png)
+
+## Correlator processing flow
+1. First of all, [correlator](#correlator) needs to receive [normalized events](#normalized-event) via [connector](#connector).
+2. After [normalized event](#normalized-event) was deserialized it is passed through defined [correlation rules](#correlation-rule). Every [correlation rule](#correlation-rule) can have single or multiple event selectors with [filter](#filter) on-board.
+3. If [normalized event](#normalized-event) wasn't selected by any of [correlation rules](#correlation-rule), it is dropped. We assume that [collector](#collector) has already put [base events](#normalized-event) to the [event storage](#event-storage).
+4. If [correlated event](#normalized-event) was created by any of [correlation rules](#correlation-rule), it is linked with [base events](#normalized-event) and sent to each [destination](#destination) defined by user immediately. [Base events](#normalized-event) itself are dropped.
+
+![Correlator processing flow](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/correlator_processing_flow.png)
+
+
