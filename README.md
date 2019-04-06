@@ -50,8 +50,7 @@ Correlator is an executable which is responsible for:
 * Real time correlation of [normalized events](#normalized-event) (security incidents detection)
 * Executing user-defined [actions](#action): 
 [active lists](#active-list) operations, 
-[notifications](#notification),
-third-party process calls
+notifications, third-party process calls
 * Sending [correlated events](#normalized-event) to various [destinations](#destination)
 
 > Development status: beta.
