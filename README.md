@@ -31,6 +31,7 @@ since master branch is unstable.
   * [Active list](#active-list)
   * [Destination](#destination)
 * [Architecture overview](#architecture-overview)
+* [Collector processing flow](#collector-processing-flow)
 
 ## Components overview
 
@@ -162,3 +163,6 @@ Raccoon SIEM has quite flexible architecture which can be simplified or extended
 One common setup example might look like this:
 
 ![Architecture overview](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/architecture_overview.png)
+
+## Collector processing flow
+![Collector processing flow](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/collector_processing_flow.png)
