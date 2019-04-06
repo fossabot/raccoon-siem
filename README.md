@@ -62,7 +62,7 @@ Event storage is an executable which is responsible for:
 Currently, we are using [Elasticsearch](https://www.elastic.co/products/elasticsearch) to provide event storage functionality.
 
 ### Console
-Console is a GUI tool for information security analytics, which allows:
+Console is a GUI tool which allows:
 * Compose and deploy configuration
 * Search for events
 * Manage users, assets, active lists and dictionaries
