@@ -162,4 +162,4 @@ Raccoon SIEM has quite flexible architecture which can be simplified or extended
 
 One common setup example might look like this:
 
-![Architecture overview](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/example_arch.png)
+![Architecture overview](https://github.com/tephrocactus/raccoon-siem/blob/master/docs/architecture_overview.png)
