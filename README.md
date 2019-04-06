@@ -252,8 +252,8 @@ Otherwise it will be sent after the aggregation timeout or threshold exceeded.
 
 ## Correlator processing flow
 1. First of all, [correlator](#correlator) needs to receive [normalized events](#normalized-event) via [connector](#connector).
-1. After [normalized event](#normalized-event) was deserialized it is passed to one of the processing workers in a round-robin fashion.
-1. Next, [normalized event](#normalized-event) is passed through defined [correlation rules](#correlation-rule). Every [correlation rule](#correlation-rule) can have single or multiple event selectors with [filter](#filter) on-board.
+1. After [normalized event](#normalized-event) was deserialized, it is passed to one of the processing workers in a round-robin fashion.
+1. Inside processing worker [normalized event](#normalized-event) is passed through defined [correlation rules](#correlation-rule). Every [correlation rule](#correlation-rule) can have single or multiple event selectors with [filter](#filter) on-board.
 1. If [normalized event](#normalized-event) wasn't selected by any of [correlation rules](#correlation-rule), it is dropped. We assume that [collector](#collector) has already put [base events](#normalized-event) to the [event storage](#event-storage).
 1. If [correlated event](#normalized-event) was created by any of [correlation rules](#correlation-rule), it is linked with [base events](#normalized-event) and sent to each [destination](#destination) defined by user immediately. [Base events](#normalized-event) itself are dropped.
 
