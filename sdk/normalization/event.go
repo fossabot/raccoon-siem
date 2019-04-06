@@ -29,6 +29,9 @@ const (
 	DefaultEventFieldsHash = "_"
 )
 
+// Normalized event.
+// Tag "storage_type" represents field's type in elasticsearch.
+// Tag "set" indicates that field can be set by user.
 type Event struct {
 	ID                         string   `storage_type:"keyword"`
 	Tag                        string   `storage_type:"keyword"`
