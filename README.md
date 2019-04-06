@@ -123,7 +123,7 @@ Filter can be used whithin [collector](#collector) and [correlator](#correlator)
 [correlation rules](#correlation-rule).
 
 ### Mapping rule
-Mapping rule is used to tie up raw log field or [active list](#active-list) record field with [normalized event](#normalized-event) field.
+Mapping rule is used to describe a relation between raw log field (or [active list](#active-list) record field) and [normalized event](#normalized-event) field.
 
 ### Enrichment rule
 Enrichment rule can be used whithin [collector](#collector) and [correlator](#correlator) to fill [normalized events](#normalized-event) with additional data which can be taken from: 
