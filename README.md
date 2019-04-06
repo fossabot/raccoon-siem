@@ -108,7 +108,11 @@ Currently, Raccoon is using [Elasticsearch](https://www.elastic.co/products/elas
 ### Connector
 Connector's goal is to actively fetch or passively receive raw log records or [normalized events](#normalized-event). It can be used whithin [collector](#collector) and [correlator](#correlator).
 
-> Currently implemented connectors: tcp/udp listener, Netflow v9, NATS ([bus](#bus)) and Apache Kafka.   
+> Currently implemented connectors: 
+> * tcp/udp listener
+> * Netflow v9
+> * NATS ([bus](#bus))
+> * Apache Kafka
 
 ### Normalizer
 Normalier's goal is to parse and convert raw log records to [normalized event](#normalized-event) according to [mapping rules](#mapping-rule) provided by user. It can be used within [collector](#collector) only.
