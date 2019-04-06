@@ -8,7 +8,7 @@ import (
 )
 
 func Enrich(cfg Config, targetEvent *normalization.Event, sourceEvents ...*normalization.Event) {
-	if cfg.TriggerField != "" && cfg.TriggerValue != targetEvent.GetAnyField(cfg.TriggerField) {
+	if cfg.filter != nil && !cfg.filter.Pass(targetEvent) {
 		return
 	}
 

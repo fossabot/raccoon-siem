@@ -2,6 +2,7 @@ package enrichment
 
 import (
 	"fmt"
+	"github.com/tephrocactus/raccoon-siem/sdk/filters"
 	"github.com/tephrocactus/raccoon-siem/sdk/helpers"
 	"github.com/tephrocactus/raccoon-siem/sdk/mutation"
 	"github.com/tephrocactus/raccoon-siem/sdk/normalization"
@@ -21,9 +22,9 @@ type Config struct {
 	ValueSourceKind  string            `json:"valueSourceKind,omitempty"`
 	ValueSourceName  string            `json:"valueSourceName,omitempty"`
 	ValueSourceField string            `json:"valueSourceField,omitempty"`
-	TriggerField     string            `json:"triggerField,omitempty"`
-	TriggerValue     interface{}       `json:"triggerValue,omitempty"`
 	Mutation         []mutation.Config `json:"mutation,omitempty"`
+	Filter           *filters.Config   `json:"filters,omitempty"`
+	filter           *filters.Filter   `json:"-"`
 }
 
 func (r *Config) Validate() error {
@@ -31,17 +32,23 @@ func (r *Config) Validate() error {
 		return fmt.Errorf("enrichment: invalid event field %s", r.Field)
 	}
 
-	if r.TriggerField != "" {
-		r.TriggerValue = normalization.ToFieldType(r.TriggerField, r.TriggerValue)
-		if r.TriggerValue == nil {
-			return fmt.Errorf("enrichment: trigger value type must be convertable to field type")
-		}
-	}
-
 	for i := range r.Mutation {
 		if err := r.Mutation[i].Validate(); err != nil {
 			return err
 		}
+	}
+
+	if r.Filter != nil {
+		if err := r.Filter.Validate(); err != nil {
+			return err
+		}
+
+		filter, err := filters.NewFilter(*r.Filter)
+		if err != nil {
+			return err
+		}
+
+		r.filter = filter
 	}
 
 	switch r.ValueSourceKind {
