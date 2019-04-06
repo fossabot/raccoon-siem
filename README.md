@@ -66,7 +66,7 @@ Currently, we are using [Elasticsearch](https://www.elastic.co/products/elastics
 Connector's goal is to actively fetch or passively receive log records. It can be used whithin [collector](#collector) and [correlator](#correlator).
 
 ### Normalizer
-Normalier's goal is to parse and convert raw log records to normalized event according to mapping rules provided by user. It can be used within [collector](#collector) only.
+Normalier's goal is to parse and convert raw log records to normalized event according to mapping provided by user. It can be used within [collector](#collector) only.
 
 ### Filter
 Filter can be used whithin [collector](#collector) and [correlator](#correlator) to:
